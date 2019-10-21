@@ -21,6 +21,10 @@ import javax.imageio.ImageIO;
  */
 public class MakeCertPic {
  
+	/**
+	 * 存储随机产生的验证码
+	 */
+	private String str;
 	//验证码图片中可以出现的字符集
 	private char mapTable[] = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
 			'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
@@ -88,13 +92,33 @@ public class MakeCertPic {
 	
 	public MakeCertPic() {
 		try {
-			FileOutputStream fos = new FileOutputStream("./rec/Images/Verification Code/验证码.jpg");
-			String s = getCertPic(80, 30, fos);
-			System.out.println(s);
+			FileOutputStream fos = new FileOutputStream("./rec/Images/verificationcode/验证码.jpg");
+			str = getCertPic(60, 20, fos);
+			System.out.println(str);
 		} catch (FileNotFoundException e) {
 			// TODO 自动生成的 catch 块
 			e.printStackTrace();
 		}
+	}
+	
+	public String getStr() {
+		return str;
+	}
+	
+	/**
+	 * 重新产生一个验证码
+	 * @return 产生的随机验证码
+	 */
+	public String reMake() {
+		try {
+			FileOutputStream fos = new FileOutputStream("./rec/Images/verificationcode/验证码.jpg");
+			str = getCertPic(60, 20, fos);
+			System.out.println(str);
+		} catch (FileNotFoundException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+		}
+		return str;
 	}
 	
 	public static void main(String[] arg) {

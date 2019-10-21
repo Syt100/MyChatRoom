@@ -425,7 +425,7 @@ public class Login4 extends ResizeFrame {
 				panel_landing.setVisible(false);
 			}
 			if (e.getSource() == panel_register.btn_queren) {// 注册页面中的确认按钮
-				if(panel_register.checkEmpty() == false) {
+				if(panel_register.checkPass() == false) {
 					// 注册失败由Register类处理
 				}else {
 					layeredPane_main.setLayer(panel_register, 8);
