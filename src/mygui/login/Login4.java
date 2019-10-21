@@ -15,6 +15,8 @@ import javax.swing.JPasswordField;
 
 import mygui.friendslist2.MyFriendsList3;
 import mygui.friendslist2.ResizeFrame;
+import util.ConstantStatus;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -40,6 +42,7 @@ public class Login4 extends ResizeFrame {
 	private JLayeredPane layeredPane_main = new JLayeredPane();
 	private JPanel panel_operation;
 	private JPanel panel_landing;
+	private Register panel_register;
 	private JPanel panelUpMiniLabel;
 	private JLabel lblSetting;
 	private JLabel lblMini;
@@ -222,9 +225,8 @@ public class Login4 extends ResizeFrame {
 		panel_landing.add(btn_landing_quxiao);
 		/* 登录中面板的按钮 结束 */
 		
-		Register panel_register = new Register();
-		layeredPane_main.setLayer(panel_register, 8);
-		layeredPane_main.add(panel_register);
+		/* 注册账号  开始*/
+		/* 注册账号  结束*/
 
 		lbl_zhanghao = new JLabel("");
 		lbl_zhanghao.setIcon(new ImageIcon(Login4.class.getResource("/Images/qqIcon/qqnum_normal.png")));
@@ -307,6 +309,9 @@ public class Login4 extends ResizeFrame {
 		// btn_erweima.setBorderPainted(false);// 去除边框
 		// btn_erweima.setMargin(new Insets(0, 0, 0, 0));// 让按钮随按钮上的图案变化
 		panel_operation.add(lbl_erweima);
+		panel_register = new Register();
+		layeredPane_main.setLayer(panel_register, 8);
+		layeredPane_main.add(panel_register);
 	}
 
 	// 焦点事件
@@ -391,10 +396,11 @@ public class Login4 extends ResizeFrame {
 					}, 3000);// 延迟x毫秒后启动
 				}
 			}
+			
 		}
 
 		@Override
-		public void mousePressed(MouseEvent e) {
+		public void mousePressed(MouseEvent e) {// 鼠标按下
 			if (e.getSource() == lbl_erweima) {
 				lbl_erweima
 						.setIcon(new ImageIcon(getClass().getResource("/Images/qqIcon/corner_right_normal_down.png")));
@@ -403,7 +409,7 @@ public class Login4 extends ResizeFrame {
 		}
 
 		@Override
-		public void mouseReleased(MouseEvent e) {
+		public void mouseReleased(MouseEvent e) {// 鼠标松开
 			if (e.getSource() == lbl_erweima) {
 				lbl_erweima.setIcon(new ImageIcon(getClass().getResource("/Images/qqIcon/corner_right_hover.png")));
 			}
@@ -412,6 +418,26 @@ public class Login4 extends ResizeFrame {
 			}
 			if (e.getSource() == lblMini) {
 				frame.setExtendedState(Frame.ICONIFIED);
+			}
+			if (e.getSource() == btn_zhucezhanghao) {
+				layeredPane_main.setLayer(panel_register, 100);
+				panel_operation.setVisible(false);
+				panel_landing.setVisible(false);
+			}
+			if (e.getSource() == panel_register.btn_queren) {// 注册页面中的确认按钮
+				if(panel_register.checkEmpty() == false) {
+					// 注册失败由Register类处理
+				}else {
+					layeredPane_main.setLayer(panel_register, 8);
+				    panel_operation.setVisible(true);
+				    panel_landing.setVisible(true);
+				}
+			}
+			if (e.getSource() == panel_register.btn_quxiao) {// 注册页面中的取消按钮
+				panel_register.clean();//清空输入框的内容
+				layeredPane_main.setLayer(panel_register, 8);
+				panel_operation.setVisible(true);
+				panel_landing.setVisible(true);
 			}
 		}
 
@@ -438,6 +464,9 @@ public class Login4 extends ResizeFrame {
 				panelUpMiniLabel.repaint();
 				panelUpMiniLabel.setBackground(new Color(255, 255, 255, 100));
 			}
+			if (e.getSource() == lblSetting) {
+				lblSetting.setIcon(new ImageIcon(getClass().getResource("/Images/qqIcon/btn_set_hover.png")));
+			}
 		}
 
 		@Override
@@ -461,6 +490,9 @@ public class Login4 extends ResizeFrame {
 				panelUpMiniLabel.setOpaque(false);
 				panelUpMiniLabel.repaint();
 			}
+			if (e.getSource() == lblSetting) {
+				lblSetting.setIcon(new ImageIcon(getClass().getResource("/Images/qqIcon/btn_set_normal.png")));
+			}
 		}
 
 	}
@@ -472,6 +504,9 @@ public class Login4 extends ResizeFrame {
 		passwordField_mima.addFocusListener(new MyFocusListener());
 	}
 
+	/**
+	 * 初始化鼠标事件
+	 */
 	private void initMyMouseListener() {
 		MyMouseListener mos = new MyMouseListener();
 		btn_zhaohuimima.addMouseListener(mos);
@@ -479,7 +514,12 @@ public class Login4 extends ResizeFrame {
 		lbl_erweima.addMouseListener(mos);
 		lblClose.addMouseListener(mos);
 		lblMini.addMouseListener(mos);
+		lblSetting.addMouseListener(mos);
 		btn_denglu.addMouseListener(mos);
+		btn_zhucezhanghao.addMouseListener(mos);
+		panel_register.addMouseListener(mos);
+		panel_register.btn_queren.addMouseListener(mos);
+		panel_register.btn_quxiao.addMouseListener(mos);
 	}
 
 	private int judgeLoginStatus() {
