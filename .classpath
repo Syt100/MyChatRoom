@@ -18,5 +18,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/MyQQ/lib/dom4j-2.1.1-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/jaxen-1.1-beta-6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

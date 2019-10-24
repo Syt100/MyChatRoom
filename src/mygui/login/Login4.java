@@ -16,6 +16,7 @@ import javax.swing.JPasswordField;
 import mygui.friendslist2.MyFriendsList3;
 import mygui.friendslist2.ResizeFrame;
 import util.ConstantStatus;
+import util.XMLOperation;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -24,6 +25,9 @@ import javax.swing.JComboBox;
 
 import java.awt.BorderLayout;
 import javax.swing.border.EmptyBorder;
+
+import bean.Users;
+
 import java.awt.SystemColor;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -539,10 +543,21 @@ public class Login4 extends ResizeFrame {
 
 		if (account.length() == 0 || password.length == 0) {
 			return 1;
-		} else if (account.equals(designate_account) && password_1.equals(designate_password)) {
+		} else if (checkLogin(account, password_1)) {
+			//account.equals(designate_account) && password_1.equals(designate_password)
 			return 2;
 		} else {
 			return 3;
 		}
+	}
+	
+	private boolean checkLogin(String name, String password) {
+		Users users = new Users(name, password);
+		if(users.isAccountExit(users)) {
+			if(new XMLOperation().getAccountPassWord(name).equals(password)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

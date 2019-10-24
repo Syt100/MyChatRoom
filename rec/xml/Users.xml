@@ -12,5 +12,9 @@
   <user index="3"> 
     <name>john</name>  
     <password>www</password> 
+  </user>  
+  <user index="4"> 
+    <name>jhn</name>  
+    <password>zzz</password> 
   </user> 
 </users>
