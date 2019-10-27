@@ -19,5 +19,10 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/jaxen-1.1-beta-6.jar"/>
+	<classpathentry kind="lib" path="lib/beautyeye_lnf.jar" sourcepath="lib/beautyeye-3.7.zip">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/MyQQ/lib/beautyeye-3.7.zip!/beautyeye-3.7/doc/api_doc"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
