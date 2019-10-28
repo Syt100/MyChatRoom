@@ -29,6 +29,8 @@ import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 import javax.swing.tree.TreePath;
 
+import mygui.frameutil.ResizeFrame;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;

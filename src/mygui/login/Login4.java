@@ -1,34 +1,12 @@
 package mygui.login;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.EventQueue;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Frame;
-import java.awt.Graphics;
-
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-
-import mygui.friendslist2.MyFriendsList3;
-import mygui.friendslist2.ResizeFrame;
-import util.ConstantStatus;
-import util.XMLOperation;
-
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-
-import java.awt.BorderLayout;
-import javax.swing.border.EmptyBorder;
-
-import bean.Users;
-
 import java.awt.SystemColor;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -37,35 +15,51 @@ import java.awt.event.MouseEvent;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.SwingConstants;
-import java.awt.FlowLayout;
+import javax.swing.border.EmptyBorder;
 
-public class Login4 extends ResizeFrame {
+import bean.Users;
+import mygui.frameutil.BackgroundJPanel;
+import mygui.frameutil.ResizeFrame;
+import mygui.friendslist2.MyFriendsList3;
+import util.XMLOperation;
+
+public class Login4 {
 
 	private ResizeFrame frame = new ResizeFrame();
-	private JPanel content = new JPanel();
+	private BackgroundJPanel content;
+	protected ImageIcon backGroundImgIcon = new ImageIcon(getClass().getResource("/Images/source/img_0.png"));
+	private JLabel lblSetting;
+	private JLabel lblMini;
+	private JLabel lblClose;
+	private JPanel panelUpMiniLabel;
+	private JPanel panelUpCloseLabel;
+	private JPanel panel_header;
 	private JLayeredPane layeredPane_main = new JLayeredPane();
 	private JPanel panel_operation;
 	private JPanel panel_landing;
 	private Register panel_register;
 	private QRcode panel_qrcode = new QRcode();
-	private JPanel panelUpMiniLabel;
-	private JLabel lblSetting;
-	private JLabel lblMini;
-	private JLabel lblClose;
-	private JPanel panel_header;
+	private RetrievePassword panel_retrievePassword;
 
-	private JPanel panelUpCloseLabel;
-	private JPanel content_1;
-	protected ImageIcon backGroundImgIcon = new ImageIcon(getClass().getResource("/Images/source/img_0.png"));
-	private JComboBox<String> comboBox_zhanghao;
-	private JPasswordField passwordField_mima;
 	private JLabel lbl_zhanghao;
 	private JLabel lbl_mima;
+	private JComboBox<String> comboBox_zhanghao;
+	private JPasswordField passwordField_mima;
 	private JButton btn_zhaohuimima;
 	private JButton btn_zhucezhanghao;
-	private JLabel lbl_erweima;
 	private JButton btn_denglu;
+	private JLabel lbl_erweima;
 	private JLabel lbl_tips;
 
 	/**
@@ -75,8 +69,7 @@ public class Login4 extends ResizeFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Login4 window = new Login4();
-					// window.frame.setVisible(true);
+					new Login4();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -89,7 +82,7 @@ public class Login4 extends ResizeFrame {
 	 */
 	public Login4() {
 		frame.setBounds(100, 100, 430, 330);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);// 在这里无效，因为去除了窗口装饰
 		initBackGround();
 		initialize();
 		initMyFocusListener();
@@ -103,35 +96,20 @@ public class Login4 extends ResizeFrame {
 	private void initBackGround() {
 		frame.setUndecorated(true);// 将原始的边框去掉
 		frame.setLocationRelativeTo(null);// 设置窗口打开位置居中
-		content_1 = new JPanel() {
-			@Override
-			protected void paintComponent(Graphics g) {
-				// 这一句可以清除之前绘制的图像，在这个例子中看不出来效果，若是java做画图板的程序就能看出来
-				super.paintComponent(g);
-				// 此方法有很多种，看的眼花缭乱，了解参数了就好多了，这里说一下基本的
-				// 1：image对象
-				// 2：重绘的起始横坐标
-				// 3：重绘的起始纵坐标
-				// 4：重绘的宽度
-				// 5：重绘的高度
-				// 6：一个实现ImageObserver
-				// 接口的对象。它将该对象登记为一个图像观察者，因此当图像的任何新信息可见时它被通知。大多组件可以简单的指定this或null
-				// 组件可以指定this作为图像观察者的原因是Component类实现了ImageObserver接口。当图像数据被加载时它的实现调用repaint方法
-				g.drawImage(backGroundImgIcon.getImage(), 0, 0, getWidth(), getHeight(), null);
-			}
-		};
-		frame.setContentPane(content_1);
-		content_1.setLayout(new BorderLayout(0, 0));
+		content = new BackgroundJPanel(backGroundImgIcon);// 初始化内容面板，设置背景
+		frame.setContentPane(content);
+		content.setLayout(new BorderLayout(0, 0));
 	}
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		// 将内容面板分为两部分，这是上半部分
 		JPanel panel_up = new JPanel();
 		panel_up.setOpaque(false);
-		content_1.add(panel_up, BorderLayout.NORTH);
 		panel_up.setLayout(new BorderLayout(0, 0));
+		content.add(panel_up, BorderLayout.NORTH);
 
 		JLabel lbl_qqIcon = new JLabel();
 		lbl_qqIcon.setBorder(new EmptyBorder(7, 3, 0, 0));
@@ -165,8 +143,8 @@ public class Login4 extends ResizeFrame {
 
 		lblMini = new JLabel("－");
 		lblMini.setForeground(Color.WHITE);
-		panelUpMiniLabel.add(lblMini);
 		lblMini.setFont(new Font("宋体", Font.PLAIN, 18));
+		panelUpMiniLabel.add(lblMini);
 
 		panelUpCloseLabel = new JPanel();
 		panelUpCloseLabel.setOpaque(false);
@@ -175,13 +153,13 @@ public class Login4 extends ResizeFrame {
 
 		lblClose = new JLabel("×");
 		lblClose.setForeground(Color.WHITE);
-		panelUpCloseLabel.add(lblClose);
 		lblClose.setFont(new Font("宋体", Font.PLAIN, 18));
+		panelUpCloseLabel.add(lblClose);
 
 		JPanel panel_main = new JPanel();
 		panel_main.setOpaque(false);
-		content_1.add(panel_main, BorderLayout.CENTER);
 		panel_main.setLayout(null);
+		content.add(panel_main, BorderLayout.CENTER);
 		
 		// 头像面板，放头像
 		panel_header = new JPanel();
@@ -201,22 +179,22 @@ public class Login4 extends ResizeFrame {
 		JLabel lbl_light = new JLabel("");
 		lbl_light.setHorizontalAlignment(SwingConstants.CENTER);
 		lbl_light.setBounds(0, 0, 98, 98);
-		panel_header.add(lbl_light);
 		lbl_light.setIcon(new ImageIcon(Login4.class.getResource("/Images/qqIcon/head_bkg_shadow.png")));
+		panel_header.add(lbl_light);
 
 		// 分层面板
 		layeredPane_main.setBounds(0, 0, 430, 281);
 		layeredPane_main.setBackground(Color.WHITE);
-		panel_main.add(layeredPane_main);
 		layeredPane_main.setLayout(null);
+		panel_main.add(layeredPane_main);
 
 		// 主要操作的面板，用于填写账号密码等
 		panel_operation = new JPanel();
 		layeredPane_main.setLayer(panel_operation, 10);
 		panel_operation.setBounds(0, 75, 430, 206);
 		panel_operation.setBackground(Color.WHITE);
-		layeredPane_main.add(panel_operation);
 		panel_operation.setLayout(null);
+		layeredPane_main.add(panel_operation);
 
 		// 显示登录中
 		/* 登录中面板的按钮 开始 */
@@ -255,6 +233,12 @@ public class Login4 extends ResizeFrame {
 		layeredPane_main.setLayer(panel_qrcode, 7);
 		layeredPane_main.add(panel_qrcode);
 		/* 二维码登录面板  结束*/
+		
+		/* 找回密码面板 开始*/
+		panel_retrievePassword = new RetrievePassword();
+		layeredPane_main.setLayer(panel_retrievePassword, 6);
+		layeredPane_main.add(panel_retrievePassword);
+		/* 找回密码面板 结束*/
 
 		lbl_zhanghao = new JLabel("");
 		lbl_zhanghao.setIcon(new ImageIcon(Login4.class.getResource("/Images/qqIcon/qqnum_normal.png")));
@@ -326,7 +310,6 @@ public class Login4 extends ResizeFrame {
 		btn_zhucezhanghao.setForeground(Color.GRAY);
 		btn_zhucezhanghao.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 12));
 		btn_zhucezhanghao.setBounds(0, 177, 85, 23);
-		// btnNewButton_2.setOpaque(false);
 		btn_zhucezhanghao.setContentAreaFilled(false);// 按钮透明
 		btn_zhucezhanghao.setBorderPainted(false);// 去除边框
 		panel_operation.add(btn_zhucezhanghao);
@@ -334,10 +317,7 @@ public class Login4 extends ResizeFrame {
 		lbl_erweima = new JLabel("");// 显示二维码
 		lbl_erweima.setIcon(new ImageIcon(Login4.class.getResource("/Images/qqIcon/corner_right_normal_breath.png")));
 		lbl_erweima.setBounds(395, 172, 22, 22);
-		// btn_erweima.setBorderPainted(false);// 去除边框
-		// btn_erweima.setMargin(new Insets(0, 0, 0, 0));// 让按钮随按钮上的图案变化
 		panel_operation.add(lbl_erweima);
-		
 	}
 
 	// 焦点事件
@@ -467,6 +447,14 @@ public class Login4 extends ResizeFrame {
 				setTop(panel_operation);
 				panel_header.setVisible(true);// 将头像面板设为可见
 			}
+			if (e.getSource() == btn_zhaohuimima) {// 找回密码按钮
+				setTop(panel_retrievePassword);
+				panel_header.setVisible(false);
+			}
+			if (e.getSource() == panel_retrievePassword.btn_return) {// 找回密码面板中的返回按钮
+				setTop(panel_operation);
+				panel_header.setVisible(true);// 将头像面板设为可见
+			}
 		}
 
 		@Override
@@ -549,6 +537,7 @@ public class Login4 extends ResizeFrame {
 		panel_register.btn_queren.addMouseListener(mos);
 		panel_register.btn_quxiao.addMouseListener(mos);
 		panel_qrcode.btn_return.addMouseListener(mos);
+		panel_retrievePassword.btn_return.addMouseListener(mos);
 	}
 	
 	/**
@@ -581,6 +570,11 @@ public class Login4 extends ResizeFrame {
 				layeredPane_main.setLayer(panel_qrcode,7);
 				System.out.println("panel_qrcode");
 			}
+			if(jc != panel_retrievePassword) {
+				panel_retrievePassword.setVisible(false);
+				layeredPane_main.setLayer(panel_retrievePassword,6);
+				System.out.println("panel_retrievePassword");
+			}
 		}
 	}
 
@@ -596,8 +590,8 @@ public class Login4 extends ResizeFrame {
 		password = passwordField_mima.getPassword();// 返回char类型密码
 		String password_1 = String.valueOf(password);// 把字符串类型的password转换为String
 
-		String designate_account = new String("xxy");// 默认正确的账号和密码组合
-		String designate_password = new String("123");
+//		String designate_account = new String("xxy");// 默认正确的账号和密码组合
+//		String designate_password = new String("123");
 
 		if (account.length() == 0 || password.length == 0) {
 			return 1;

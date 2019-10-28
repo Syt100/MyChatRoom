@@ -2,7 +2,7 @@ package test;
 
 import javax.swing.JFrame;
 
-import mygui.friendslist2.ResizeFrame;
+import mygui.frameutil.ResizeFrame;
 import mygui.friendslist2.TestDialogMenu;
 
 import java.awt.Window.Type;

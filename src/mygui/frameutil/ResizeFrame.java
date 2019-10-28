@@ -2,7 +2,7 @@
  * 继承JFrame类，实现去掉窗口标题栏后实现拖动窗体来移动位置、
  * 拖动鼠标调整窗口大小。
  */
-package mygui.friendslist2;
+package mygui.frameutil;
 
 import javax.swing.*;
 import java.awt.*;
