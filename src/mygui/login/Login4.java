@@ -463,6 +463,10 @@ public class Login4 extends ResizeFrame {
 				setTop(panel_operation);
 				panel_header.setVisible(true);
 			}
+			if (e.getSource() == panel_qrcode.btn_return) {// 二维码页面的返回按钮
+				setTop(panel_operation);
+				panel_header.setVisible(true);// 将头像面板设为可见
+			}
 		}
 
 		@Override
@@ -544,6 +548,7 @@ public class Login4 extends ResizeFrame {
 		panel_register.addMouseListener(mos);
 		panel_register.btn_queren.addMouseListener(mos);
 		panel_register.btn_quxiao.addMouseListener(mos);
+		panel_qrcode.btn_return.addMouseListener(mos);
 	}
 	
 	/**

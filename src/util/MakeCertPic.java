@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.util.Random;
  
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
  
 /**
  * 产生验证码图片，并保存在./rec/Images/Verification Code/验证码.jpg
@@ -21,11 +22,10 @@ import javax.imageio.ImageIO;
  */
 public class MakeCertPic {
  
-	/**
-	 * 存储随机产生的验证码
-	 */
+	/**存储随机产生的验证码*/
 	private String str;
-	//验证码图片中可以出现的字符集
+	
+	/** 验证码图片中可以出现的字符集*/
 	private char mapTable[] = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
 			'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
 			'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8',
@@ -36,9 +36,9 @@ public class MakeCertPic {
 	 * @param 	width 生产图片宽度
 	 * @param 	height 生产图片高度
 	 * @param 	os 页面输出流
-	 * @return	随机生产的验证码
+	 * @return	image 随机生产的验证码BufferedImage
 	 */
-	public String getCertPic(int width,int height,OutputStream os){
+	public BufferedImage getCertPic(int width, int height, OutputStream os){
 		//设定高度宽度默认值
 		if(width <= 0){
 			width = 60;
@@ -82,23 +82,31 @@ public class MakeCertPic {
 		}
 		//释放图形上下文
 		g.dispose();
-		try {
-			ImageIO.write(image, "JPEG", os);
-		} catch (IOException e) {
-			return "";
+		if (null != os) {
+			// 写入图片
+			try {
+				ImageIO.write(image, "JPEG", os);
+			} catch (IOException e) {
+				return null;
+			} 
 		}
-		return strEnsure;
+		this.str = strEnsure;
+		return image;
+	}
+	
+	/**
+	 * @param width 图片宽度
+	 * @param height 图片高度
+	 * @return ImageIcon 图片
+	 */
+	public ImageIcon getCertPic(int width, int height) {
+		BufferedImage image = getCertPic(width, height, null);
+		ImageIcon icon = new ImageIcon(image);
+		return icon;
 	}
 	
 	public MakeCertPic() {
-		try {
-			FileOutputStream fos = new FileOutputStream("./rec/Images/verificationcode/验证码.jpg");
-			str = getCertPic(60, 25, fos);
-			System.out.println(str);
-		} catch (FileNotFoundException e) {
-			// TODO 自动生成的 catch 块
-			e.printStackTrace();
-		}
+		
 	}
 	
 	public String getStr() {
@@ -112,7 +120,7 @@ public class MakeCertPic {
 	public String reMake() {
 		try {
 			FileOutputStream fos = new FileOutputStream("./rec/Images/verificationcode/验证码.jpg");
-			str = getCertPic(60, 25, fos);
+			getCertPic(60, 25, fos);
 			System.out.println(str);
 		} catch (FileNotFoundException e) {
 			// TODO 自动生成的 catch 块

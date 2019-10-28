@@ -111,18 +111,10 @@ public class Register extends JPanel {
 		add(textField_yanzheng);
 		tips.setVisible(false);
 		
-		// 显示验证码图片
-		try {
-			icon = new ImageIcon(ImageIO.read(new File("./rec/Images/verificationcode/验证码.jpg")));
-		} catch (IOException e) {
-			// TODO 自动生成的 catch 块
-			e.printStackTrace();
-		}
-		//lbl_tupian.setIcon(new ImageIcon(Register.class.getResource("/Images/verificationcode/验证码.jpg")));
-		lbl_tupian.setIcon(icon);
-		lbl_tupian.setLocation(250, 170);
-		lbl_tupian.setSize(60, 25);
+		lbl_tupian.setBounds(250, 170, 60, 25);
+		refresh();// 刷新验证码
 		add(lbl_tupian);
+		
 		lbl_shuaxin.setForeground(Color.GRAY);
 		lbl_shuaxin.setHorizontalAlignment(SwingConstants.CENTER);
 		lbl_shuaxin.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 12));
@@ -135,14 +127,7 @@ public class Register extends JPanel {
 			public void mouseReleased(MouseEvent e) {
 				// TODO 自动生成的方法存根
 				super.mouseReleased(e);
-				yanzhengma.reMake();
-				try {
-					icon = new ImageIcon(ImageIO.read(new File("./rec/Images/verificationcode/验证码.jpg")));
-				} catch (IOException e1) {
-					// TODO 自动生成的 catch 块
-					e1.printStackTrace();
-				}
-				lbl_tupian.setIcon(icon);
+				refresh();
 			}
 
 			@Override
@@ -239,5 +224,13 @@ public class Register extends JPanel {
 		}
 		return false;
 	}
-	
+
+	/**
+	 * 刷新验证码
+	 */
+	private void refresh() {
+		icon = yanzhengma.getCertPic(lbl_tupian.getWidth(), lbl_tupian.getHeight());
+		lbl_tupian.setIcon(icon);
+		System.out.println(yanzhengma.getStr());
+	}
 }

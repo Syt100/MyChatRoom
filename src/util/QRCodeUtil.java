@@ -23,6 +23,11 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
  
+/**
+ * 二维码工具类，最后一个方法为示例
+ * @author xuxin
+ *
+ */
 public class QRCodeUtil {
 	private static final String CHARSET = "utf-8";
 	private static final String FORMAT_NAME = "JPG";
@@ -33,6 +38,7 @@ public class QRCodeUtil {
 	// LOGO高度
 	private static final int HEIGHT = 60;
  
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static BufferedImage createImage(String content, String imgPath, boolean needCompress) throws Exception {
 		Hashtable hints = new Hashtable();
 		hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
@@ -102,6 +108,12 @@ public class QRCodeUtil {
 		BufferedImage image = QRCodeUtil.createImage(content, imgPath, needCompress);
 		return image;
 	}
+	
+	// QRcode类中采用此方法
+	public static BufferedImage encode(String content) throws Exception {
+		BufferedImage image = QRCodeUtil.createImage(content, null, false);
+		return image;
+	}
  
 	public static void mkdirs(String destPath) {
 		File file = new File(destPath);
@@ -153,6 +165,30 @@ public class QRCodeUtil {
  
 	public static String decode(String path) throws Exception {
 		return QRCodeUtil.decode(new File(path));
+	}
+	
+	/**
+	 * 示例方法
+	 */
+	@SuppressWarnings("unused")
+	private static void createMyQRcode() {
+		try {
+			// 存放在二维码中的内容
+			String text = "我是小铭";
+			// 嵌入二维码的图片路径
+			// String imgPath = "./rec/dog.jpg";
+			// 生成的二维码的路径及名称
+			String destPath = "./rec/Images/verificationcode/jam.jpg";
+			// 生成二维码
+			QRCodeUtil.encode(text, null, destPath, true);
+			// 解析二维码
+			String str = QRCodeUtil.decode(destPath);
+			// 打印出解析出的内容
+			System.out.println(str);
+		} catch (Exception e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+		}
 	}
  
 }
