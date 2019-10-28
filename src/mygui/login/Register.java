@@ -45,9 +45,10 @@ public class Register extends JPanel {
 	 * Create the panel.
 	 */
 	public Register() {
+		setOpaque(false);
 		setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, new Color(255, 255, 255), new Color(160, 160, 160)), "\u7528\u6237\u6CE8\u518C", TitledBorder.LEADING, TitledBorder.TOP, null, Color.WHITE));
 		setLayout(null);
-		setSize(430, 206);
+		setSize(430, 281);
 		init();
 	}
 	
@@ -55,45 +56,45 @@ public class Register extends JPanel {
 		JLabel lbl_zhanghao = new JLabel("账号");
 		lbl_zhanghao.setHorizontalAlignment(SwingConstants.CENTER);
 		lbl_zhanghao.setFont(new Font("宋体", Font.PLAIN, 14));
-		lbl_zhanghao.setSize(50, 20);
+		lbl_zhanghao.setSize(50, 25);
 		lbl_zhanghao.setLocation(70, 40);
 		add(lbl_zhanghao);
 		
-		textField_zhanghao.setBounds(130, 40, 220, 20);
+		textField_zhanghao.setBounds(130, 40, 220, 25);
 		add(textField_zhanghao);
 		textField_zhanghao.setColumns(10);
 		
 		JLabel label_mima = new JLabel("密码");
 		label_mima.setHorizontalAlignment(SwingConstants.CENTER);
 		label_mima.setFont(new Font("宋体", Font.PLAIN, 14));
-		label_mima.setBounds(70, 70, 50, 20);
+		label_mima.setBounds(70, 83, 50, 25);
 		add(label_mima);
 		
 		
-		passField_mima.setLocation(130, 70);
-		passField_mima.setSize(220, 20);
+		passField_mima.setLocation(130, 83);
+		passField_mima.setSize(220, 25);
 		add(passField_mima);
 		
 		JLabel label = new JLabel("确认密码");
 		label.setHorizontalAlignment(SwingConstants.CENTER);
 		label.setFont(new Font("宋体", Font.PLAIN, 14));
-		label.setBounds(42, 100, 78, 20);
+		label.setBounds(42, 126, 78, 25);
 		add(label);
 		
-		passField_querenmima.setBounds(130, 100, 220, 20);
+		passField_querenmima.setBounds(130, 126, 220, 25);
 		add(passField_querenmima);
 		
-		btn_queren.setLocation(70, 170);
+		btn_queren.setLocation(60, 225);
 		btn_queren.setSize(60, 25);
 		add(btn_queren);
 		
-		btn_quxiao.setLocation(291, 170);
+		btn_quxiao.setLocation(290, 225);
 		btn_quxiao.setSize(60, 25);
 		add(btn_quxiao);
 		tips.setFont(new Font("宋体", Font.PLAIN, 14));
 		
 		tips.setHorizontalAlignment(SwingConstants.CENTER);
-		tips.setLocation(131, 170);
+		tips.setLocation(130, 225);
 		tips.setSize(156, 25);
 		tips.setForeground(Color.RED);
 		add(tips);
@@ -101,12 +102,12 @@ public class Register extends JPanel {
 		JLabel label_yanzheng = new JLabel("验证码");
 		label_yanzheng.setHorizontalAlignment(SwingConstants.CENTER);
 		label_yanzheng.setFont(new Font("宋体", Font.PLAIN, 14));
-		label_yanzheng.setBounds(55, 130, 65, 20);
+		label_yanzheng.setBounds(55, 169, 65, 25);
 		add(label_yanzheng);
 		
 		textField_yanzheng = new JTextField();
 		textField_yanzheng.setColumns(10);
-		textField_yanzheng.setBounds(130, 130, 110, 20);
+		textField_yanzheng.setBounds(130, 169, 110, 25);
 		add(textField_yanzheng);
 		tips.setVisible(false);
 		
@@ -119,14 +120,14 @@ public class Register extends JPanel {
 		}
 		//lbl_tupian.setIcon(new ImageIcon(Register.class.getResource("/Images/verificationcode/验证码.jpg")));
 		lbl_tupian.setIcon(icon);
-		lbl_tupian.setLocation(250, 130);
-		lbl_tupian.setSize(60, 20);
+		lbl_tupian.setLocation(250, 170);
+		lbl_tupian.setSize(60, 25);
 		add(lbl_tupian);
 		lbl_shuaxin.setForeground(Color.GRAY);
 		lbl_shuaxin.setHorizontalAlignment(SwingConstants.CENTER);
 		lbl_shuaxin.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 12));
 		
-		lbl_shuaxin.setBounds(320, 130, 30, 20);
+		lbl_shuaxin.setBounds(320, 174, 30, 20);
 		add(lbl_shuaxin);
 		// 点击后刷新验证码
 		lbl_shuaxin.addMouseListener(new MouseAdapter() {

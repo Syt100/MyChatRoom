@@ -24,5 +24,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/MyQQ/lib/beautyeye-3.7.zip!/beautyeye-3.7/doc/api_doc"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/zxing-core-3.1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

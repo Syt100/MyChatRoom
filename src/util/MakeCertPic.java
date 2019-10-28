@@ -93,7 +93,7 @@ public class MakeCertPic {
 	public MakeCertPic() {
 		try {
 			FileOutputStream fos = new FileOutputStream("./rec/Images/verificationcode/验证码.jpg");
-			str = getCertPic(60, 20, fos);
+			str = getCertPic(60, 25, fos);
 			System.out.println(str);
 		} catch (FileNotFoundException e) {
 			// TODO 自动生成的 catch 块
@@ -112,7 +112,7 @@ public class MakeCertPic {
 	public String reMake() {
 		try {
 			FileOutputStream fos = new FileOutputStream("./rec/Images/verificationcode/验证码.jpg");
-			str = getCertPic(60, 20, fos);
+			str = getCertPic(60, 25, fos);
 			System.out.println(str);
 		} catch (FileNotFoundException e) {
 			// TODO 自动生成的 catch 块

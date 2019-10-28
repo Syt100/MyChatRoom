@@ -22,6 +22,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 
 import java.awt.BorderLayout;
 import javax.swing.border.EmptyBorder;
@@ -47,10 +48,12 @@ public class Login4 extends ResizeFrame {
 	private JPanel panel_operation;
 	private JPanel panel_landing;
 	private Register panel_register;
+	private QRcode panel_qrcode = new QRcode();
 	private JPanel panelUpMiniLabel;
 	private JLabel lblSetting;
 	private JLabel lblMini;
 	private JLabel lblClose;
+	private JPanel panel_header;
 
 	private JPanel panelUpCloseLabel;
 	private JPanel content_1;
@@ -91,6 +94,9 @@ public class Login4 extends ResizeFrame {
 		initialize();
 		initMyFocusListener();
 		initMyMouseListener();
+		
+		setTop(panel_operation);
+		
 		frame.setVisible(true);
 	}
 
@@ -176,21 +182,30 @@ public class Login4 extends ResizeFrame {
 		panel_main.setOpaque(false);
 		content_1.add(panel_main, BorderLayout.CENTER);
 		panel_main.setLayout(null);
+		
+		// 头像面板，放头像
+		panel_header = new JPanel();
+		panel_header.setOpaque(false);
+		panel_header.setLayout(null);
+		panel_header.setBounds(166, 25, 98, 98);
+		panel_main.add(panel_header);
 
+		// 头像标签，用于存放用户头像
 		JLabel lbl_header = new JLabel("");
 		lbl_header.setHorizontalAlignment(SwingConstants.CENTER);
 		lbl_header.setIcon(new ImageIcon(Login4.class.getResource("/Images/3.png")));
-		lbl_header.setBounds(166, 25, 98, 98);
-		panel_main.add(lbl_header);
+		lbl_header.setBounds(0, 0, 98, 98);
+		panel_header.add(lbl_header);
 
+		// 头像周围的边框
 		JLabel lbl_light = new JLabel("");
 		lbl_light.setHorizontalAlignment(SwingConstants.CENTER);
-		lbl_light.setBounds(166, 25, 98, 98);
-		panel_main.add(lbl_light);
+		lbl_light.setBounds(0, 0, 98, 98);
+		panel_header.add(lbl_light);
 		lbl_light.setIcon(new ImageIcon(Login4.class.getResource("/Images/qqIcon/head_bkg_shadow.png")));
 
 		// 分层面板
-		layeredPane_main.setBounds(0, 75, 430, 206);
+		layeredPane_main.setBounds(0, 0, 430, 281);
 		layeredPane_main.setBackground(Color.WHITE);
 		panel_main.add(layeredPane_main);
 		layeredPane_main.setLayout(null);
@@ -198,7 +213,7 @@ public class Login4 extends ResizeFrame {
 		// 主要操作的面板，用于填写账号密码等
 		panel_operation = new JPanel();
 		layeredPane_main.setLayer(panel_operation, 10);
-		panel_operation.setBounds(0, 0, 430, 206);
+		panel_operation.setBounds(0, 75, 430, 206);
 		panel_operation.setBackground(Color.WHITE);
 		layeredPane_main.add(panel_operation);
 		panel_operation.setLayout(null);
@@ -209,7 +224,7 @@ public class Login4 extends ResizeFrame {
 		panel_landing.setOpaque(false);
 		panel_landing.setBackground(Color.WHITE);
 		layeredPane_main.setLayer(panel_landing, 9);
-		panel_landing.setBounds(0, 0, 430, 206);
+		panel_landing.setBounds(0, 75, 430, 206);
 		layeredPane_main.add(panel_landing);
 		panel_landing.setLayout(null);
 
@@ -229,8 +244,17 @@ public class Login4 extends ResizeFrame {
 		panel_landing.add(btn_landing_quxiao);
 		/* 登录中面板的按钮 结束 */
 		
-		/* 注册账号  开始*/
-		/* 注册账号  结束*/
+		/* 注册面板  开始*/
+		panel_register = new Register();
+		panel_register.setLocation(0, 0);
+		layeredPane_main.setLayer(panel_register, 8);
+		layeredPane_main.add(panel_register);
+		/* 注册面板  结束*/
+		
+		/* 二维码登录面板  开始*/
+		layeredPane_main.setLayer(panel_qrcode, 7);
+		layeredPane_main.add(panel_qrcode);
+		/* 二维码登录面板  结束*/
 
 		lbl_zhanghao = new JLabel("");
 		lbl_zhanghao.setIcon(new ImageIcon(Login4.class.getResource("/Images/qqIcon/qqnum_normal.png")));
@@ -313,9 +337,7 @@ public class Login4 extends ResizeFrame {
 		// btn_erweima.setBorderPainted(false);// 去除边框
 		// btn_erweima.setMargin(new Insets(0, 0, 0, 0));// 让按钮随按钮上的图案变化
 		panel_operation.add(lbl_erweima);
-		panel_register = new Register();
-		layeredPane_main.setLayer(panel_register, 8);
-		layeredPane_main.add(panel_register);
+		
 	}
 
 	// 焦点事件
@@ -371,8 +393,7 @@ public class Login4 extends ResizeFrame {
 					});
 					t.start();// 启动线程
 				} else if (judge == 2) {
-					layeredPane_main.setLayer(panel_operation, -1);
-					panel_operation.setVisible(false);// 将操作面板设为不可见，以显示登录中的透明背景
+					setTop(panel_landing);
 					
 					// 用计时器实现延迟
 					Timer timer = new Timer();// 实例化Timer类
@@ -414,8 +435,10 @@ public class Login4 extends ResizeFrame {
 
 		@Override
 		public void mouseReleased(MouseEvent e) {// 鼠标松开
-			if (e.getSource() == lbl_erweima) {
+			if (e.getSource() == lbl_erweima) {// 二维码按钮
 				lbl_erweima.setIcon(new ImageIcon(getClass().getResource("/Images/qqIcon/corner_right_hover.png")));
+				setTop(panel_qrcode);
+				panel_header.setVisible(false);// 将头像面板设为不可见
 			}
 			if (e.getSource() == lblClose) {
 				System.exit(0);
@@ -423,25 +446,22 @@ public class Login4 extends ResizeFrame {
 			if (e.getSource() == lblMini) {
 				frame.setExtendedState(Frame.ICONIFIED);
 			}
-			if (e.getSource() == btn_zhucezhanghao) {
-				layeredPane_main.setLayer(panel_register, 100);
-				panel_operation.setVisible(false);
-				panel_landing.setVisible(false);
+			if (e.getSource() == btn_zhucezhanghao) {// 注册按钮
+				setTop(panel_register);// 将注册页面显示出来，同时将其他页面设为不可见
+				panel_header.setVisible(false);
 			}
 			if (e.getSource() == panel_register.btn_queren) {// 注册页面中的确认按钮
 				if(panel_register.checkPass() == false) {
 					// 注册失败由Register类处理
-				}else {
-					layeredPane_main.setLayer(panel_register, 8);
-				    panel_operation.setVisible(true);
-				    panel_landing.setVisible(true);
+				}else {// 注册成功
+					setTop(panel_operation);
+					panel_header.setVisible(true);
 				}
 			}
 			if (e.getSource() == panel_register.btn_quxiao) {// 注册页面中的取消按钮
 				panel_register.clean();//清空输入框的内容
-				layeredPane_main.setLayer(panel_register, 8);
-				panel_operation.setVisible(true);
-				panel_landing.setVisible(true);
+				setTop(panel_operation);
+				panel_header.setVisible(true);
 			}
 		}
 
@@ -524,6 +544,39 @@ public class Login4 extends ResizeFrame {
 		panel_register.addMouseListener(mos);
 		panel_register.btn_queren.addMouseListener(mos);
 		panel_register.btn_quxiao.addMouseListener(mos);
+	}
+	
+	/**
+	 * 设置要显示的组件
+	 * @param jc 要设置可见为真的组件（面板）
+	 */
+	private void setTop(JComponent jc) {
+		if(jc instanceof JPanel) {
+			JPanel panel =(JPanel) jc;
+			panel.setVisible(true);
+			layeredPane_main.setLayer(jc, 101);
+			System.out.println("jc instanceof JPanel");
+			if(jc != panel_operation) {
+				panel_operation.setVisible(false);
+				layeredPane_main.setLayer(panel_operation, 10);
+				System.out.println("panel_operation");
+			}
+			if(jc != panel_landing) {
+				panel_landing.setVisible(false);
+				layeredPane_main.setLayer(panel_landing, 9);
+				System.out.println("panel_landing");
+			}
+			if(jc != panel_register) {
+				panel_register.setVisible(false);
+				layeredPane_main.setLayer(panel_register, 8);
+				System.out.println("panel_register");
+			}
+			if(jc != panel_qrcode) {
+				panel_qrcode.setVisible(false);
+				layeredPane_main.setLayer(panel_qrcode,7);
+				System.out.println("panel_qrcode");
+			}
+		}
 	}
 
 	private int judgeLoginStatus() {
