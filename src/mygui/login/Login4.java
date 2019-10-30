@@ -548,7 +548,7 @@ public class Login4 {
 		if(jc instanceof JPanel) {
 			JPanel panel =(JPanel) jc;
 			panel.setVisible(true);
-			layeredPane_main.setLayer(jc, 101);
+			layeredPane_main.setLayer(panel, 101);
 			System.out.println("jc instanceof JPanel");
 			if(jc != panel_operation) {
 				panel_operation.setVisible(false);
