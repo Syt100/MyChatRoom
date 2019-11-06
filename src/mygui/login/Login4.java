@@ -36,30 +36,54 @@ import util.XMLOperation;
 
 public class Login4 {
 
+	/** 可调大小窗体 */
 	private ResizeFrame frame = new ResizeFrame();
+	/** 内容面板，并可以设置背景图片 */
 	private BackgroundJPanel content;
-	protected ImageIcon backGroundImgIcon = new ImageIcon(getClass().getResource("/Images/source/img_0.png"));
+	/** 内容面板的背景图片 */
+	private ImageIcon backGroundImgIcon = new ImageIcon(getClass().getResource("/Images/source/img_0.png"));
+	/** 设置图标 */
 	private JLabel lblSetting;
+	/** 最小化图标 */
 	private JLabel lblMini;
+	/** 关闭窗口图标 */
 	private JLabel lblClose;
+	/** 放置最小化图标的面板，用来调节透明度 */
 	private JPanel panelUpMiniLabel;
+	/** 放置关闭图标的面板，用来调节透明度 */
 	private JPanel panelUpCloseLabel;
+	/** 放置头像的面板 */
 	private JPanel panel_header;
+	/** 分层面板，用于组织登录面板、注册面板、登录中面板、二维码登录面板、找回密码面板等显示的前后关系 */
 	private JLayeredPane layeredPane_main = new JLayeredPane();
+	/** 输入账号密码、点击登录等 */
 	private JPanel panel_operation;
+	/** 显示登录中 */
 	private JPanel panel_landing;
+	/** 注册面板 */
 	private Register panel_register;
+	/** 二维码面板 */
 	private QRcode panel_qrcode = new QRcode();
+	/** 找回密码面板 */
 	private RetrievePassword panel_retrievePassword;
 
+	/** 账号图标 */
 	private JLabel lbl_zhanghao;
+	/** 密码图标 */
 	private JLabel lbl_mima;
+	/** 账号输入框 */
 	private JComboBox<String> comboBox_zhanghao;
+	/** 密码输入框 */
 	private JPasswordField passwordField_mima;
+	/** 找回密码按钮 */
 	private JButton btn_zhaohuimima;
+	/** 注册账号按钮 */
 	private JButton btn_zhucezhanghao;
+	/** 登录按钮 */
 	private JButton btn_denglu;
+	/** 二维码图标 */
 	private JLabel lbl_erweima;
+	/** 显示提示信息，默认隐藏，按需显示 */
 	private JLabel lbl_tips;
 
 	/**
@@ -477,8 +501,8 @@ public class Login4 {
 			}
 			if (e.getSource() == lblMini) {
 				panelUpMiniLabel.setOpaque(true);
-				panelUpMiniLabel.repaint();
-				panelUpMiniLabel.setBackground(new Color(255, 255, 255, 100));
+				panelUpMiniLabel.setBackground(new Color(255, 255, 255, 50));
+				panelUpMiniLabel.updateUI();
 			}
 			if (e.getSource() == lblSetting) {
 				lblSetting.setIcon(new ImageIcon(getClass().getResource("/Images/qqIcon/btn_set_hover.png")));
