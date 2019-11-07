@@ -19,10 +19,13 @@ public class BackgroundJPanel extends JPanel {
 	 */
 	private static final long serialVersionUID = 8949644952601819627L;
 
+	/**
+	 * 填充整个面板的图片
+	 */
 	private Image backGroundImg;
 	
 	/**
-	 * 
+	 * 默认的无参构造方法
 	 */
 	public BackgroundJPanel() {
 		// TODO 自动生成的构造函数存根
@@ -30,25 +33,32 @@ public class BackgroundJPanel extends JPanel {
 	}
 	
 	/**
+	 * 用Image对象构造
 	 * @param backGroundImg
 	 */
 	public BackgroundJPanel(Image backGroundImg) {
 		this.backGroundImg = backGroundImg;
 	}
 
+	/**
+	 * 用ImageIcon对象构造
+	 * @param backGroundImgIcon
+	 */
 	public BackgroundJPanel(ImageIcon backGroundImgIcon) {
 		// TODO 自动生成的构造函数存根
 		this.backGroundImg = backGroundImgIcon.getImage();
 	}
 
 	/**
-	 * @return backGroundImg
+	 * 获取背景
+	 * @return backGroundImg Image对象
 	 */
 	public Image getBackGroundImg() {
 		return backGroundImg;
 	}
 
 	/**
+	 * 设置背景
 	 * @param backGroundImg 要设置的 backGroundImg
 	 */
 	public void setBackGroundImg(Image backGroundImg) {
