@@ -66,6 +66,8 @@ public class Login4 {
 	private QRcode panel_qrcode = new QRcode();
 	/** 找回密码面板 */
 	private RetrievePassword panel_retrievePassword;
+	/** 设置面板 */
+	private Setting panel_setting;
 
 	/** 账号图标 */
 	private JLabel lbl_zhanghao;
@@ -263,6 +265,12 @@ public class Login4 {
 		layeredPane_main.setLayer(panel_retrievePassword, 6);
 		layeredPane_main.add(panel_retrievePassword);
 		/* 找回密码面板 结束*/
+		
+		/* 设置面板 开始*/
+		panel_setting = new Setting();
+		layeredPane_main.setLayer(panel_retrievePassword, 5);
+		layeredPane_main.add(panel_setting);
+		/* 设置面板 结束*/
 
 		lbl_zhanghao = new JLabel("");
 		lbl_zhanghao.setIcon(new ImageIcon(Login4.class.getResource("/Images/qqIcon/qqnum_normal.png")));
@@ -479,6 +487,21 @@ public class Login4 {
 				setTop(panel_operation);
 				panel_header.setVisible(true);// 将头像面板设为可见
 			}
+			if (e.getSource() == lblSetting) {// 设置按钮事件，点击进入设置面板
+				setTop(panel_setting);
+				panel_header.setVisible(false);
+			}
+			if (e.getSource() == panel_setting.btn_return) {// 设置面板的返回事件
+				setTop(panel_operation);
+				panel_header.setVisible(true);// 将头像面板设为可见
+			}
+			if (e.getSource() == panel_setting.btn_confirm) {// 设置面板的确定
+				if (panel_setting.getBackgroundImage() != null) {
+					setBackgroundImage(panel_setting.getBackgroundImage());
+					setTop(panel_operation);
+					panel_header.setVisible(true);// 将头像面板设为可见
+				}
+			}
 		}
 
 		@Override
@@ -562,6 +585,9 @@ public class Login4 {
 		panel_register.btn_quxiao.addMouseListener(mos);
 		panel_qrcode.btn_return.addMouseListener(mos);
 		panel_retrievePassword.btn_return.addMouseListener(mos);
+		lblSetting.addMouseListener(mos);
+		panel_setting.btn_return.addMouseListener(mos);
+		panel_setting.btn_confirm.addMouseListener(mos);
 	}
 	
 	/**
@@ -599,6 +625,11 @@ public class Login4 {
 				layeredPane_main.setLayer(panel_retrievePassword,6);
 				System.out.println("panel_retrievePassword");
 			}
+			if(jc != panel_setting) {
+				panel_setting.setVisible(false);
+				layeredPane_main.setLayer(panel_setting,6);
+				System.out.println("panel_setting");
+			}
 		}
 	}
 
@@ -635,5 +666,14 @@ public class Login4 {
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * 设置登录界面的背景图片
+	 * @param backgroundImageIcon
+	 */
+	public void setBackgroundImage(ImageIcon backgroundImageIcon) {
+		content.setBackGroundImg(backgroundImageIcon.getImage());
+		content.repaint();
 	}
 }
