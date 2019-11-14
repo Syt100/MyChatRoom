@@ -1,14 +1,12 @@
-package mygui.client;
+package mygui.server;
 
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -18,7 +16,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-public class ClientFrame {
+import mygui.client.ClientFrame;
+
+public class MultiServerFrame {
 
 	private JFrame frame;
 	private JPanel contentPane = new JPanel();
@@ -30,13 +30,12 @@ public class ClientFrame {
 	private JTextArea textArea_showMessage;
 
 	boolean localBye = false;// 本机说拜拜
-	boolean serverBye = false;// 服务端 输入流说拜拜
-	String fromServer, fromLocal;
+	boolean clientBye = false;// 客户端输入流说拜拜
+	String localMessageLine, clientMessageLine;
 	private JButton btn_send;
 	private JTextArea textArea_inputMessage;
 	private PrintWriter out;
 	private JButton btn_close;
-	private JTextField textField_count;
 
 	/**
 	 * Launch the application.
@@ -45,23 +44,22 @@ public class ClientFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					
+
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		});
-		ClientFrame window = new ClientFrame();
-					window.frame.setVisible(true);
-					window.initSocket();
+		MultiServerFrame window = new MultiServerFrame();
+		window.frame.setVisible(true);
+		//window.initSocket();
 	}
 
 	/**
 	 * Create the application.
 	 */
-	public ClientFrame() {
+	public MultiServerFrame() {
 		initialize();
-		
 	}
 
 	/**
@@ -69,7 +67,7 @@ public class ClientFrame {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setTitle("客户端");
+		frame.setTitle("服务端-多线程");
 		frame.setBounds(100, 100, 580, 380);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setContentPane(contentPane);
@@ -115,87 +113,77 @@ public class ClientFrame {
 		textArea_inputMessage = new JTextArea();
 		scrollPane_1.setViewportView(textArea_inputMessage);
 		textArea_inputMessage.setLineWrap(true);
-		
+
 		btn_close = new JButton("关闭连接");
 		btn_close.setBounds(463, 277, 93, 23);
 		contentPane.add(btn_close);
-		
-		JLabel label_count = new JLabel("客户端数量");
-		label_count.setBounds(297, 21, 66, 15);
-		contentPane.add(label_count);
-		
-		textField_count = new JTextField();
-		textField_count.setColumns(10);
-		textField_count.setBounds(373, 18, 27, 21);
-		contentPane.add(textField_count);
 		btn_close.addActionListener(new SendMessage());
 	}
 
-	public void initSocket() {
-		Socket client = null;
-		out = null;
-		BufferedReader in = null;
+	public static void initSocket() {
+		ServerSocket serverSocket = null;
+		boolean listening = true;
+		int clientNumber = 0;
 
 		try {
-			client = new Socket(host, port);
-			out = new PrintWriter(client.getOutputStream(), true); // auto flush
-			in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-		} catch (UnknownHostException e) {
-			System.err.println("Don't know about host: 127.0.0.1.");
-			System.exit(1);
+			serverSocket = new ServerSocket(4444);
 		} catch (IOException e) {
-			System.err.println("Couldn't get I/O for the connection to: 127.0.0.1.");
-			System.exit(1);
+			System.err.println("Could not listen on port: 4444.");
+			System.exit(-1);
 		}
+		
 		try {
-			while (true) {
-				if(!in.ready()) {
-					continue;
-				}
-//				if (ubye == false && !(fromUser.equals("") || fromUser == null)) {
-//					out.println(fromUser);
-//					out.flush();
-//					fromUser = "";
-//					// System.out.println("Client: " + fromUser);
-//					if (fromUser.equals("Bye."))
-//						ubye = true;
-//				}
-
-				if (serverBye == false) {
-					fromServer = in.readLine();
-					textArea_showMessage.append("从服务端接收：" + fromServer + "\n");
-					if (fromServer.equals("Bye."))
-						serverBye = true;
-				}
-
-				if (localBye == true && serverBye == true)
-					break;
+			while (listening)
+			{
+				Socket socket;
+				//textArea_showMessage.append("等待客户端连接\n");
+				socket = serverSocket.accept();  //锟斤拷锟斤拷锟节此等猴拷突锟斤拷说锟斤拷锟斤拷锟�
+				clientNumber++;
+				//textArea_showMessage.append("有" + clientNumber + "个客户端已连接\n");
+				new MultiTalkServerThread(socket, clientNumber).start();
 			}
-
-			out.close();
-			in.close();
-			client.close();
+			serverSocket.close();
 		} catch (IOException e) {
 			// TODO 自动生成的 catch 块
 			e.printStackTrace();
 		}
-
 	}
 
 	private class SendMessage implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO 自动生成的方法存根
-			if (e.getSource() == btn_send && localBye == false) {// 如果客户端没有说拜拜，客户端输入文字
-				fromLocal = textArea_inputMessage.getText();
+			if (e.getSource() == btn_send && localBye == false) {// 如果服务端没有说拜拜，服务端输入文字
+				localMessageLine = textArea_inputMessage.getText();
 				textArea_inputMessage.setText("");
-				textArea_showMessage.append("客户端输入：" + fromLocal + "\n");
-				out.println(fromLocal);
+				textArea_showMessage.append("服务端输入：" + localMessageLine + "\n");
+				out.println(localMessageLine);// 将服务端键盘输入的文字发送到客户端的输入流中
 				out.flush();
 			}
-			if(e.getSource() == btn_close) {
+			if (e.getSource() == btn_close) {
 				localBye = true;
 			}
 		}
+	}
+
+}
+
+class MultiTalkServerThread extends Thread {
+	private Socket socket = null;
+	private int clientNumber;
+
+	public MultiTalkServerThread(Socket socket, int clientNumber) {
+		super("MultiTalkServerThread");
+		this.socket = socket;
+		this.clientNumber = clientNumber;
+		System.out.println("Accept Client" + clientNumber);
+	}
+
+	@Override
+	public void run() {
+		// TODO 自动生成的方法存根
+//		SingleServerFrame singleServer = new SingleServerFrame();
+//		singleServer.initSocket();
+		MultiServerFrame.initSocket();
 	}
 }
