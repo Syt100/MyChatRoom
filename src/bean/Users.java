@@ -10,8 +10,10 @@ import util.XMLOperation;
  *
  */
 public class Users {
+	private String id;
 	private String name;
 	private String password;
+	private String friends;
 	
 	/**
 	 * 
@@ -21,12 +23,53 @@ public class Users {
 	}
 
 	/**
-	 * @param name
+	 * @param id
 	 * @param password
 	 */
-	public Users(String name, String password) {
+	public Users(String id, String password) {
+		this.id = id;
+		this.password = password;
+	}
+
+	/**
+	 * @param id
+	 * @param name
+	 * @param password
+	 * @param friends
+	 */
+	public Users(String id, String name, String password, String friends) {
+		this.id = id;
 		this.name = name;
 		this.password = password;
+		this.friends = friends;
+	}
+
+	/**
+	 * @return id
+	 */
+	public String getId() {
+		return id;
+	}
+
+	/**
+	 * @param id 要设置的 id
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	/**
+	 * @return friends
+	 */
+	public String getFriends() {
+		return friends;
+	}
+
+	/**
+	 * @param friends 要设置的 friends
+	 */
+	public void setFriends(String friends) {
+		this.friends = friends;
 	}
 
 	/**
@@ -57,9 +100,23 @@ public class Users {
 		this.password = password;
 	}
 
-	public boolean isAccountExit(Users users) {
+	public boolean isAccountExitById(Users users) {
 		XMLOperation xml = new XMLOperation();
-		boolean flag = xml.isElementNameExit(users.getName());
+		boolean flag = xml.isElementIdExit(users.getId());
 		return flag;
+	}
+	
+	public String getPassWordById(String id) {
+		XMLOperation xml = new XMLOperation();
+		if(!xml.isElementIdExit(id)) {
+			return null;
+		}
+		Users user = xml.getUsersById(id);
+		return user.getPassword();
+	}
+	
+	@Override
+	public String toString() {
+		return "id= " + id + ",name= " + name + ",password= " + password + ",friends= " + friends;
 	}
 }

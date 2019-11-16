@@ -74,8 +74,10 @@ public class XMLOperation {
 			}
 
 			Element newUser = root.addElement("user").addAttribute("index", "4");
+			newUser.addElement("id").setText(users.getId());
 			newUser.addElement("name").setText(users.getName());
 			newUser.addElement("password").setText(users.getPassword());
+			newUser.addElement("friends").setText(users.getFriends());
 			writeXMLFile(doc);
 		} catch (DocumentException e) {
 			// TODO 自动生成的 catch 块
@@ -108,8 +110,27 @@ public class XMLOperation {
 		return exit;
 	}
 	
-	public String getAccountPassWord(String name) {
-		if(!isElementNameExit(name)) {
+	public boolean isElementIdExit(String name1) {
+		boolean exit = false;
+		initDocument();
+		Element root = doc.getRootElement();
+
+		Element foo;
+		Iterator<Element> iterator = root.elementIterator("user");
+		for (; iterator.hasNext();) {
+			foo = (Element) iterator.next();
+
+			String name = foo.elementText("id");
+			if (name.equals(name1)) {
+				exit = true;
+				break;
+			}
+		}
+		return exit;
+	}
+	
+	public Users getUsersById(String id) {
+		if(!isElementIdExit(id)) {
 			return null;
 		}
 		initDocument();
@@ -120,13 +141,13 @@ public class XMLOperation {
 		for (; iterator.hasNext();) {
 			foo = (Element) iterator.next();
 
-			if (foo.elementText("name").equals(name)) {
-				return foo.elementText("password");
+			if (foo.elementText("id").equals(id)) {
+				Users user = new Users(foo.elementText("id"), foo.elementText("name"), foo.elementText("password"), foo.elementText("friends"));
+				return user;
 			}
 		}
 		return null;
 	}
-	
 
 	private boolean writeXMLFile(Document doc) {
 		boolean flag = false;

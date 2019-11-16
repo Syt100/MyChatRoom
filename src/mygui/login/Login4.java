@@ -634,9 +634,9 @@ public class Login4 {
 	}
 
 	private int judgeLoginStatus() {
-		String account = new String();// 获取输入的账号
+		String id = new String();// 获取输入的账号
 		char[] password = new char[64];// 获取输入的密码（char)格式
-		account = comboBox_zhanghao.getEditor().getItem().toString().trim();
+		id = comboBox_zhanghao.getEditor().getItem().toString().trim();
 		/*
 		 * 获取组合框输入的文本； JComboBox有一个getEditor()方法，getEditor()方法返回ComboBoxEditor,
 		 * ComboBoxEditor里getItem()
@@ -648,9 +648,9 @@ public class Login4 {
 //		String designate_account = new String("xxy");// 默认正确的账号和密码组合
 //		String designate_password = new String("123");
 
-		if (account.length() == 0 || password.length == 0) {
+		if (id.length() == 0 || password.length == 0) {
 			return 1;
-		} else if (checkLogin(account, password_1)) {
+		} else if (checkLogin(id, password_1)) {
 			//account.equals(designate_account) && password_1.equals(designate_password)
 			return 2;
 		} else {
@@ -658,10 +658,10 @@ public class Login4 {
 		}
 	}
 	
-	private boolean checkLogin(String name, String password) {
-		Users users = new Users(name, password);
-		if(users.isAccountExit(users)) {
-			if(new XMLOperation().getAccountPassWord(name).equals(password)) {
+	private boolean checkLogin(String id, String password) {
+		Users users = new Users(id, password);
+		if(users.isAccountExitById(users)) {
+			if(users.getPassWordById(id).equals(password)) {
 				return true;
 			}
 		}
