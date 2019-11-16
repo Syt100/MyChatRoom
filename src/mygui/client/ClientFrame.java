@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Random;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -27,6 +28,10 @@ public class ClientFrame {
 
 	private int port = 4444;
 	private String host = "127.0.0.1";
+	
+	/** 客户端数量 */
+	public static int clientNum = 0;
+	
 	private JTextArea textArea_showMessage;
 
 	boolean localBye = false;// 本机说拜拜
@@ -37,6 +42,8 @@ public class ClientFrame {
 	private PrintWriter out;
 	private JButton btn_close;
 	private JTextField textField_count;
+	
+	private String exitCode = "exit(0):123456";
 
 	/**
 	 * Launch the application.
@@ -60,8 +67,9 @@ public class ClientFrame {
 	 * Create the application.
 	 */
 	public ClientFrame() {
+		ClientFrame.clientNum += 1;
 		initialize();
-		
+		System.out.println(ClientFrame.clientNum);
 	}
 
 	/**
@@ -127,6 +135,7 @@ public class ClientFrame {
 		textField_count = new JTextField();
 		textField_count.setColumns(10);
 		textField_count.setBounds(373, 18, 27, 21);
+		textField_count.setText("" + ClientFrame.clientNum);
 		contentPane.add(textField_count);
 		btn_close.addActionListener(new SendMessage());
 	}
@@ -137,9 +146,13 @@ public class ClientFrame {
 		BufferedReader in = null;
 
 		try {
+			textArea_showMessage.append("正在连接服务端\n");
 			client = new Socket(host, port);
+			textArea_showMessage.append("连接服务端成功！\n");
 			out = new PrintWriter(client.getOutputStream(), true); // auto flush
 			in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+			out.println("kh" + new Random().nextInt(9999));// 向服务端发送代表客户端标识的字符串
+			out.flush();
 		} catch (UnknownHostException e) {
 			System.err.println("Don't know about host: 127.0.0.1.");
 			System.exit(1);
@@ -149,27 +162,22 @@ public class ClientFrame {
 		}
 		try {
 			while (true) {
-				if(!in.ready()) {
-					continue;
+				if (localBye == true && serverBye == true) {
+					break;
 				}
-//				if (ubye == false && !(fromUser.equals("") || fromUser == null)) {
-//					out.println(fromUser);
-//					out.flush();
-//					fromUser = "";
-//					// System.out.println("Client: " + fromUser);
-//					if (fromUser.equals("Bye."))
-//						ubye = true;
+//				if(!in.ready()) {
+//					continue;
 //				}
 
 				if (serverBye == false) {
 					fromServer = in.readLine();
-					textArea_showMessage.append("从服务端接收：" + fromServer + "\n");
-					if (fromServer.equals("Bye."))
+					if (fromServer.equals(exitCode)) {// 服务端（对方）退出
 						serverBye = true;
+						textArea_showMessage.append("服务端已退出" + fromServer + "\n");
+					}else {
+						textArea_showMessage.append("从服务端接收：" + fromServer + "\n");
+					}
 				}
-
-				if (localBye == true && serverBye == true)
-					break;
 			}
 
 			out.close();
@@ -195,6 +203,8 @@ public class ClientFrame {
 			}
 			if(e.getSource() == btn_close) {
 				localBye = true;
+				out.println(exitCode);
+				out.flush();
 			}
 		}
 	}

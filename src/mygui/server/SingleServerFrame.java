@@ -27,7 +27,7 @@ public class SingleServerFrame {
 
 	private int port = 4444;
 	private String host = "127.0.0.1";
-	private JTextArea textArea_showMessage;
+	JTextArea textArea_showMessage;
 
 	boolean localBye = false;// 本机说拜拜
 	boolean clientBye = false;// 客户端输入流说拜拜
@@ -36,6 +36,8 @@ public class SingleServerFrame {
 	private JTextArea textArea_inputMessage;
 	private PrintWriter out;
 	private JButton btn_close;
+	
+	String exitCode = "exit(0):123456";
 
 	/**
 	 * Launch the application.
@@ -123,6 +125,8 @@ SingleServerFrame window = new SingleServerFrame();
 
 	public void initSocket() {
 		ServerSocket serverSocket = null;
+		Socket clientSocket = null;
+		final BufferedReader clientIn;
 		try {
 			serverSocket = new ServerSocket(port);
 		} catch (IOException e) {
@@ -130,7 +134,6 @@ SingleServerFrame window = new SingleServerFrame();
 			System.exit(1);
 		}
 
-		Socket clientSocket = null;
 		try {
 			textArea_showMessage.append("正在等待客户端连接...\n");
 			clientSocket = serverSocket.accept(); //
@@ -139,55 +142,68 @@ SingleServerFrame window = new SingleServerFrame();
 			System.err.println("Accept failed.");
 			System.exit(1);
 		}
-		System.out.println("Accept OK!");
 
 		try {
 			out = new PrintWriter(clientSocket.getOutputStream(), true);
 			// 由Socket对象得到输入流，并构造相应的BufferedReader对象
-			BufferedReader clientIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-			// 由系统标准输入设备构造BufferedReader对象
-			BufferedReader sysIn = new BufferedReader(new InputStreamReader(System.in));
+			clientIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-//			clientInputLine = clientIn.readLine();// 从客户端读入
-//			textArea.setText(textArea.getText() + "\n从客户端接收：" + clientInputLine);
-//
-//			textArea.setText(textArea.getText() + "\n服务端输入：");
-//
-//			// sysInputLine = sysIn.readLine();// 从服务端输入
-//			sysInputLine = textArea_1.getText();
-//			textArea_1.setText("");
+			Listen listen = new Listen(clientIn, this);
+			listen.setClientIn(clientIn);
+			Thread lis = new Thread(listen);
+			lis.start();
 
-			while (true) {// 循环从客户端读入数据
-				if(!clientIn.ready()) {
-					continue;
-				}
-//				if (sysInBye == false) {// 如果服务端没有说拜拜
-//					serverOut.println(sysInputLine);// 将服务端键盘输入的文字发送到客户端的输入流中
-//					serverOut.flush();
-//					if (sysInputLine.equals("bye")) {
-//						sysInBye = true;
+//			new Thread(new Runnable() {
+//				
+//				@Override
+//				public void run() {
+//					// TODO 自动生成的方法存根
+//					try {
+//						while (true) {// 循环从客户端读入数据
+//
+//							if (clientBye == false) {// 如果客户端没有说拜拜
+//								clientMessageLine = clientIn.readLine();// 从客户端读入文字
+//								if (clientMessageLine.equals(exitCode)) {// 对方断开
+//									clientBye = true;
+//									textArea_showMessage.append("客户端已退出" + clientMessageLine + "\n");
+//								}else {
+//									textArea_showMessage.append("从客户端接收：" + clientMessageLine + "\n");
+//								}
+//							}
+//
+//							if (localBye == true && clientBye == true) {
+//								break;
+//							}
+//						}
+//					} catch (IOException e) {
+//						// TODO 自动生成的 catch 块
+//						e.printStackTrace();
+//					} finally {
+//						//clientIn.close();
 //					}
 //				}
+//			}).start();
 
-				if (clientBye == false) {// 如果客户端没有说拜拜
-					clientMessageLine = clientIn.readLine();// 从客户端读入文字
-					textArea_showMessage.append("从客户端接收：" + clientMessageLine + "\n");
-					if (clientMessageLine.equals("bye")) {
-						clientBye = true;
-					}
-				}
-
-				if (localBye == true && clientBye == true) {
-					break;
-				}
-			}
-			out.close();
-			clientIn.close();
-			sysIn.close();
-
-			clientSocket.close();
-			serverSocket.close();
-
+//			while (true) {// 循环从客户端读入数据
+////				if(!clientIn.ready()) {
+////					continue;
+////				}
+//
+//				if (clientBye == false) {// 如果客户端没有说拜拜
+//					clientMessageLine = clientIn.readLine();// 从客户端读入文字
+//					if (clientMessageLine.equals(exitCode)) {// 对方断开
+//						clientBye = true;
+//						textArea_showMessage.append("客户端已退出" + clientMessageLine + "\n");
+//					}else {
+//						textArea_showMessage.append("从客户端接收：" + clientMessageLine + "\n");
+//					}
+//				}
+//
+//				if (localBye == true && clientBye == true) {
+//					break;
+//				}
+//			}
+			
 		} catch (IOException e) {
 			// TODO 自动生成的 catch 块
 			e.printStackTrace();
@@ -207,7 +223,67 @@ SingleServerFrame window = new SingleServerFrame();
 			}
 			if(e.getSource() == btn_close) {
 				localBye = true;
+				out.println(exitCode);// 将服务端键盘输入的文字发送到客户端的输入流中
+				out.flush();
 			}
 		}
 	}
+}
+
+class Listen implements Runnable{
+	BufferedReader clientIn = null;
+	SingleServerFrame sf;
+
+	/**
+	 * @param clientIn
+	 * @param sf
+	 */
+	public Listen(BufferedReader clientIn, SingleServerFrame sf) {
+		this.clientIn = clientIn;
+		this.sf = sf;
+	}
+
+	@Override
+	public void run() {
+		// TODO 自动生成的方法存根
+		try {
+			while (true) {// 循环从客户端读入数据
+				if(!clientIn.ready()) {
+					continue;
+				}
+
+				if (sf.clientBye == false) {// 如果客户端没有说拜拜
+					sf.clientMessageLine = clientIn.readLine();// 从客户端读入文字
+					if (sf.clientMessageLine.equals(sf.exitCode)) {// 对方断开
+						sf.clientBye = true;
+						sf.textArea_showMessage.append("客户端已退出" + sf.clientMessageLine + "\n");
+					}else {
+						sf.textArea_showMessage.append("从客户端接收：" + sf.clientMessageLine + "\n");
+					}
+				}
+
+				if (sf.localBye == true && sf.clientBye == true) {
+					break;
+				}
+			}
+		} catch (IOException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+		} finally {
+			try {
+				clientIn.close();
+			} catch (IOException e) {
+				// TODO 自动生成的 catch 块
+				e.printStackTrace();
+			}
+		}
+	}
+
+	/**
+	 * @param clientIn 要设置的 clientIn
+	 */
+	public void setClientIn(BufferedReader clientIn) {
+		this.clientIn = clientIn;
+	}
+	
 }
