@@ -12,6 +12,11 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -29,10 +34,11 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import bean.Users;
+import exception.AccountInputException;
 import mygui.frameutil.BackgroundJPanel;
 import mygui.frameutil.ResizeFrame;
 import mygui.friendslist2.MyFriendsList3;
-import util.XMLOperation;
+import util.ConstantStatus;
 
 public class Login4 {
 
@@ -87,6 +93,14 @@ public class Login4 {
 	private JLabel lbl_erweima;
 	/** 显示提示信息，默认隐藏，按需显示 */
 	private JLabel lbl_tips;
+	
+	// 网络部分
+	/** 客户端套接字 */
+	private Socket socket = null;
+	/** 客户端输出流 */
+	private PrintWriter out = null;
+	/** 客户端输入流 */
+	private BufferedReader in = null;
 
 	/**
 	 * Launch the application.
@@ -107,19 +121,20 @@ public class Login4 {
 	 * Create the application.
 	 */
 	public Login4() {
-		frame.setBounds(100, 100, 430, 330);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);// 在这里无效，因为去除了窗口装饰
 		initBackGround();
 		initialize();
 		initMyFocusListener();
 		initMyMouseListener();
-		
-		setTop(panel_operation);
-		
-		frame.setVisible(true);
+		setTop(panel_operation);// 将主面板置顶
+		frame.setVisible(true);// 一般在构造方法最后一步
 	}
 
+	/**
+	 * 初始化窗体frame和contentPane，设置背景
+	 */
 	private void initBackGround() {
+		frame.setBounds(100, 100, 430, 330);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);// 在这里无效，因为去除了窗口装饰
 		frame.setUndecorated(true);// 将原始的边框去掉
 		frame.setLocationRelativeTo(null);// 设置窗口打开位置居中
 		content = new BackgroundJPanel(backGroundImgIcon);// 初始化内容面板，设置背景
@@ -128,7 +143,7 @@ public class Login4 {
 	}
 
 	/**
-	 * Initialize the contents of the frame.
+	 * 初始化界面组件
 	 */
 	private void initialize() {
 		// 将内容面板分为两部分，这是上半部分
@@ -268,7 +283,7 @@ public class Login4 {
 		
 		/* 设置面板 开始*/
 		panel_setting = new Setting();
-		layeredPane_main.setLayer(panel_retrievePassword, 5);
+		layeredPane_main.setLayer(panel_setting, 5);
 		layeredPane_main.add(panel_setting);
 		/* 设置面板 结束*/
 
@@ -383,55 +398,17 @@ public class Login4 {
 	private class MyMouseListener extends MouseAdapter {
 
 		@Override
-		public void mouseClicked(MouseEvent e) {
-			// TODO 自动生成的方法存根
-			super.mouseClicked(e);
-			if (e.getSource() == btn_denglu) {
-				int judge = judgeLoginStatus();
-				if (judge == 1) {
-					lbl_tips.setText("账号或密码不能为空！");
-					lbl_tips.setVisible(true);
-
-					// 用多线程实现让lbl_tips一段时间后消失
-					Thread t = new Thread(new Runnable() {
-						@Override
-						public void run() {
-							try {
-								Thread.sleep(3000);// 该线程睡眠3秒
-							} catch (InterruptedException ex) {
-							}
-							lbl_tips.setVisible(false);
-						}
-					});
-					t.start();// 启动线程
-				} else if (judge == 2) {
-					setTop(panel_landing);
-					
-					// 用计时器实现延迟
-					Timer timer = new Timer();// 实例化Timer类
-					timer.schedule(new TimerTask() {
-						public void run() {
-							// TODO 此处可显示登录成功
-							layeredPane_main.setLayer(panel_operation, 10);
-							frame.dispose();// 注销当前登录窗口
-							// 拉起好友界面
-							MyFriendsList3 window = new MyFriendsList3();
-							window.setFrameVisible(true);
-							this.cancel();
-						}
-					}, 1000);// 延迟x毫秒后启动
-				} else if (judge == 3) {
-					lbl_tips.setText("账号或密码错误，请重试！");
-					lbl_tips.setVisible(true);
-					// 用计时器实现延迟
-					Timer timer = new Timer();// 实例化Timer类
-					timer.schedule(new TimerTask() {
-						public void run() {
-							lbl_tips.setVisible(false);
-							this.cancel();
-						}
-					}, 3000);// 延迟x毫秒后启动
-				}
+		public void mouseClicked(MouseEvent e) {// 鼠标点击
+			if (e.getSource() == btn_denglu) {// 点击登录按钮
+				verificationAccountFromServer();
+//				int judge = judgeLoginStatus();
+//				if (judge == 1) {
+//					showTipsByThread("账号或密码不能为空！");
+//				} else if (judge == 2) {
+//					skipToFriendList();
+//				} else if (judge == 3) {
+//					showTipsByTimer("账号或密码错误，请重试！");
+//				}
 			}
 			
 		}
@@ -591,7 +568,52 @@ public class Login4 {
 	}
 	
 	/**
-	 * 设置要显示的组件
+	 * 初始化网络相关
+	 * @throws Exception 
+	 */
+	private void initSocket() throws Exception {
+		// 初始化Socket
+		try {
+			socket = new Socket("127.0.0.1", 4444);
+		} catch (IOException e) {
+			System.out.println("无法连接到服务器");
+			showTipsByTimer("无法连接到服务器");
+			throw new Exception("无法连接到服务器");
+		}
+		showTipsByTimer("已连接到服务器:127.0.0.1");
+		System.out.println("已连接到服务器:127.0.0.1");
+		// 初始化输入输出流
+		try {
+			out = new PrintWriter(socket.getOutputStream());
+			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		} catch (IOException e) {
+			System.out.println("I/O流出错");
+			throw new Exception("I/O流出错");
+		}
+	}
+	
+	/**
+	 * 关闭套接字和流
+	 */
+	private void closeSocketAndStream() {
+		try {
+			if(out != null) {
+				out.close();
+			}
+			if(in != null) {
+				in.close();
+			}
+			if(socket != null) {
+				socket.close();
+			}
+		} catch (IOException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * 设置要显示在顶端的组件
 	 * @param jc 要设置可见为真的组件（面板）
 	 */
 	private void setTop(JComponent jc) {
@@ -632,40 +654,58 @@ public class Login4 {
 			}
 		}
 	}
-
-	private int judgeLoginStatus() {
-		String id = new String();// 获取输入的账号
-		char[] password = new char[64];// 获取输入的密码（char)格式
-		id = comboBox_zhanghao.getEditor().getItem().toString().trim();
-		/*
-		 * 获取组合框输入的文本； JComboBox有一个getEditor()方法，getEditor()方法返回ComboBoxEditor,
+	
+	/**
+	 * 从界面输入构造一个Users对象
+	 * @return users
+	 * @throws AccountInputException 
+	 */
+	private Users getUserFromInput() throws AccountInputException {
+		String id = comboBox_zhanghao.getEditor().getItem().toString().trim();// 获取输入的账号
+		char[] password0 = passwordField_mima.getPassword();// 获取输入的密码（char)格式
+		/* 获取组合框输入的文本； JComboBox有一个getEditor()方法，getEditor()方法返回ComboBoxEditor,
 		 * ComboBoxEditor里getItem()
 		 */
-
-		password = passwordField_mima.getPassword();// 返回char类型密码
-		String password_1 = String.valueOf(password);// 把字符串类型的password转换为String
-
-//		String designate_account = new String("xxy");// 默认正确的账号和密码组合
-//		String designate_password = new String("123");
-
-		if (id.length() == 0 || password.length == 0) {
-			return 1;
-		} else if (checkLogin(id, password_1)) {
-			//account.equals(designate_account) && password_1.equals(designate_password)
-			return 2;
-		} else {
-			return 3;
+		String password = String.valueOf(password0);
+		if(id.length() == 0 || password.length() == 0) {
+			throw new AccountInputException(ConstantStatus.LOGIN_STATUS_EMPTY_INPUT);
 		}
+		Users user = new Users(id, password);
+		return user;
 	}
 	
-	private boolean checkLogin(String id, String password) {
-		Users users = new Users(id, password);
-		if(users.isAccountExitById(users)) {
-			if(users.getPassWordById(id).equals(password)) {
-				return true;
-			}
+	/**
+	 * 从服务器验证账号密码是否匹配
+	 */
+	private void verificationAccountFromServer() {
+		try {
+			initSocket();
+		} catch (Exception e1) {
+			System.out.println(e1.toString());
+			return;
 		}
-		return false;
+		Users user = null;
+		String comfirm = null;
+		try {
+			user = getUserFromInput();
+		} catch (AccountInputException e) {
+			showTipsByTimer(e.getMessage());
+			return;
+		}
+		out.println("login." + user.getId() + "." + user.getPassword());
+		out.flush();
+		try {
+			comfirm = in.readLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		if(comfirm.equals("success")) {
+			System.out.println("success");
+			skipToFriendList();// 跳转到好友列表界面
+		}else {
+			System.out.println(comfirm);
+			showTipsByTimer(comfirm);
+		}
 	}
 	
 	/**
@@ -675,5 +715,66 @@ public class Login4 {
 	public void setBackgroundImage(ImageIcon backgroundImageIcon) {
 		content.setBackGroundImg(backgroundImageIcon.getImage());
 		content.repaint();
+	}
+
+	/**
+	 * 更改提示标签的内容，通过多线程实现
+	 * @param tip 要显示的提示内容
+	 */
+	@SuppressWarnings("unused")
+	private void showTipsByThread(String tip) {
+		lbl_tips.setText(tip);
+		lbl_tips.setVisible(true);
+		// 用多线程实现让lbl_tips一段时间后消失
+		Thread t = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(3000);// 该线程睡眠3秒
+				} catch (InterruptedException ex) {
+				}
+				lbl_tips.setVisible(false);
+			}
+		});
+		t.start();// 启动线程
+	}
+
+	/**
+	 * 更改提示标签的内容，通过计时器
+	 * @param tip 要显示的提示内容
+	 */
+	private void showTipsByTimer(String tip) {
+		lbl_tips.setText(tip);
+		lbl_tips.setVisible(true);
+		// 用计时器实现延迟
+		Timer timer = new Timer();// 实例化Timer类
+		timer.schedule(new TimerTask() {
+			public void run() {
+				lbl_tips.setVisible(false);
+				this.cancel();
+			}
+		}, 3000);// 延迟x毫秒后启动
+	}
+
+	/**
+	 * 登录成功后，跳转到好友列表
+	 */
+	public void skipToFriendList() {
+		setTop(panel_landing);
+		
+		// 用计时器实现延迟
+		Timer timer = new Timer();// 实例化Timer类
+		timer.schedule(new TimerTask() {
+			public void run() {
+				// TODO 此处可显示登录成功
+				//layeredPane_main.setLayer(panel_operation, 10);
+				closeSocketAndStream();
+				frame.dispose();// 注销当前登录窗口
+				// 拉起好友界面
+				MyFriendsList3 window = new MyFriendsList3();
+				window.setFrameVisible(true);
+				this.cancel();
+			}
+		}, 1000);// 延迟x毫秒后启动
 	}
 }

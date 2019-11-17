@@ -20,6 +20,11 @@ import javax.swing.JTextField;
 import javax.swing.JList;
 import javax.swing.DefaultListModel;
 import javax.swing.event.ListSelectionListener;
+
+import bean.Users;
+import exception.AccountInputException;
+import util.ConstantStatus;
+
 import javax.swing.event.ListSelectionEvent;
 
 public class MultiServerFrame {
@@ -236,6 +241,10 @@ public class MultiServerFrame {
 		}
 	}
 	
+	/**
+	 * 将列表上显示的客户端数量减一个
+	 * @param name
+	 */
 	public static void removeClientShowToList(String name) {
 		dlm.removeElement(name);
 		flushClientCountShow();
@@ -335,9 +344,28 @@ class MultiTalkServerThread extends Thread {
 		try {
 			out = new PrintWriter(socket.getOutputStream(), true);
 			clientIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			name = clientIn.readLine();
+			String[] rec = clientIn.readLine().split("\\.");
+			if(rec.length == 1) {
+				name = rec[0];
+			}else {
+				if(rec[0].equals("login")) {
+					name = rec[0] + rec[1];
+					String id = rec[1];
+					String password = rec[2];
+					try {
+						checkLogin(id, password);
+						out.println("success");
+						out.flush();
+					} catch (AccountInputException e) {
+						out.println(e.getMessage());
+						out.flush();
+					}
+					System.out.println(rec[0].equals("login"));
+				}
+			}
 			this.setName(name);
 			MultiServerFrame.addClientShowToList(name);
+			
 
 			while (true) {// 循环从客户端读入数据
 				if (localBye == true && clientBye == true) {
@@ -345,6 +373,7 @@ class MultiTalkServerThread extends Thread {
 				}
 				if (clientBye == false) {// 如果客户端没有说拜拜
 					MultiServerFrame.showMsgFromClient(clientIn);
+					
 				}
 			}
 			out.close();
@@ -361,5 +390,23 @@ class MultiTalkServerThread extends Thread {
 
 	public PrintWriter getOutPut() {
 		return out;
+	}
+	
+	/**
+	 * @param id
+	 * @param password
+	 * @return
+	 * @throws AccountInputException
+	 */
+	private boolean checkLogin(String id, String password) throws AccountInputException{
+		Users users = new Users(id, password);
+		if(!users.isAccountExitById(users)) {
+			throw new AccountInputException(ConstantStatus.LOGIN_STATUS_ACCOUNT_NOT_EXIST);
+		}
+		if(password.equals(users.getPassWordById(id))) {
+			return true;
+		}else {
+			throw new AccountInputException(ConstantStatus.LOGIN_STATUS_ERROR_PASSWORD);
+		}
 	}
 }
