@@ -500,9 +500,11 @@ public class Login4 {
 				panelUpCloseLabel.setBackground(Color.RED);
 			}
 			if (e.getSource() == lblMini) {
-				panelUpMiniLabel.setOpaque(true);
-				panelUpMiniLabel.setBackground(new Color(255, 255, 255, 50));
-				panelUpMiniLabel.updateUI();
+				//TODO 下面代码有bug,半透明会混杂其他图像
+//				panelUpMiniLabel.setOpaque(true);
+//				panelUpMiniLabel.setBackground(new Color(255, 255, 255, 50));
+//				panelUpMiniLabel.updateUI();
+				lblMini.setForeground(Color.LIGHT_GRAY);
 			}
 			if (e.getSource() == lblSetting) {
 				lblSetting.setIcon(new ImageIcon(getClass().getResource("/Images/qqIcon/btn_set_hover.png")));
@@ -524,11 +526,12 @@ public class Login4 {
 			if (e.getSource() == lblClose) {
 				panelUpCloseLabel.setOpaque(false);
 				panelUpCloseLabel.repaint();
-				// panel_4.setBackground(Color.RED);
 			}
 			if (e.getSource() == lblMini) {
-				panelUpMiniLabel.setOpaque(false);
-				panelUpMiniLabel.repaint();
+				//TODO 有bug
+//				panelUpMiniLabel.setOpaque(false);
+//				panelUpMiniLabel.repaint();
+				lblMini.setForeground(Color.WHITE);
 			}
 			if (e.getSource() == lblSetting) {
 				lblSetting.setIcon(new ImageIcon(getClass().getResource("/Images/qqIcon/btn_set_normal.png")));
