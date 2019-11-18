@@ -445,6 +445,7 @@ public class Login4 {
 				}else {// 注册成功
 					setTop(panel_operation);
 					panel_header.setVisible(true);
+					registerAccountFromServer(panel_register.getUser());
 				}
 			}
 			if (e.getSource() == panel_register.btn_quxiao) {// 注册页面中的取消按钮
@@ -575,6 +576,9 @@ public class Login4 {
 	 * @throws Exception 
 	 */
 	private void initSocket() throws Exception {
+		if (socket != null) {// 保证只有一个socket，不重复初始化
+			return;
+		}
 		// 初始化Socket
 		try {
 			socket = new Socket("127.0.0.1", 4444);
@@ -616,7 +620,7 @@ public class Login4 {
 	}
 	
 	/**
-	 * 设置要显示在顶端的组件
+	 * 设置要显示在顶端的组件，将其他面板隐藏
 	 * @param jc 要设置可见为真的组件（面板）
 	 */
 	private void setTop(JComponent jc) {
@@ -624,36 +628,36 @@ public class Login4 {
 			JPanel panel =(JPanel) jc;
 			panel.setVisible(true);
 			layeredPane_main.setLayer(panel, 101);
-			System.out.println("jc instanceof JPanel");
+			//System.out.println("jc instanceof JPanel");
 			if(jc != panel_operation) {
 				panel_operation.setVisible(false);
 				layeredPane_main.setLayer(panel_operation, 10);
-				System.out.println("panel_operation");
+				//System.out.println("panel_operation");
 			}
 			if(jc != panel_landing) {
 				panel_landing.setVisible(false);
 				layeredPane_main.setLayer(panel_landing, 9);
-				System.out.println("panel_landing");
+				//System.out.println("panel_landing");
 			}
 			if(jc != panel_register) {
 				panel_register.setVisible(false);
 				layeredPane_main.setLayer(panel_register, 8);
-				System.out.println("panel_register");
+				//System.out.println("panel_register");
 			}
 			if(jc != panel_qrcode) {
 				panel_qrcode.setVisible(false);
 				layeredPane_main.setLayer(panel_qrcode,7);
-				System.out.println("panel_qrcode");
+				//System.out.println("panel_qrcode");
 			}
 			if(jc != panel_retrievePassword) {
 				panel_retrievePassword.setVisible(false);
 				layeredPane_main.setLayer(panel_retrievePassword,6);
-				System.out.println("panel_retrievePassword");
+				//System.out.println("panel_retrievePassword");
 			}
 			if(jc != panel_setting) {
 				panel_setting.setVisible(false);
 				layeredPane_main.setLayer(panel_setting,6);
-				System.out.println("panel_setting");
+				//System.out.println("panel_setting");
 			}
 		}
 	}
@@ -693,6 +697,8 @@ public class Login4 {
 			user = getUserFromInput();
 		} catch (AccountInputException e) {
 			showTipsByTimer(e.getMessage());
+			out.println("login." + "0" + "." + "0");
+			out.flush();
 			return;
 		}
 		out.println("login." + user.getId() + "." + user.getPassword());
@@ -705,6 +711,38 @@ public class Login4 {
 		if(comfirm.equals("success")) {
 			System.out.println("success");
 			skipToFriendList();// 跳转到好友列表界面
+		}else {
+			System.out.println(comfirm);
+			showTipsByTimer(comfirm);
+		}
+	}
+	
+	/**
+	 * 上传Users到服务器注册账户
+	 * @param user
+	 */
+	private void registerAccountFromServer(Users user) {
+		try {
+			initSocket();
+		} catch (Exception e1) {
+			System.out.println(e1.toString());
+			return;
+		}
+		String id = user.getId();
+		String name = user.getName();
+		String password = user.getPassword();
+		String friends = user.getFriends();
+		out.println("register." + id + "." + name + "." + password + "." + friends);
+		out.flush();
+		String comfirm = null;
+		try {
+			comfirm = in.readLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		if(comfirm.equals("success")) {
+			System.out.println("success");
+			showTipsByTimer("注册成功");
 		}else {
 			System.out.println(comfirm);
 			showTipsByTimer(comfirm);

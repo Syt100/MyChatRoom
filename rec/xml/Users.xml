@@ -2,24 +2,30 @@
 
 <users> 
   <user index="1"> 
-  	<id>1234</id>
+    <id>1234</id>  
     <name>tom</name>  
     <password>12345</password> 
   </user>  
   <user index="2"> 
- 	<id>2345</id>
+    <id>2345</id>  
     <name>jack</name>  
     <password>abc</password> 
   </user>  
   <user index="3"> 
-  	<id>3456</id>
+    <id>3456</id>  
     <name>john</name>  
     <password>www</password> 
   </user>  
   <user index="4"> 
-  	<id>4567</id>
+    <id>4567</id>  
     <name>jhn</name>  
-    <password>zzz</password> 
-    <friends>1234.2345.4567</friends>
-  </user> 
+    <password>zzz</password>  
+    <friends>1234.2345.4567</friends> 
+  </user>  
+  <user index="4">
+    <id>8888</id>
+    <name>null</name>
+    <password>12</password>
+    <friends>null</friends>
+  </user>
 </users>

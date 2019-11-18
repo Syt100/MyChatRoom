@@ -24,6 +24,7 @@ import javax.swing.event.ListSelectionListener;
 import bean.Users;
 import exception.AccountInputException;
 import util.ConstantStatus;
+import util.XMLOperation;
 
 import javax.swing.event.ListSelectionEvent;
 
@@ -220,13 +221,21 @@ public class MultiServerFrame {
 	}
 
 	/**
-	 * 从客户端的流中读取字符串，并显示
+	 * 从客户端的流中读取字符串，并显示在服务端的TextArea里
 	 * @param clientIn 客户端输入流
 	 * @throws IOException
 	 */
 	public static void showMsgFromClient(BufferedReader clientIn) throws IOException {
 		clientMessageLine = clientIn.readLine();// 从客户端读入文字
 		textArea_showMessage.append("从客户端接收：" + clientMessageLine + "\n");
+	}
+	
+	/**
+	 * 传入字符串，显示在服务端的TextArea里
+	 * @param message
+	 */
+	public static void showMsgFromClient(String message) {
+		textArea_showMessage.append("从客户端接收：" + message + "\n");
 	}
 
 	/**
@@ -248,6 +257,19 @@ public class MultiServerFrame {
 	public static void removeClientShowToList(String name) {
 		dlm.removeElement(name);
 		flushClientCountShow();
+	}
+	
+	/**
+	 * 修改客户端列表的显示名称
+	 * @param oldName
+	 * @param newName
+	 */
+	public static void updateClientShowName(String oldName, String newName) {
+		//TODO 此处应该加咩找到的处理
+		int index = dlm.indexOf(oldName);// 搜索指定元素的位置，如果没有找到，返回-1
+		dlm.remove(index);
+		//TODO 这里不确定是否会覆盖原来index位置的元素
+		dlm.add(index, newName);
 	}
 
 	/**
@@ -344,25 +366,18 @@ class MultiTalkServerThread extends Thread {
 		try {
 			out = new PrintWriter(socket.getOutputStream(), true);
 			clientIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			String[] rec = clientIn.readLine().split("\\.");
-			if(rec.length == 1) {
-				name = rec[0];
-			}else {
-				if(rec[0].equals("login")) {
-					name = rec[0] + rec[1];
-					String id = rec[1];
-					String password = rec[2];
-					try {
-						checkLogin(id, password);
-						out.println("success");
-						out.flush();
-					} catch (AccountInputException e) {
-						out.println(e.getMessage());
-						out.flush();
-					}
-					System.out.println(rec[0].equals("login"));
-				}
+			
+			String received = clientIn.readLine();
+			if(received.startsWith("kh")) {
+				name = received;
+			}else if(received.startsWith("login")) {
+				processLogin(received);
+			}else if(received.startsWith("register")) {
+				processRegister(received);
+			}else if(received.startsWith("online")) {
+				
 			}
+			
 			this.setName(name);
 			MultiServerFrame.addClientShowToList(name);
 			
@@ -372,8 +387,16 @@ class MultiTalkServerThread extends Thread {
 					break;
 				}
 				if (clientBye == false) {// 如果客户端没有说拜拜
-					MultiServerFrame.showMsgFromClient(clientIn);
-					
+					String rece = clientIn.readLine();
+					if(rece.startsWith("login")) {
+						processLogin(rece);
+					}else if(rece.startsWith("register")){
+						processRegister(rece);
+					}else if(rece.startsWith("online")) {
+						
+					}else {
+						MultiServerFrame.showMsgFromClient(rece);
+					}
 				}
 			}
 			out.close();
@@ -388,11 +411,51 @@ class MultiTalkServerThread extends Thread {
 		}
 	}
 
+	/**
+	 * 处理登录请求
+	 * @param received
+	 */
+	private void processLogin(String received) {
+		String[] rec = received.split("\\.");
+		name = rec[0] + "登录中";
+		String id = rec[1];
+		String password = rec[2];
+		try {
+			checkLogin(id, password);
+			out.println("success");
+			out.flush();
+		} catch (AccountInputException e) {
+			out.println(e.getMessage());
+			out.flush();
+		}
+	}
+	
+	/**
+	 * 处理注册请求
+	 * @param received
+	 */
+	private void processRegister(String received) {
+		// 特殊字符作为分隔符时需要使用\\进行转义(比如使用\\作为分隔符的话，则转义为\\\\)
+		// 特殊字符有 .$|()[{^?*+\\
+		String[] rec = received.split("\\.");
+		name = rec[0] + "注册中";
+		String id = rec[1];
+		String name = rec[2];
+		String password = rec[3];
+		String friends = rec[4];
+		Users user = new Users(id, name, password, friends);
+		XMLOperation xml = new XMLOperation();
+		xml.addUser(user);
+		out.println("success");
+		out.flush();
+	}
+
 	public PrintWriter getOutPut() {
 		return out;
 	}
 	
 	/**
+	 * 是否允许登录
 	 * @param id
 	 * @param password
 	 * @return

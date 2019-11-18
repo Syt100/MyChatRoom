@@ -6,6 +6,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.border.TitledBorder;
 
+import bean.Users;
 import mygui.friendslist2.MyFriendsList3;
 import util.MakeCertPic;
 
@@ -29,17 +30,38 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 public class Register extends JPanel {
+	/**
+	 * 已生成的串行化版本标识
+	 */
+	private static final long serialVersionUID = -4248204657599601398L;
+	
+	/** 账号框 */
 	private JTextField textField_zhanghao = new JTextField();
+	/** 密码框 */
 	private JPasswordField passField_mima = new JPasswordField();
+	/** 确认密码输入框 */
 	private JPasswordField passField_querenmima = new JPasswordField();
-	private JLabel tips = new JLabel("");
+	
+	/** 确定按钮 */
 	public JButton btn_queren = new JButton("确定");
+	/** 取消按钮 */
 	public JButton btn_quxiao = new JButton("取消");
+	
+	/** 提示标签 */
+	private JLabel tips = new JLabel("");
+	/** 验证码输入框 */
 	private JTextField textField_yanzheng;
+	/** 显示验证码图片的标签 */
 	private JLabel lbl_tupian = new JLabel("");
+	/** 生成验证码 */
 	private MakeCertPic yanzhengma = new MakeCertPic();// 产生一个验证码
+	/** 存放验证码，用于显示在标签上 */
 	private Icon icon;
+	/** 刷新按钮 */
 	private JLabel lbl_shuaxin = new JLabel("刷新");
+	
+	/** 通过输入的账号密码构造Users类 */
+	private Users user;
 
 	/**
 	 * Create the panel.
@@ -149,7 +171,7 @@ public class Register extends JPanel {
 	}
 	
 	/**
-	 * 检查注册中是否填入账号、密码、密码和确认密码是否相同
+	 * 检查注册中是否填入账号、密码、密码和确认密码是否相同，并构造Users类
 	 * @return
 	 */
 	public boolean checkPass() {
@@ -181,6 +203,7 @@ public class Register extends JPanel {
 			showTips("验证码不正确！");
 			return false;
 		}
+		user = new Users(zhanghao, mima);
 		return true;
 	}
 	
@@ -206,7 +229,6 @@ public class Register extends JPanel {
 		Timer timer = new Timer();// 实例化Timer类
 		timer.schedule(new TimerTask() {
 			public void run() {
-				// TODO 此处可显示登录成功
 				tips.setVisible(false);
 				this.cancel();
 			}
@@ -232,5 +254,16 @@ public class Register extends JPanel {
 		icon = yanzhengma.getCertPic(lbl_tupian.getWidth(), lbl_tupian.getHeight());
 		lbl_tupian.setIcon(icon);
 		System.out.println(yanzhengma.getStr());
+	}
+
+	/**
+	 * 返回构造好的Users类
+	 * @return user
+	 */
+	public Users getUser() {
+		if(checkPass() == true) {
+			return user;
+		}
+		return null;
 	}
 }
