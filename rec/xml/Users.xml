@@ -20,7 +20,7 @@
     <id>4567</id>  
     <name>jhn</name>  
     <password>zzz</password>  
-    <friends>1234.2345.4567</friends> 
+    <friends>1234,2345,3456</friends> 
   </user>  
   <user index="4">
     <id>8888</id>
