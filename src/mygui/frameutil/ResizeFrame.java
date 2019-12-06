@@ -138,20 +138,20 @@ public class ResizeFrame extends JFrame {
 			point.y = e.getY();
 		}
 	}
-//	public static void main(String[] args) {
-//		// 一个简单的演示小例子
-//		JFrame frame = new ResizeFrame();
-//		frame.setSize(400, 300);
-//		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-//		frame.setLocation((screenSize.width - frame.getWidth()) / 2, (screenSize.height - frame.getHeight()) / 2);
-//		frame.addMouseListener(new MouseAdapter() {
-//			public void mouseClicked(MouseEvent event) {
-//				if (event.getClickCount() > 1) {
-//					System.exit(0);
-//				}
-//			}
-//		});
-//		frame.setUndecorated(true);
-//		frame.setVisible(true);
-//	}
+	public static void main(String[] args) {
+		// 一个简单的演示小例子
+		JFrame frame = new ResizeFrame();
+		frame.setSize(400, 300);
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		frame.setLocation((screenSize.width - frame.getWidth()) / 2, (screenSize.height - frame.getHeight()) / 2);
+		frame.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent event) {
+				if (event.getClickCount() > 1) {
+					System.exit(0);
+				}
+			}
+		});
+		frame.setUndecorated(true);
+		frame.setVisible(true);
+	}
 }
