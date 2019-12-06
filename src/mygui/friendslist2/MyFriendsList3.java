@@ -14,6 +14,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 
 import javax.swing.AbstractListModel;
 import javax.swing.DefaultListModel;
@@ -29,7 +32,10 @@ import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 import javax.swing.tree.TreePath;
 
+import bean.Users;
+import mygui.frameutil.BackgroundJPanel;
 import mygui.frameutil.ResizeFrame;
+import util.XMLOperation;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -53,133 +59,126 @@ public class MyFriendsList3 {
 	private ResizeFrame frame = new ResizeFrame();
 	/** 底层面板 */
 	private JPanel content;
-	/** 最小化和关闭按钮 */
+	/** 最小化按钮 */
 	private JLabel minButton = new JLabel();
+	/** 退出按钮 */
 	private JLabel exitButton = new JLabel();
+	/** 皮肤按钮 */
 	private JLabel skinButton = new JLabel();
+	
 	/** 记录鼠标位置，用于skinOption中实现鼠标高亮 */
 	private Point skinPoint = new Point();
 	/** pLocation记录frame在屏幕上的位置，用于最大化后还原之前的位置 */
 	private Point pLocation = new Point();
-	/** 窗口默认大小 */
-	private static final int DEFAULT_WIDTH = 290;
+	
+	/** 窗口默认宽度 */
+	private static final int DEFAULT_WIDTH = 260;
+	/** 窗口默认高度 */
 	private static final int DEFAULT_HEIGHT = 560;
 
-	/**
-	 * 记录创建的皮肤对话框数，最多只能创建一个对话框
-	 */
+	/** 记录创建的皮肤对话框数，最多只能创建一个对话框 */
 	private static int skinDialogCount = 0;
 
-	/**
-	 * 默认主题的颜色
-	 */
+	// 颜色部分
+	/** 默认主题的颜色 */
 	private Color color = Color.WHITE;
+	/** 默认的好友、消息、群聊三个标签没有被选中时的前景色 */
+	private Color COLOR_TABLE_NOT_SELECTED = Color.GRAY;
+	/** 默认的好友、消息、群聊三个标签被选中时的前景色 */
+	private Color COLOR_TABLE_SELECTED = Color.BLACK;
 
-	/**
-	 * 默认的窗口背景图片
-	 */
-	private ImageIcon backGroundImgIcon = new ImageIcon(getClass().getResource("/Images/back11.png"));
+	/** 默认的窗口背景图片 */
+	private ImageIcon backGroundImgIcon = new ImageIcon(getClass().getResource("/Images/back02.jpg"));
 
-	/**
-	 * 窗口标题
-	 */
+	/** 窗口标题 */
 	private static String title = new String(" 我的QQ");
 
-	/**
-	 * 将contentPane分为三大区域
-	 */
+	//将contentPane分为三大区域
+	/** contentPane的上 */
 	private final JPanel panel_top = new JPanel();
+	/** contentPane的中 */
 	private final JPanel panel_center = new JPanel();
+	/** contentPane的下 */
 	private final JPanel panel_down = new JPanel();
 
-	/**
-	 * 设置窗口显示的标题
-	 */
-	private JLabel lbl_title = new JLabel();
+	/** 设置窗口显示的标题 */
+	private final JLabel lbl_title = new JLabel();
 
-	/**
-	 * 用于显示右上角的关闭、最小化等按钮
-	 */
+	/** 用于显示右上角的关闭、最小化等按钮 */
 	private final JPanel panel_close = new JPanel();
 
-	/**
-	 * 中间的两部分之一，用于显示头像、昵称、搜索框信息等
-	 */
+	/** 中间的两部分之一，用于显示头像、昵称、搜索框信息等 */
 	private final JPanel panel_header = new JPanel();
-	/**
-	 * 用于显示好友信息、上方的切换标签等
-	 */
+	/** 用于显示好友信息、上方的切换标签等 */
 	private final JPanel panel_friends = new JPanel();
 
-	/**
-	 * 头像
-	 */
+	/** 头像 */
 	private final JLabel lbl_header = new JLabel();
 
-	/**
-	 * 存放昵称，签名
-	 */
+	/** 存放昵称，签名 */
 	private final JPanel panel_name = new JPanel();
-	/**
-	 * 存放昵称
-	 */
+	/** 存放昵称 */
 	private final JLabel lbl_name = new JLabel("New label");
-	/**
-	 * 存放签名
-	 */
+	/** 存放签名 */
 	private final JTextArea textArea_sign = new JTextArea();
-	/**
-	 * 天气面板
-	 */
+	/** 天气面板 */
 	private final JPanel panel_weather = new JPanel();
-	/**
-	 * 存放天气
-	 */
+	/** 存放天气 */
 	private final JLabel lbl_weather = new JLabel("New label");
 
-	/**
-	 * 搜索面板
-	 */
+	/** 搜索面板 */
 	private final JPanel panel_search = new JPanel();
-	/**
-	 * 搜索图标
-	 */
+	/** 搜索图标 */
 	private final JLabel lbl_search = new JLabel();
-	/**
-	 * 搜索输入框
-	 */
+	/** 搜索输入框 */
 	private final JTextField txtField = new JTextField();
-	/**
-	 * 用于切换最近聊天、好友列表、群聊
-	 */
+	
+	/** 用于切换最近聊天、好友列表、群聊 */
 	private final JPanel panel_table = new JPanel();
-	/**
-	 * 存放最近聊天
-	 */
+	/** 存放最近聊天 */
 	private final JPanel panel_tab1 = new JPanel();
-	/**
-	 * 存放好友列表
-	 */
+	/** 存放好友列表 */
 	private final JPanel panel_tab2 = new JPanel();
-	/**
-	 * 存放群聊列表
-	 */
+	/** 存放群聊列表 */
 	private final JPanel panel_tab3 = new JPanel();
-	/**
-	 * 分层面板，用于切换上面的三个tab，用来显示最近聊天、好友列表、群聊
-	 */
+	
+	/** 分层面板，用于切换上面的三个tab，用来显示最近聊天、好友列表、群聊 */
 	private final JLayeredPane layeredPane = new JLayeredPane();
-	private final JLabel lbl_tab1 = new JLabel("最近");
+	
+	private final JLabel lbl_tab1 = new JLabel("消息");
 	private final JLabel lbl_tab2 = new JLabel("好友");
 	private final JLabel lbl_tab3 = new JLabel("群聊");
-	private final JPanel panel_friendsList = new JPanel();
-	MyTreeNode root;
-	MyTreeCellRenderer renderer = new MyTreeCellRenderer();
+	
+	/** 显示好友列表、消息列表、群聊等 */
+	private final JPanel panel_main = new JPanel();
+	
+	/** JTree的根节点 */
+	private MyTreeNode root;
+	/** JTree的自定义渲染器 */
+	private MyTreeCellRenderer renderer = new MyTreeCellRenderer();
+	/** 滚动面板 */
 	private JScrollPane scrollPane = new JScrollPane();
+	/** 显示好友列表的树 */
 	private JTree tree;
+	
+	/** 底栏的面板，防置功能按钮，左边 */
 	private final JPanel panel_down_left = new JPanel();
+	/** 底栏的面板，防置功能按钮，右边 */
 	private final JPanel panel_down_right = new JPanel();
+	/** 底栏的面板，菜单面板 */
 	private final JLabel lbl_menu = new JLabel();
+	
+	// 用户
+	/** 接收从客户端接收的Users类 */
+	private Users user = null;
+	
+	// 网络
+	/** 接收从登陆页面传来的socket */
+	private Socket socket = null;
+	/** 接收从登陆页面传来的out输出流 */
+	private PrintWriter out = null;
+	/** 接收从登陆页面传来的in输入流 */
+	private BufferedReader in = null;
 
 	/**
 	 * Launch the application.
@@ -212,31 +211,37 @@ public class MyFriendsList3 {
 	}
 
 	/**
+	 * @param user
+	 * @param socket
+	 * @param out
+	 * @param in
+	 */
+	public MyFriendsList3(Users user, Socket socket, PrintWriter out, BufferedReader in) {
+		this.user = user;
+		this.socket = socket;
+		this.out = out;
+		this.in = in;
+		initBackGround();// 初始化窗口及背景
+		initComponent();// 初始化窗口内组件
+		initSetOpaque();// 设置组件透明
+		initialize(this.user);// 初始化组件内容
+		initJTreeNode(this.user);// 初始化JTree的节点，即好友列表
+		initJtree();// 初始化JTree样式，使用自定义样式
+		initColor();
+		initListener();// 初始化窗口事件监听，实现窗口拖动、最小化、关闭
+	}
+
+	/**
 	 * 初始化窗口及背景图片
 	 */
-	@SuppressWarnings("serial")
 	private void initBackGround() {
 		frame.setBounds(100, 100, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 		frame.setUndecorated(true);// 将原始的边框去掉
 		frame.setLocationRelativeTo(null);// 设置窗口打开位置居中
-
-		content = new JPanel() {
-			@Override
-			protected void paintComponent(Graphics g) {
-				// 这一句可以清除之前绘制的图像，在这个例子中看不出来效果，若是java做画图板的程序就能看出来
-				super.paintComponent(g);
-				// 此方法有很多种，看的眼花缭乱，了解参数了就好多了，这里说一下基本的
-				// 1：image对象
-				// 2：重绘的起始横坐标
-				// 3：重绘的起始纵坐标
-				// 4：重绘的宽度
-				// 5：重绘的高度
-				// 6：一个实现ImageObserver
-				// 接口的对象。它将该对象登记为一个图像观察者，因此当图像的任何新信息可见时它被通知。大多组件可以简单的指定this或null
-				// 组件可以指定this作为图像观察者的原因是Component类实现了ImageObserver接口。当图像数据被加载时它的实现调用repaint方法
-				g.drawImage(backGroundImgIcon.getImage(), 0, 0, getWidth(), getHeight(), null);
-			}
-		};
+		
+		content = new BackgroundJPanel(backGroundImgIcon);// 初始化内容面板，设置背景
+		content.setBorder(new LineBorder(new Color(192, 192, 192), 1, true));
+		content.setLayout(new BorderLayout(0, 0));
 		frame.setContentPane(content);
 	}
 
@@ -244,11 +249,8 @@ public class MyFriendsList3 {
 	 * 初始化窗口内组件
 	 */
 	private void initComponent() {
-		content.setBorder(new LineBorder(Color.LIGHT_GRAY));
-		content.setLayout(new BorderLayout(0, 0));
-
-		content.add(panel_top, BorderLayout.NORTH);
 		panel_top.setLayout(new BorderLayout(0, 0));
+		content.add(panel_top, BorderLayout.NORTH);
 
 		panel_top.add(lbl_title, BorderLayout.WEST);
 
@@ -256,8 +258,8 @@ public class MyFriendsList3 {
 		fl_panel_close.setAlignment(FlowLayout.RIGHT);
 		fl_panel_close.setVgap(0);
 		fl_panel_close.setHgap(0);
-
 		panel_top.add(panel_close, BorderLayout.EAST);
+		
 		// 最小化、关闭、换肤
 		minButton.setIcon(produceImage("minimize.png"));
 		exitButton.setIcon(produceImage("close3.png"));
@@ -265,74 +267,73 @@ public class MyFriendsList3 {
 		panel_close.add(skinButton);
 		panel_close.add(minButton);
 		panel_close.add(exitButton);
+		
 		/** 设置上左边框宽度为5 */
 		panel_center.setBorder(new EmptyBorder(5, 0, 0, 0));
 		panel_center.setLayout(new BorderLayout(0, 0));
-
 		content.add(panel_center, BorderLayout.CENTER);
 
 		panel_center.add(panel_header, BorderLayout.NORTH);
 		panel_header.setLayout(new BorderLayout(10, 10));
 		/** 设置头像离左边框的距离为5 */
 		lbl_header.setBorder(new EmptyBorder(0, 5, 0, 0));
-
 		panel_header.add(lbl_header, BorderLayout.WEST);
 
-		panel_header.add(panel_name, BorderLayout.CENTER);
 		panel_name.setLayout(new GridLayout(2, 1, 0, 0));
+		panel_header.add(panel_name, BorderLayout.CENTER);
+		
 		lbl_name.setFont(new Font("黑体", Font.BOLD, 15));
-
 		panel_name.add(lbl_name);
 
 		textArea_sign.setEditable(false);
 		textArea_sign.setRows(2);
 		textArea_sign.setFont(new Font("微软雅黑", Font.PLAIN, 13));
 		textArea_sign.setLineWrap(true);
-
 		textArea_sign.setOpaque(false);
 		panel_name.add(textArea_sign);
+		
 		/** 设置天气标签距离右边界距离为15 */
 		panel_weather.setBorder(new EmptyBorder(0, 0, 0, 15));
-
-		panel_header.add(panel_weather, BorderLayout.EAST);
-
 		panel_weather.setLayout(new BorderLayout(10, 10));
 		panel_weather.add(lbl_weather);
-
-		panel_header.add(panel_search, BorderLayout.SOUTH);
+		panel_header.add(panel_weather, BorderLayout.EAST);
 
 		panel_search.setLayout(new BorderLayout(0, 0));
 		panel_search.add(lbl_search, BorderLayout.WEST);
+		panel_header.add(panel_search, BorderLayout.SOUTH);
 
 		panel_search.add(txtField);
 
-		panel_center.add(panel_friends, BorderLayout.CENTER);
-
 		panel_friends.setLayout(new BorderLayout(0, 0));
 		panel_friends.add(panel_table, BorderLayout.NORTH);
+		panel_center.add(panel_friends, BorderLayout.CENTER);
 
 		panel_table.setLayout(new GridLayout(0, 3, 0, 0));
-		/** 设置panel_tab1为花色边框，颜色 */
 		panel_tab1.setBorder(new MatteBorder(0, 0, 3, 0, color));
 		panel_table.add(panel_tab1);
+		lbl_tab1.setForeground(COLOR_TABLE_NOT_SELECTED);
 
 		panel_tab1.add(lbl_tab1);
 
 		/** 设置panel_tab2为花色边框，颜色 */
 		panel_tab2.setBorder(new MatteBorder(0, 0, 3, 0, color));
 		panel_table.add(panel_tab2);
+		lbl_tab2.setForeground(COLOR_TABLE_NOT_SELECTED);
 
 		panel_tab2.add(lbl_tab2);
 
 		/** 设置panel_tab3为花色边框，颜色 */
 		panel_tab3.setBorder(new MatteBorder(0, 0, 3, 0, color));
 		panel_table.add(panel_tab3);
+		lbl_tab3.setForeground(COLOR_TABLE_NOT_SELECTED);
 
 		panel_tab3.add(lbl_tab3);
-		panel_friends.add(panel_friendsList, BorderLayout.CENTER);
-		panel_friendsList.setLayout(new BorderLayout(0, 0));
-		panel_friendsList.add(layeredPane, BorderLayout.CENTER);
-		layeredPane.setLayer(panel_friendsList, 1);
+		
+		panel_main.setLayout(new BorderLayout(0, 0));
+		panel_main.add(layeredPane, BorderLayout.CENTER);
+		panel_friends.add(panel_main, BorderLayout.CENTER);
+		
+		layeredPane.setLayer(panel_main, 1);
 		layeredPane.setLayout(new BorderLayout(0, 0));
 
 		layeredPane.add(scrollPane, BorderLayout.CENTER);
@@ -352,7 +353,6 @@ public class MyFriendsList3 {
 	private void initSetOpaque() {
 		panel_top.setOpaque(false);
 		panel_center.setOpaque(false);
-		panel_down.setOpaque(false);
 		panel_close.setOpaque(false);
 		panel_header.setOpaque(false);
 		panel_friends.setOpaque(false);
@@ -362,7 +362,7 @@ public class MyFriendsList3 {
 	}
 
 	/**
-	 * 初始化组件内容
+	 * 初始化组件内容（默认头像昵称，调试用）
 	 */
 	private void initialize() {
 		lbl_title.setText(title);
@@ -377,8 +377,28 @@ public class MyFriendsList3 {
 
 		textArea_sign.setText("人生若只如初见，何事秋风悲画扇");
 
-		// txtField.setBackground(Color.MAGENTA);
-		// txtField.setText("搜索");
+		txtField.addFocusListener(new JTextFieldHintListener(txtField, "搜索好友"));
+
+		lbl_menu.setIcon(produceImage("menu.png"));
+		lbl_menu.setPreferredSize(new Dimension(25, 20));
+	}
+	
+	/**
+	 * 初始化组件内容
+	 */
+	private void initialize(Users user) {
+		lbl_title.setText(title);
+		lbl_header.setIcon(produceImage("223209_3.jpg"));
+		lbl_name.setText(user.getName());
+		lbl_weather.setText("晴");
+		lbl_search.setIcon(toSuitableIcon(20, 20, "search_icon.png"));
+
+		lbl_tab1.setFont(new Font("宋体", Font.PLAIN, 14));
+		lbl_tab2.setFont(new Font("宋体", Font.PLAIN, 14));
+		lbl_tab3.setFont(new Font("宋体", Font.PLAIN, 14));
+
+		textArea_sign.setText("人生若只如初见，何事秋风悲画扇");
+
 		txtField.addFocusListener(new JTextFieldHintListener(txtField, "搜索好友"));
 
 		lbl_menu.setIcon(produceImage("menu.png"));
@@ -386,7 +406,7 @@ public class MyFriendsList3 {
 	}
 
 	/**
-	 * 初始化JTree的节点，即好友列表
+	 * 初始化JTree的节点，即好友列表（默认调试用）
 	 */
 	private void initJTreeNode() {
 		Icon ico1 = new ImageIcon(MyFriendsList.class.getResource("/Images/1.png"));
@@ -426,6 +446,36 @@ public class MyFriendsList3 {
 		node3.add(node3_2);
 		node3.add(node3_3);
 	}
+	
+	/**
+	 * 初始化JTree的节点，即好友列表（默认调试用）
+	 */
+	private void initJTreeNode(Users user) {
+		root = new MyTreeNode();
+		String[] friend = user.getFriends().split(",");// XML 那里用.分割会有问题
+		//TODO 此处可处理下没有好友的情况
+		if(friend.length == 0) {
+			return;
+		}
+		
+		Icon ico1 = new ImageIcon(MyFriendsList.class.getResource("/Images/1.png"));
+		Icon ico2 = new ImageIcon(MyFriendsList.class.getResource("/Images/2.png"));
+		Icon ico3 = new ImageIcon(MyFriendsList.class.getResource("/Images/3.png"));
+		Icon ico4 = new ImageIcon(MyFriendsList.class.getResource("/Images/4.png"));
+		
+		XMLOperation xml = new XMLOperation();
+		MyTreeNode node_main = new MyTreeNode("我的好友");
+		root.add(node_main);
+		MyTreeNode node[] = new MyTreeNode[friend.length];
+		for (int i = 0; i < friend.length; i++) {
+			Users friends = xml.getUsersById(friend[i]);
+			System.out.println(friends.getName());
+			node[i] = new MyTreeNode(ico1, friends.getName(), "人生若只如初见");
+			node_main.add(node[i]);
+		}
+		
+	}
+
 
 	/**
 	 * 初始化JTree样式，使用自定义样式
@@ -459,14 +509,6 @@ public class MyFriendsList3 {
 	 * 初始化窗口事件监听，实现窗口拖动、最小化、关闭
 	 */
 	private void initListener() {
-		// 窗体事件，用于拖动窗体位置
-//		frame.addMouseListener(new MouseAdapter() {
-//			@Override
-//			public void mousePressed(MouseEvent e) {
-//				point.x = e.getX();
-//				point.y = e.getY();
-//			}
-//		});
 		MouseAdapter mos = new MouseAdapter() {
 			@Override
 			public void mouseMoved(MouseEvent e) {// 鼠标移动
@@ -501,11 +543,11 @@ public class MyFriendsList3 {
 			public void mouseClicked(MouseEvent e) {// 鼠标点击
 				// TODO 自动生成的方法存根
 				int x = e.getX(), y = e.getY();
-				TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
+				TreePath selPath = tree.getPathForLocation(x, y);
 				if (e.getSource() == tree && e.getClickCount() == 2 && selPath != null) {
-//					System.out.println("12");
 					int selRow = tree.getRowForLocation(x, y);
 					MyTreeCellRenderer.selRow = selRow;
+					tree.repaint();// 让好友聊天界面立即打开，否则移动鼠标才会显示
 					System.out.println(tree.getRowForLocation(x, y));
 				}
 			}
@@ -528,20 +570,23 @@ public class MyFriendsList3 {
 					MyTreeCellRenderer.mouseRow = -1;// 鼠标退出这棵树，取消高亮
 					tree.repaint();
 				}
-				if (e.getSource() == panel_tab1) {
-					panel_tab1.setBackground(color);
-					panel_tab1.setBorder(new MatteBorder(0, 0, 3, 0, (Color) new Color(255, 200, 0)));
-					panel_tab1.repaint();
+				if (e.getSource() == panel_tab1) {// 消息
+//					panel_tab1.setBackground(color);
+//					panel_tab1.setBorder(new MatteBorder(0, 0, 3, 0, (Color) new Color(255, 200, 0)));
+//					panel_tab1.repaint();
+					lbl_tab1.setForeground(COLOR_TABLE_NOT_SELECTED);
 				}
-				if (e.getSource() == panel_tab2) {
-					panel_tab2.setBackground(color);
-					panel_tab2.setBorder(new MatteBorder(0, 0, 3, 0, (Color) new Color(255, 200, 0)));
-					panel_tab2.repaint();
+				if (e.getSource() == panel_tab2) {// 好友
+//					panel_tab2.setBackground(color);
+//					panel_tab2.setBorder(new MatteBorder(0, 0, 3, 0, (Color) new Color(255, 200, 0)));
+//					panel_tab2.repaint();
+					lbl_tab2.setForeground(COLOR_TABLE_NOT_SELECTED);
 				}
-				if (e.getSource() == panel_tab3) {
-					panel_tab3.setBackground(color);
-					panel_tab3.setBorder(new MatteBorder(0, 0, 3, 0, (Color) new Color(255, 200, 0)));
-					panel_tab3.repaint();
+				if (e.getSource() == panel_tab3) {// 群聊
+//					panel_tab3.setBackground(color);
+//					panel_tab3.setBorder(new MatteBorder(0, 0, 3, 0, (Color) new Color(255, 200, 0)));
+//					panel_tab3.repaint();
+					lbl_tab3.setForeground(COLOR_TABLE_NOT_SELECTED);
 				}
 			}
 
@@ -559,23 +604,25 @@ public class MyFriendsList3 {
 				if (e.getSource() == lbl_menu) {// lbl_menu事件
 					lbl_menu.setIcon(produceImage("menu_active2.png"));
 				}
-				if (e.getSource() == panel_tab1) {
-					panel_tab1.setBackground(new Color(255,255,0,100));
-					panel_tab1.setBorder(new MatteBorder(0, 0, 3, 0, color));
-					panel_tab1.repaint();
-					lbl_tab1.repaint();
+				if (e.getSource() == panel_tab1) {// 消息
+//					panel_tab1.setBackground(new Color(255,255,0,100));
+//					panel_tab1.setBorder(new MatteBorder(0, 0, 3, 0, color));
+//					panel_tab1.repaint();
+					lbl_tab1.setForeground(COLOR_TABLE_SELECTED);
 				}
-				if (e.getSource() == panel_tab2) {
-					panel_tab2.setBackground(new Color(255,255,0,100));
-					panel_tab2.setBorder(new MatteBorder(0, 0, 3, 0, color));
-					panel_tab2.repaint();
-					lbl_tab2.repaint();
+				if (e.getSource() == panel_tab2) {// 好友
+//					panel_tab2.setBackground(new Color(255,255,0,100));
+//					panel_tab2.setBorder(new MatteBorder(0, 0, 3, 0, color));
+//					panel_tab2.repaint();
+//					lbl_tab2.repaint();
+					lbl_tab2.setForeground(COLOR_TABLE_SELECTED);
 				}
-				if (e.getSource() == panel_tab3) {
-					panel_tab3.setBackground(new Color(255,255,0,100));
-					panel_tab3.setBorder(new MatteBorder(0, 0, 3, 0, color));
-					panel_tab3.repaint();
-					lbl_tab3.repaint();
+				if (e.getSource() == panel_tab3) {// 群聊
+//					panel_tab3.setBackground(new Color(255,255,0,100));
+//					panel_tab3.setBorder(new MatteBorder(0, 0, 3, 0, color));
+//					panel_tab3.repaint();
+//					lbl_tab3.repaint();
+					lbl_tab3.setForeground(COLOR_TABLE_SELECTED);
 				}
 			}
 
@@ -612,78 +659,6 @@ public class MyFriendsList3 {
 		panel_tab1.addMouseListener(mos);
 		panel_tab2.addMouseListener(mos);
 		panel_tab3.addMouseListener(mos);
-		
-
-		// 皮肤按钮事件
-//		skinButton.addMouseListener(new MouseAdapter() {
-//			@Override
-//			public void mouseExited(MouseEvent e) {
-//				skinButton.setIcon(produceImage("skin.png"));
-//			}
-//			
-//			@Override
-//			public void mouseEntered(MouseEvent e) {
-//				skinButton.setIcon(produceImage("skin_active.png"));
-//			}
-//			
-//			@Override
-//			public void mouseReleased(MouseEvent e) {
-//				Point fp = frame.getLocation();//获取frame的坐标，Point对象有公共整型成员x y可访问
-//				Point p = new Point(e.getX() + fp.x, e.getY() + fp.y);
-//				if(skinDialogCount < 1) {//如果当前选择皮肤对话框数量为0
-//					skinDialogCount += 1;
-//					skinOption(p);//创建一个选择颜色的对话框			
-//				}
-//			}
-//		});
-
-		// 最小化按钮事件
-//		minButton.addMouseListener(new MouseAdapter() {
-//			@Override
-//			public void mouseExited(MouseEvent e) {// 鼠标退出组件时
-//				minButton.setIcon(produceImage("minimize.png"));
-//			}
-//
-//			@Override
-//			public void mouseEntered(MouseEvent e) {// 鼠标进入组件时
-//				minButton.setIcon(produceImage("minimize_active.png"));
-//			}
-//
-//			@Override
-//			public void mouseReleased(MouseEvent e) {// 鼠标松开时
-//				frame.setExtendedState(Frame.ICONIFIED);
-//			}
-//		});
-
-		// 退出按钮事件
-//		exitButton.addMouseListener(new MouseAdapter() {
-//			@Override
-//			public void mouseExited(MouseEvent e) {
-//				exitButton.setIcon(produceImage("close3.png"));
-//			}
-//
-//			@Override
-//			public void mouseEntered(MouseEvent e) {
-//				exitButton.setIcon(produceImage("close_active3.png"));
-//			}
-//
-//			@Override
-//			public void mouseReleased(MouseEvent e) {
-//				System.exit(0);
-//			}
-//		});
-
-//		lbl_menu.addMouseListener(new MouseAdapter() {
-//			@Override
-//			public void mouseExited(MouseEvent e) {
-//				lbl_menu.setIcon(produceImage("menu.png"));
-//			}
-//
-//			@Override
-//			public void mouseEntered(MouseEvent e) {
-//				lbl_menu.setIcon(produceImage("menu_active2.png"));
-//			}
-//		});
 	}
 
 	/**
@@ -711,7 +686,6 @@ public class MyFriendsList3 {
 		return backImage;
 	}
 
-	@SuppressWarnings("serial")
 	private void skinOption(Point curPoint) {
 		int width = 126;// 对话框宽度
 		int height = 170;// 对话框高度

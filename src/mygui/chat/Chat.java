@@ -28,6 +28,7 @@ import java.awt.Color;
 import java.awt.Font;
 import javax.swing.border.MatteBorder;
 
+import bean.Users;
 import util.VerticalFlowLayout;
 
 import javax.swing.JComboBox;
@@ -57,6 +58,9 @@ public class Chat {
 	private GridBagConstraints gbc_liaotianjilu = new GridBagConstraints();
 	private int messageCount = 3;
 	private JProgressBar progressBar;
+	
+	private Users thisUser = null;
+	private Users targetUser = null;
 
 	/**
 	 * Launch the application.
@@ -80,6 +84,15 @@ public class Chat {
 	public Chat() {
 		initialize();
 		frame.setVisible(true);
+	}
+
+	/**
+	 * @param thisUser
+	 * @param targetUser
+	 */
+	public Chat(Users thisUser, Users targetUser) {
+		this.thisUser = thisUser;
+		this.targetUser = targetUser;
 	}
 
 	/**
