@@ -103,6 +103,17 @@ public class BubblePanelBorder extends JPanel {
 
 	/**
 	 * @param isSelf
+	 * @param name
+	 * @param message
+	 */
+	public BubblePanelBorder(boolean isSelf, String name, String message) {
+		this.isSelf = isSelf;
+		this.name = name;
+		this.message = message;
+	}
+
+	/**
+	 * @param isSelf
 	 * @param image
 	 * @param name
 	 * @param message
