@@ -152,38 +152,6 @@ SingleServerFrame window = new SingleServerFrame();
 			listen.setClientIn(clientIn);
 			Thread lis = new Thread(listen);
 			lis.start();
-
-//			new Thread(new Runnable() {
-//				
-//				@Override
-//				public void run() {
-//					// TODO 自动生成的方法存根
-//					try {
-//						while (true) {// 循环从客户端读入数据
-//
-//							if (clientBye == false) {// 如果客户端没有说拜拜
-//								clientMessageLine = clientIn.readLine();// 从客户端读入文字
-//								if (clientMessageLine.equals(exitCode)) {// 对方断开
-//									clientBye = true;
-//									textArea_showMessage.append("客户端已退出" + clientMessageLine + "\n");
-//								}else {
-//									textArea_showMessage.append("从客户端接收：" + clientMessageLine + "\n");
-//								}
-//							}
-//
-//							if (localBye == true && clientBye == true) {
-//								break;
-//							}
-//						}
-//					} catch (IOException e) {
-//						// TODO 自动生成的 catch 块
-//						e.printStackTrace();
-//					} finally {
-//						//clientIn.close();
-//					}
-//				}
-//			}).start();
-
 //			while (true) {// 循环从客户端读入数据
 ////				if(!clientIn.ready()) {
 ////					continue;
@@ -248,9 +216,6 @@ class Listen implements Runnable{
 		// TODO 自动生成的方法存根
 		try {
 			while (true) {// 循环从客户端读入数据
-				if(!clientIn.ready()) {
-					continue;
-				}
 
 				if (sf.clientBye == false) {// 如果客户端没有说拜拜
 					sf.clientMessageLine = clientIn.readLine();// 从客户端读入文字
