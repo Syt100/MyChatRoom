@@ -186,7 +186,7 @@ public class MultiServerFrame {
 	 * @param clientSocket
 	 */
 	public static void connetToClient(Socket clientSocket) {
-		//addClientShowToList();
+		// addClientShowToList();
 		try {
 			// 由Socket对象得到输出流，并构造相应的PrintWriter对象
 			PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
@@ -222,6 +222,7 @@ public class MultiServerFrame {
 
 	/**
 	 * 从客户端的流中读取字符串，并显示在服务端的TextArea里
+	 * 
 	 * @param clientIn 客户端输入流
 	 * @throws IOException
 	 */
@@ -229,9 +230,10 @@ public class MultiServerFrame {
 		clientMessageLine = clientIn.readLine();// 从客户端读入文字
 		textArea_showMessage.append("从客户端接收：" + clientMessageLine + "\n");
 	}
-	
+
 	/**
 	 * 传入字符串，显示在服务端的TextArea里
+	 * 
 	 * @param message
 	 */
 	public static void showMsgFromClient(String message) {
@@ -240,6 +242,7 @@ public class MultiServerFrame {
 
 	/**
 	 * 将列表上显示的客户端数量加一个
+	 * 
 	 * @param name
 	 */
 	public static void addClientShowToList(String name) {
@@ -249,72 +252,128 @@ public class MultiServerFrame {
 			list.setSelectedIndex(0);
 		}
 	}
-	
+
 	/**
 	 * 将列表上显示的客户端数量减一个
+	 * 
 	 * @param name
 	 */
 	public static void removeClientShowToList(String name) {
 		dlm.removeElement(name);
 		flushClientCountShow();
 	}
-	
+
 	/**
 	 * 修改客户端列表的显示名称
+	 * 
 	 * @param oldName
 	 * @param newName
 	 */
 	public static void updateClientShowName(String oldName, String newName) {
-		//TODO 此处应该加咩找到的处理
+		// TODO 此处应该加咩找到的处理
 		int index = dlm.indexOf(oldName);// 搜索指定元素的位置，如果没有找到，返回-1
 		dlm.remove(index);
-		//TODO 这里不确定是否会覆盖原来index位置的元素
+		// TODO 这里不确定是否会覆盖原来index位置的元素
 		dlm.add(index, newName);
 	}
 
 	/**
+	 * 以客户端线程数组的形式返回，通过域变量threadGroup获取活跃的客户端线程数组，并返回
+	 * 
+	 * @return MultiTalkServerThread[] 返回所有的客户端线程，放在数组里
+	 */
+	public static MultiTalkServerThread[] getClientList() {
+		// ThreadGroup currentGroup =Thread.currentThread().getThreadGroup();//获取当前线程组
+		int noThreads = threadGroup.activeCount();// 获取存放客户端的线程组中活跃线程数量，即客户端的数量
+		System.out.println("线程数：" + noThreads);
+
+		// 客户端线程数组，
+		MultiTalkServerThread[] lstThreads = new MultiTalkServerThread[noThreads];
+		// 把客户端线程组中的所有活动子组的引用复制到数组中。
+		threadGroup.enumerate(lstThreads);
+		return lstThreads;
+	}
+
+	/**
+	 * @return name,所有已连接的客户端线程名
+	 */
+	public static String[] getClientListName() {
+		int noThreads = threadGroup.activeCount();
+		MultiTalkServerThread[] lstThreads = new MultiTalkServerThread[noThreads];
+		threadGroup.enumerate(lstThreads);
+		int i = 0;
+		String name[] = new String[noThreads];
+		for (MultiTalkServerThread thread : lstThreads) {
+			name[i++] = thread.getName();
+		}
+		return name;
+	}
+
+	/**
+	 * 把names里的客户端数组名称放入outs输出流数组，实现同时多输出
+	 * 
+	 * @param names 要放入输出流数组outs的客户端的名字数组
+	 */
+	protected static void updateClientOnOutputStream(String[] names) {
+		MultiTalkServerThread[] lstThreads = MultiServerFrame.getClientList();
+		int i = 0;
+		for (MultiTalkServerThread thread : lstThreads) {
+			System.out.println("线程数量：" + lstThreads.length + " 线程id：" + thread.getId() + " 线程名称：" + thread.getName()
+					+ " 线程状态：" + thread.getState());
+			// 与每一个线程名匹配，如果是，就加入outs
+			for (int j = 0; j < names.length; j++) {
+				// 选择一个
+				if (thread.getName().equals(names[j])) {
+					outs[i++] = thread.getOutPut();// 将客户端线程的输出流放到outs输出流数组中
+				}
+			}
+		}
+		currentOutsNumber = i;
+		System.out.println("准备发送到" + i + "个输出流");
+	}
+	
+	/**
+	 * 将消息发送到流里
+	 * @param msg
+	 */
+	protected static void putMessageToStream(String msg) {
+		for (PrintWriter pw : outs) {
+			if (pw != null) {
+				pw.println(msg);
+				pw.flush();
+			}
+		}
+	}
+
+	/**
 	 * 客户端列表选择改变的监听器，用于选择发送的客户端
+	 * 
 	 * @author xuxin
 	 *
 	 */
 	private class ListSelectionChangedListener implements ListSelectionListener {
 		public void valueChanged(ListSelectionEvent e) {
 			System.out.println("选择改变");
-			// ThreadGroup currentGroup =Thread.currentThread().getThreadGroup();//获取当前线程组
-			int noThreads = threadGroup.activeCount();// 获取存放客户端的线程组中活跃线程数量，即客户端的数量
-			System.out.println("线程数：" + noThreads);
 
 			// 客户端线程数组，
-			MultiTalkServerThread[] lstThreads = new MultiTalkServerThread[noThreads];
-			// 把客户端线程组中的所有活动子组的引用复制到数组中。
-			threadGroup.enumerate(lstThreads);
+			MultiTalkServerThread[] lstThreads = MultiServerFrame.getClientList();
+			System.out.println("线程数：" + lstThreads.length);
 
-			int i = 0;
-			// 当前被选中的列表的索引，因为客户端编号从1开始，所以加一
-			//String currentName = list.getSelectedValue();
 			// 被选中列表位置的索引的数组，里面是被选中客户端的序号（不是名称）
-			int currentNames[] = list.getSelectedIndices();
-			
-			for (MultiTalkServerThread thread : lstThreads) {
-				System.out.println("线程数量：" + noThreads + " 线程id：" + thread.getId() + " 线程名称：" + thread.getName()
-						+ " 线程状态：" + thread.getState());
-				// 遍历这个客户端序号的数组，根据序号从dlm里查找对应的元素，即客户端的名称，再与客户端线程名称对比
-				for (int j = 0; j < currentNames.length; j++) {
-					// 选择一个
-					if (thread.getName().equals(dlm.elementAt(currentNames[j]))) {
-						outs[i] = thread.getOutPut();// 将客户端线程的输出流放到outs输出流数组中
-						i++;
-					} 
-				}
+			int currentIndices[] = list.getSelectedIndices();
+			String names[] = new String[currentIndices.length];
+			// 根据索引查找被选中的客户端名称
+			for (int i = 0, j = 0; i < currentIndices.length; i++) {
+				names[j++] = dlm.elementAt(currentIndices[i]);
 			}
-			currentOutsNumber = i;
-			System.out.println("准备发送到" + i + "个输出流");
-			System.out.println("列表当前被选中项：" + list.getSelectedIndex());
+
+			MultiServerFrame.updateClientOnOutputStream(names);
 		}
 	}
 
 	/**
 	 * 鼠标点击发送按钮的监听器
+	 * 
 	 * @author xuxin
 	 *
 	 */
@@ -326,15 +385,8 @@ public class MultiServerFrame {
 				localMessageLine = textArea_inputMessage.getText();
 				textArea_inputMessage.setText("");
 				textArea_showMessage.append("服务端输入：" + localMessageLine + "\n");
-				for (PrintWriter pw : outs) {
-					if (pw != null) {
-						pw.println(localMessageLine);
-						pw.flush();
-					}
-				}
+				MultiServerFrame.putMessageToStream(localMessageLine);
 				textArea_showMessage.append("服务端已发送给" + currentOutsNumber + "个客户端\n");
-				// out.println(localMessageLine);// 将服务端键盘输入的文字发送到客户端的输入流中
-				// out.flush();
 			}
 			if (e.getSource() == btn_close) {
 				localBye = true;
@@ -366,21 +418,22 @@ class MultiTalkServerThread extends Thread {
 		try {
 			out = new PrintWriter(socket.getOutputStream(), true);
 			clientIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			
+
 			String received = clientIn.readLine();
-			if(received.startsWith("kh")) {
+			if (received.startsWith("kh")) {
 				name = received;
-			}else if(received.startsWith("login")) {
+			} else if (received.startsWith("login")) {
 				processLogin(received);
-			}else if(received.startsWith("register")) {
+			} else if (received.startsWith("register")) {
 				processRegister(received);
-			}else if(received.startsWith("online")) {
-				
+			} else if (received.startsWith("online")) {
+
+			} else if (received.startsWith("talk")) {
+				processTalk(received);
 			}
-			
+
 			this.setName(name);
 			MultiServerFrame.addClientShowToList(name);
-			
 
 			while (true) {// 循环从客户端读入数据
 				if (localBye == true && clientBye == true) {
@@ -388,13 +441,15 @@ class MultiTalkServerThread extends Thread {
 				}
 				if (clientBye == false) {// 如果客户端没有说拜拜
 					String rece = clientIn.readLine();
-					if(rece.startsWith("login")) {
+					if (rece.startsWith("login")) {
 						processLogin(rece);
-					}else if(rece.startsWith("register")){
+					} else if (rece.startsWith("register")) {
 						processRegister(rece);
-					}else if(rece.startsWith("online")) {
-						
-					}else {
+					} else if (rece.startsWith("online")) {
+
+					} else if (received.startsWith("talk")) {
+
+					} else {
 						MultiServerFrame.showMsgFromClient(rece);
 					}
 				}
@@ -403,8 +458,8 @@ class MultiTalkServerThread extends Thread {
 			clientIn.close();
 			socket.close();
 		} catch (IOException e) {
-			//e.printStackTrace();
-			System.out.println("客户端" + name +  "断开了连接");
+			// e.printStackTrace();
+			System.out.println("客户端" + name + "断开了连接");
 			MultiServerFrame.clientNumber--;
 			MultiServerFrame.flushClientCountShow();
 			MultiServerFrame.removeClientShowToList(name);
@@ -413,6 +468,7 @@ class MultiTalkServerThread extends Thread {
 
 	/**
 	 * 处理登录请求
+	 * 
 	 * @param received
 	 */
 	private void processLogin(String received) {
@@ -422,16 +478,18 @@ class MultiTalkServerThread extends Thread {
 		String password = rec[2];
 		try {
 			checkLogin(id, password);
-			out.println("success");
+			Users user = getUsersInformationById(id);
+			out.println("success" + "." + user.getId() + "." + user.getName() + "." + user.getFriends());
 			out.flush();
 		} catch (AccountInputException e) {
 			out.println(e.getMessage());
 			out.flush();
 		}
 	}
-	
+
 	/**
 	 * 处理注册请求
+	 * 
 	 * @param received
 	 */
 	private void processRegister(String received) {
@@ -450,26 +508,44 @@ class MultiTalkServerThread extends Thread {
 		out.flush();
 	}
 
+	private void processTalk(String received) {
+		String[] rec = received.split("\\.");
+		name = rec[0] + "聊天中";
+
+	}
+
 	public PrintWriter getOutPut() {
 		return out;
 	}
-	
+
 	/**
 	 * 是否允许登录
+	 * 
 	 * @param id
 	 * @param password
 	 * @return
 	 * @throws AccountInputException
 	 */
-	private boolean checkLogin(String id, String password) throws AccountInputException{
+	private boolean checkLogin(String id, String password) throws AccountInputException {
 		Users users = new Users(id, password);
-		if(!users.isAccountExitById(users)) {
+		if (!users.isAccountExitById(users)) {
 			throw new AccountInputException(ConstantStatus.LOGIN_STATUS_ACCOUNT_NOT_EXIST);
 		}
-		if(password.equals(users.getPassWordById(id))) {
+		if (password.equals(users.getPassWordById(id))) {
 			return true;
-		}else {
+		} else {
 			throw new AccountInputException(ConstantStatus.LOGIN_STATUS_ERROR_PASSWORD);
 		}
+	}
+
+	/**
+	 * 返回用户的全部信息
+	 * 
+	 * @param id
+	 * @return
+	 */
+	private Users getUsersInformationById(String id) {
+		XMLOperation xml = new XMLOperation();
+		return xml.getUsersById(id);
 	}
 }
