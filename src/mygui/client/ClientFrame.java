@@ -19,6 +19,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import util.RandomID;
+
 public class ClientFrame {
 
 	private JFrame frame;
@@ -27,10 +29,12 @@ public class ClientFrame {
 	private JTextField textField_port;
 
 	private int port = 4444;
-	private String host = "192.168.1.106";
+	private String host = "127.0.0.1";
 	
 	/** 客户端数量 */
 	public static int clientNum = 0;
+	/** 客户端名称，设置窗口标题，用于标识不同的客户端 */
+	private String clientName = "kh" + RandomID.nextID();
 	
 	private JTextArea textArea_showMessage;
 
@@ -77,7 +81,7 @@ public class ClientFrame {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setTitle("客户端");
+		frame.setTitle("客户端" + clientName);
 		frame.setBounds(100, 100, 580, 380);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setContentPane(contentPane);
@@ -151,7 +155,7 @@ public class ClientFrame {
 			textArea_showMessage.append("连接服务端成功！\n");
 			out = new PrintWriter(client.getOutputStream(), true); // auto flush
 			in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-			out.println("kh" + new Random().nextInt(9999));// 向服务端发送代表客户端标识的字符串
+			out.println(clientName);// 向服务端发送代表客户端标识的字符串
 			out.flush();
 		} catch (UnknownHostException e) {
 			System.err.println("Don't know about host: 127.0.0.1.");
