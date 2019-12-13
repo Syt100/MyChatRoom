@@ -6,6 +6,7 @@ package bean;
 import java.util.ArrayList;
 
 /**
+ * 此类对象用于表示一条具体的消息
  * @author xuxin
  *
  */
@@ -34,13 +35,14 @@ public class Message {
 	/** 请求操作的指令 */
 	private String operation;
 	
+	/** 列表，表示一系列指令 */
 	private ArrayList<String> list;
 	
 	/**
-	 * 
+	 * 默认无参构造方法
 	 */
 	public Message() {
-		// TODO 自动生成的构造函数存根
+		
 	}
 
 	/**
