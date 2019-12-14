@@ -9,17 +9,27 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Random;
+import java.util.ArrayList;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+
+import bean.Message;
 import util.RandomID;
+import java.awt.Insets;
 
 public class ClientFrame {
 
@@ -47,7 +57,13 @@ public class ClientFrame {
 	private JButton btn_close;
 	private JTextField textField_count;
 	
+	private JList<String> list;
+	private DefaultListModel<String> dlm = new DefaultListModel<String>();
+	
 	private String exitCode = "exit(0):123456";
+	private Message msg = new Message();
+	private JSONObject jsonObject = null;
+	private JButton btn_flush;
 
 	/**
 	 * Launch the application.
@@ -142,6 +158,26 @@ public class ClientFrame {
 		textField_count.setText("" + ClientFrame.clientNum);
 		contentPane.add(textField_count);
 		btn_close.addActionListener(new SendMessage());
+		
+		JScrollPane scrollPane_2 = new JScrollPane();
+		scrollPane_2.setBounds(410, 56, 146, 192);
+		contentPane.add(scrollPane_2);
+		
+		list = new JList<String>();
+		list.addListSelectionListener(new ListSelectionChangedListener());
+		list.setModel(dlm);
+		list.setSelectedIndex(0);
+		scrollPane_2.setViewportView(list);
+		
+		JLabel label_1 = new JLabel("所有在线客户端");
+		label_1.setBounds(410, 21, 93, 15);
+		contentPane.add(label_1);
+		
+		btn_flush = new JButton("刷新");
+		btn_flush.setMargin(new Insets(2, 4, 2, 4));
+		btn_flush.setBounds(508, 17, 48, 23);
+		btn_flush.addActionListener(new SendMessage());
+		contentPane.add(btn_flush);
 	}
 
 	public void initSocket() {
@@ -155,7 +191,13 @@ public class ClientFrame {
 			textArea_showMessage.append("连接服务端成功！\n");
 			out = new PrintWriter(client.getOutputStream(), true); // auto flush
 			in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-			out.println(clientName);// 向服务端发送代表客户端标识的字符串
+			
+			msg.setStatus(1);// 1表示正常链接
+			msg.setType("test");
+			msg.setSelfName(clientName);
+			msg.setOperation("getClientList");
+			String jsonString = JSON.toJSONString(msg);
+			out.println(jsonString);
 			out.flush();
 		} catch (UnknownHostException e) {
 			System.err.println("Don't know about host: 127.0.0.1.");
@@ -169,16 +211,19 @@ public class ClientFrame {
 				if (localBye == true && serverBye == true) {
 					break;
 				}
-//				if(!in.ready()) {
-//					continue;
-//				}
 
 				if (serverBye == false) {
 					fromServer = in.readLine();
-					if (fromServer.equals(exitCode)) {// 服务端（对方）退出
+					jsonObject = JSON.parseObject(fromServer);
+					if (jsonObject.getInteger("status") == 0) {// 服务端（对方）退出
 						serverBye = true;
-						textArea_showMessage.append("服务端已退出" + fromServer + "\n");
-					}else {
+						textArea_showMessage.append("服务端已退出" + "\n");
+					} else if(jsonObject.getString("operation") != null && jsonObject.getString("operation").equals("updateList")) {
+						JSONArray jsonArray = jsonObject.getJSONArray("list");
+						String[] name = toStringList(jsonArray);
+						flushClientListShow(name);
+						System.out.println("updateList");
+					} else {//jsonObject.getString("text")
 						textArea_showMessage.append("从服务端接收：" + fromServer + "\n");
 					}
 				}
@@ -194,6 +239,74 @@ public class ClientFrame {
 
 	}
 
+	/**
+	 * 将JSONArray对象转换为String[]
+	 * @param jsonArray
+	 * @return
+	 */
+	private String[] toStringList(JSONArray jsonArray) {
+		String name[] = new String[jsonArray.size()];
+		for (int i = 0; i < jsonArray.size(); i++) {
+			name[i] = jsonArray.getString(i);
+		}
+		return name;
+	}
+	
+	/**
+	 * 刷新界面上客户端数量文本框的显示
+	 */
+	private void flushClientCountShow() {
+		// textField_count.setText("" + clientNumber);
+	}
+	
+	/**
+	 * 将列表上显示的客户端数量加一个
+	 * 
+	 * @param name
+	 */
+	private void addClientShowToList(String name) {
+		dlm.addElement(name);
+		flushClientCountShow();
+		if (list.getSelectedIndex() == -1) {
+			list.setSelectedIndex(0);
+		}
+	}
+	
+	/**
+	 * 将列表上显示的客户端数量减一个
+	 * 
+	 * @param name
+	 */
+	private void removeClientShowToList(String name) {
+		dlm.removeElement(name);
+		flushClientCountShow();
+	}
+	
+	private void flushClientListShow(String[] name) {
+		dlm.clear();
+		for (int i = 0; i < name.length; i++) {
+			dlm.addElement(name[i]);
+		}
+	}
+	
+	
+	private class ListSelectionChangedListener implements ListSelectionListener{
+
+		@Override
+		public void valueChanged(ListSelectionEvent e) {
+			int indices[] = list.getSelectedIndices();
+			if (indices.length >= 1) {
+				String names[] = new String[indices.length];
+				for (int i = 0, j = 0; i < indices.length; i++) {
+					names[j++] = dlm.get(indices[i]);
+				}
+				if (names[0] != null) {
+					msg.setTargetName(names[0]);
+				} 
+			}
+		}
+	}
+
 	private class SendMessage implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -202,13 +315,22 @@ public class ClientFrame {
 				fromLocal = textArea_inputMessage.getText();
 				textArea_inputMessage.setText("");
 				textArea_showMessage.append("客户端输入：" + fromLocal + "\n");
-				out.println(fromLocal);
+				
+				// msg.clearIgnoreStatus();
+				msg.setText(fromLocal);
+				out.println(JSON.toJSONString(msg));
 				out.flush();
 			}
-			if(e.getSource() == btn_close) {
+			if (e.getSource() == btn_close) {
 				localBye = true;
 				out.println(exitCode);
 				out.flush();
+			}
+			if (e.getSource() == btn_flush) {// 刷新按钮
+				msg.setOperation("getClientList");
+				out.println(JSON.toJSONString(msg));
+				out.flush();
+				msg.setOperation(null);
 			}
 		}
 	}

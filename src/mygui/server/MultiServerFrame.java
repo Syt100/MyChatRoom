@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -21,6 +22,10 @@ import javax.swing.JList;
 import javax.swing.DefaultListModel;
 import javax.swing.event.ListSelectionListener;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+
+import bean.Message;
 import bean.Users;
 import exception.AccountInputException;
 import util.ConstantStatus;
@@ -42,19 +47,24 @@ public class MultiServerFrame {
 	// 结束标记
 	private static boolean localBye = false;// 本机说拜拜
 	private static boolean clientBye = false;// 客户端输入流说拜拜
-	private static String localMessageLine, clientMessageLine;
+	// private static String localMessageLine, clientMessageLine;
 	private static JButton btn_send;
 	private static JTextArea textArea_inputMessage;
-	private static PrintWriter out;
 	private static JButton btn_close;
 	private static JTextField textField_count;
 	private static JList<String> list;
 	private static DefaultListModel<String> dlm = new DefaultListModel<String>();
 	protected static int clientNumber = 0;
 
+	/** 存放客户端的线程组 */
 	private static ThreadGroup threadGroup = new ThreadGroup("客户端线程组");
-	private static PrintWriter[] outs = new PrintWriter[100];
-	private static int currentOutsNumber = 0;
+
+	/** 存放客户端的线程数组 */
+	private static MultiTalkServerThread[] serverThreads = new MultiTalkServerThread[100];
+
+	private static int currentSendNumber = 0;
+
+	private static Message msg = new Message();
 
 	/**
 	 * Launch the application.
@@ -227,8 +237,7 @@ public class MultiServerFrame {
 	 * @throws IOException
 	 */
 	public static void showMsgFromClient(BufferedReader clientIn) throws IOException {
-		clientMessageLine = clientIn.readLine();// 从客户端读入文字
-		textArea_showMessage.append("从客户端接收：" + clientMessageLine + "\n");
+		textArea_showMessage.append("从客户端接收：" + clientIn.readLine() + "\n");
 	}
 
 	/**
@@ -297,25 +306,26 @@ public class MultiServerFrame {
 	/**
 	 * @return name,所有已连接的客户端线程名
 	 */
-	public static String[] getClientListName() {
+	public static ArrayList<String> getClientListName() {
 		int noThreads = threadGroup.activeCount();
 		MultiTalkServerThread[] lstThreads = new MultiTalkServerThread[noThreads];
 		threadGroup.enumerate(lstThreads);
-		int i = 0;
-		String name[] = new String[noThreads];
+
+		ArrayList<String> name = new ArrayList<String>();
 		for (MultiTalkServerThread thread : lstThreads) {
-			name[i++] = thread.getName();
+			name.add(thread.getName());
 		}
 		return name;
 	}
 
 	/**
-	 * 把names里的客户端数组名称放入outs输出流数组，实现同时多输出
+	 * 把names里的客户端数组名称放入serverThreads数组，实现同时多输出
 	 * 
 	 * @param names 要放入输出流数组outs的客户端的名字数组
 	 */
-	protected static void updateClientOnOutputStream(String[] names) {
+	protected static void updateReadyToSendClient(String[] names) {
 		MultiTalkServerThread[] lstThreads = MultiServerFrame.getClientList();
+		MultiServerFrame.clearServerThread();// 清空数组里里的数据，不然会造成重复发送
 		int i = 0;
 		for (MultiTalkServerThread thread : lstThreads) {
 			System.out.println("线程数量：" + lstThreads.length + " 线程id：" + thread.getId() + " 线程名称：" + thread.getName()
@@ -324,25 +334,105 @@ public class MultiServerFrame {
 			for (int j = 0; j < names.length; j++) {
 				// 选择一个
 				if (thread.getName().equals(names[j])) {
-					outs[i++] = thread.getOutPut();// 将客户端线程的输出流放到outs输出流数组中
+					serverThreads[i++] = thread;// 将要准备发送消息的客户端放入
 				}
 			}
 		}
-		currentOutsNumber = i;
+		currentSendNumber = i;
 		System.out.println("准备发送到" + i + "个输出流");
 	}
-	
+
 	/**
-	 * 将消息发送到流里
-	 * @param msg
+	 * 清空待发送的客户端列表
 	 */
-	protected static void putMessageToStream(String msg) {
-		for (PrintWriter pw : outs) {
-			if (pw != null) {
-				pw.println(msg);
-				pw.flush();
+	protected static void clearServerThread() {
+//		for(MultiTalkServerThread thread : serverThreads) {
+//			if(thread != null) {
+//				thread = null;
+//			}
+//		}
+		for (int i = 0; i < serverThreads.length; i++) {
+			if (serverThreads[i] != null) {// !!!这里用高级for循环没用！！！
+				serverThreads[i] = null;
 			}
 		}
+	}
+
+	/**
+	 * 将消息发送到所有被选中的客户端的流里，由本类调用
+	 * 
+	 * @param msg 要发送的消息
+	 */
+	protected static void sendMessageToClient(String message) {
+		Message msg;
+		PrintWriter out;
+		for (MultiTalkServerThread thread : serverThreads) {
+			if (thread != null) {
+				out = thread.getOutPut();
+				if (out != null) {
+					msg = thread.getMessage();
+					msg.setText(message);
+					out.println(JSON.toJSONString(msg));
+					out.flush();
+				}
+			}
+		}
+	}
+
+	/**
+	 * 服务端向客户端发消息
+	 * 
+	 * @param message
+	 */
+	protected static void sendMessageToClient(Message message) {
+		PrintWriter out;
+		for (MultiTalkServerThread thread : serverThreads) {
+			if (thread != null) {
+				out = thread.getOutPut();
+				if (out != null) {
+					out.println(JSON.toJSONString(message));
+					out.flush();
+				}
+			}
+		}
+	}
+
+	/**
+	 * 用于服务端向客户端发消息
+	 * 
+	 * @param type
+	 * @param selfName
+	 * @param targetName
+	 * @param text
+	 */
+	protected static void sendMessageToClient(String type, String selfName, String targetName, String text) {
+		msg.setStatus(1);
+		msg.setType(type);
+		msg.setSelfName(selfName);
+		msg.setTargetName(targetName);
+		msg.setText(text);
+		for (MultiTalkServerThread thread : serverThreads) {
+			if (thread != null && thread.getOutPut() != null) {
+				thread.getOutPut().println(JSON.toJSONString(msg));
+				thread.getOutPut().flush();
+			}
+		}
+	}
+
+	/**
+	 * 通知所有客户端，客户端列表选择改变
+	 */
+	protected static void putAllClientChanged() {
+		String[] allNames = new String[dlm.getSize()];
+		for (int i = 0; i < dlm.getSize(); i++) {
+			allNames[i] = dlm.get(i);
+		}
+		MultiServerFrame.updateReadyToSendClient(allNames);
+		msg.setStatus(1);
+		msg.setList(getClientListName());
+		msg.setOperation("updateList");
+		MultiServerFrame.sendMessageToClient(msg);
+		msg.setOperation(null);
 	}
 
 	/**
@@ -355,10 +445,6 @@ public class MultiServerFrame {
 		public void valueChanged(ListSelectionEvent e) {
 			System.out.println("选择改变");
 
-			// 客户端线程数组，
-			MultiTalkServerThread[] lstThreads = MultiServerFrame.getClientList();
-			System.out.println("线程数：" + lstThreads.length);
-
 			// 被选中列表位置的索引的数组，里面是被选中客户端的序号（不是名称）
 			int currentIndices[] = list.getSelectedIndices();
 			String names[] = new String[currentIndices.length];
@@ -366,8 +452,12 @@ public class MultiServerFrame {
 			for (int i = 0, j = 0; i < currentIndices.length; i++) {
 				names[j++] = dlm.elementAt(currentIndices[i]);
 			}
+			
+			// 通知所有客户端，客户端列表选择改变
+			putAllClientChanged();
 
-			MultiServerFrame.updateClientOnOutputStream(names);
+			// 将被选中的客户端加入到准备发送列表
+			MultiServerFrame.updateReadyToSendClient(names);
 		}
 	}
 
@@ -382,11 +472,11 @@ public class MultiServerFrame {
 		public void actionPerformed(ActionEvent e) {
 			// TODO 自动生成的方法存根
 			if (e.getSource() == btn_send && localBye == false) {// 如果服务端没有说拜拜，服务端输入文字
-				localMessageLine = textArea_inputMessage.getText();
+				String localMessageLine = textArea_inputMessage.getText();
 				textArea_inputMessage.setText("");
 				textArea_showMessage.append("服务端输入：" + localMessageLine + "\n");
-				MultiServerFrame.putMessageToStream(localMessageLine);
-				textArea_showMessage.append("服务端已发送给" + currentOutsNumber + "个客户端\n");
+				MultiServerFrame.sendMessageToClient(localMessageLine);
+				textArea_showMessage.append("服务端已发送给" + currentSendNumber + "个客户端\n");
 			}
 			if (e.getSource() == btn_close) {
 				localBye = true;
@@ -396,20 +486,33 @@ public class MultiServerFrame {
 }
 
 class MultiTalkServerThread extends Thread {
+	/** 用于和客户端通信的Socket */
 	private Socket socket = null;
 	@SuppressWarnings("unused")
 	private int clientNumber;// 第几个客户端，暂时没用
+
+	/** 线程名 */
 	private String name = null;
+	/**
+	 * 每当有新客户端练上来，就要在客户端列表上加一个客户端的名字。 此操作只执行一次，用于在循环里判断是否已经添加
+	 */
+	private boolean isAddToList = false;
 	private static boolean localBye = false;// 本机说拜拜
 	private static boolean clientBye = false;// 客户端输入流说拜拜
 	private PrintWriter out;
 	private BufferedReader clientIn;
 
+	/** 用于发送给客户端的Message对象消息 */
+	private Message msg = new Message();
+	/** 用于解析从客户端收到的JSON字符串 */
+	private JSONObject jsonObject = null;
+
 	public MultiTalkServerThread(ThreadGroup tg, Socket socket, int clientNumber) {
 		super(tg, "" + clientNumber);
 		this.socket = socket;
 		this.clientNumber = clientNumber;
-		System.out.println("Accept Client" + clientNumber);
+		msg.setStatus(1);
+		msg.setSelfName("server");
 	}
 
 	@Override
@@ -419,38 +522,52 @@ class MultiTalkServerThread extends Thread {
 			out = new PrintWriter(socket.getOutputStream(), true);
 			clientIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-			String received = clientIn.readLine();
-			if (received.startsWith("kh")) {
-				name = received;
-			} else if (received.startsWith("login")) {
-				processLogin(received);
-			} else if (received.startsWith("register")) {
-				processRegister(received);
-			} else if (received.startsWith("online")) {
-
-			} else if (received.startsWith("talk")) {
-				processTalk(received);
-			}
-
-			this.setName(name);
-			MultiServerFrame.addClientShowToList(name);
-
 			while (true) {// 循环从客户端读入数据
 				if (localBye == true && clientBye == true) {
 					break;
 				}
 				if (clientBye == false) {// 如果客户端没有说拜拜
-					String rece = clientIn.readLine();
-					if (rece.startsWith("login")) {
-						processLogin(rece);
-					} else if (rece.startsWith("register")) {
-						processRegister(rece);
-					} else if (rece.startsWith("online")) {
+					String received = clientIn.readLine();
+					jsonObject = JSONObject.parseObject(received);
+
+					// 消息来源为测试客户端
+					if (jsonObject.getString("type") != null && jsonObject.getString("type").equals("test")) {
+						processTest();
+						// 客户端请求刷新所有客户端列表
+						if (jsonObject.getString("operation") != null && jsonObject.getString("operation").equals("getClientList")) {
+							MultiServerFrame.putAllClientChanged();
+						}
+						if (jsonObject.getString("targetName") != null) {
+							String name[] = {jsonObject.getString("targetName")};
+							MultiServerFrame.updateReadyToSendClient(name);
+							msg.setSelfName(this.name);
+							msg.setTargetName(name[0]);
+							if (jsonObject.getString("text") != null) {
+								msg.setText(jsonObject.getString("text"));
+							}
+							MultiServerFrame.sendMessageToClient(msg);
+						}
+					} else if (received.startsWith("login")) {
+						processLogin(received);
+					} else if (received.startsWith("register")) {
+						processRegister(received);
+					} else if (received.startsWith("online")) {
 
 					} else if (received.startsWith("talk")) {
-
+						processTalk(received);
 					} else {
-						MultiServerFrame.showMsgFromClient(rece);
+						MultiServerFrame.showMsgFromClient(received);
+					}
+
+					if (isAddToList == false) {
+						if (name != null) {
+							this.setName(name);
+							MultiServerFrame.addClientShowToList(name);
+						} else {
+							this.setName("无法获取名称");
+							MultiServerFrame.addClientShowToList("无法获取名称");
+						}
+						isAddToList = true;
 					}
 				}
 			}
@@ -464,6 +581,15 @@ class MultiTalkServerThread extends Thread {
 			MultiServerFrame.flushClientCountShow();
 			MultiServerFrame.removeClientShowToList(name);
 		}
+	}
+
+	/**
+	 * 处理测试客户端
+	 */
+	private void processTest() {
+		name = jsonObject.getString("selfName");
+		msg.setTargetName(name);
+		MultiServerFrame.showMsgFromClient(jsonObject.toJSONString());// jsonObject.getString("text")
 	}
 
 	/**
@@ -514,8 +640,22 @@ class MultiTalkServerThread extends Thread {
 
 	}
 
+	/**
+	 * 获取客户端的输出流
+	 * 
+	 * @return PrintWriter out
+	 */
 	public PrintWriter getOutPut() {
 		return out;
+	}
+
+	/**
+	 * 获取客户端的msg
+	 * 
+	 * @return Message msg
+	 */
+	public Message getMessage() {
+		return msg;
 	}
 
 	/**
