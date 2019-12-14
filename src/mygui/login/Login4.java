@@ -708,9 +708,12 @@ public class Login4 {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		if(comfirm.equals("success")) {
+		if(comfirm.startsWith("success")) {
+			String[] information = comfirm.split("\\.");
+			user.setName(information[2]);
+			user.setFriends(information[3]);
 			System.out.println("success");
-			skipToFriendList();// 跳转到好友列表界面
+			skipToFriendList(user);// 跳转到好友列表界面
 		}else {
 			System.out.println(comfirm);
 			showTipsByTimer(comfirm);
@@ -800,7 +803,7 @@ public class Login4 {
 	/**
 	 * 登录成功后，跳转到好友列表
 	 */
-	public void skipToFriendList() {
+	public void skipToFriendList(Users user) {
 		setTop(panel_landing);
 		
 		// 用计时器实现延迟
@@ -808,11 +811,10 @@ public class Login4 {
 		timer.schedule(new TimerTask() {
 			public void run() {
 				// TODO 此处可显示登录成功
-				//layeredPane_main.setLayer(panel_operation, 10);
-				closeSocketAndStream();
+				//closeSocketAndStream();
 				frame.dispose();// 注销当前登录窗口
 				// 拉起好友界面
-				MyFriendsList3 window = new MyFriendsList3();
+				MyFriendsList3 window = new MyFriendsList3(user, socket, out, in);
 				window.setFrameVisible(true);
 				this.cancel();
 			}
