@@ -1,6 +1,3 @@
-/**
- * 
- */
 package bean;
 
 import util.XMLOperation;
@@ -16,10 +13,10 @@ public class Users {
 	private String friends;
 	
 	/**
-	 * 
+	 * 默认的无参构造方法
 	 */
 	public Users() {
-		// TODO 自动生成的构造函数存根
+		
 	}
 
 	/**
