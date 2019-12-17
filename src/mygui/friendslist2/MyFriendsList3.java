@@ -187,8 +187,7 @@ public class MyFriendsList3 {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					MyFriendsList3 window = new MyFriendsList3();
-					window.frame.setVisible(true);
+					new MyFriendsList3();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -197,7 +196,7 @@ public class MyFriendsList3 {
 	}
 
 	/**
-	 * Create the application.
+	 * 无参构造，仅用作测试启动
 	 */
 	public MyFriendsList3() {
 		initBackGround();// 初始化窗口及背景
@@ -208,9 +207,11 @@ public class MyFriendsList3 {
 		initJtree();// 初始化JTree样式，使用自定义样式
 		initColor();
 		initListener();// 初始化窗口事件监听，实现窗口拖动、最小化、关闭
+		frame.setVisible(true);
 	}
 
 	/**
+	 * 由登录界面传入参数启动
 	 * @param user
 	 * @param socket
 	 * @param out
@@ -229,6 +230,7 @@ public class MyFriendsList3 {
 		initJtree();// 初始化JTree样式，使用自定义样式
 		initColor();
 		initListener();// 初始化窗口事件监听，实现窗口拖动、最小化、关闭
+		frame.setVisible(true);
 	}
 
 	/**
@@ -453,10 +455,10 @@ public class MyFriendsList3 {
 	private void initJTreeNode(Users user) {
 		root = new MyTreeNode();
 		String[] friend = user.getFriends().split(",");// XML 那里用.分割会有问题
-		//TODO 此处可处理下没有好友的情况
-		if(friend.length == 0) {
-			return;
-		}
+//		//TODO 此处可处理下没有好友的情况
+//		if(friend.length == 0) {
+//			return;
+//		}
 		
 		Icon ico1 = new ImageIcon(MyFriendsList.class.getResource("/Images/1.png"));
 		Icon ico2 = new ImageIcon(MyFriendsList.class.getResource("/Images/2.png"));
@@ -819,13 +821,5 @@ public class MyFriendsList3 {
 				// dialog.setExtendedState(JFrame.ICONIFIED);
 			}
 		});
-	}
-	
-	/**
-	 * 设置窗口可见
-	 * @param t 是否可见
-	 */
-	public void setFrameVisible(boolean t) {
-		frame.setVisible(t);
 	}
 }

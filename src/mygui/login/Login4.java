@@ -694,8 +694,7 @@ public class Login4 {
 				// TODO 此处可显示登录成功
 				frame.dispose();// 注销当前登录窗口
 				// 拉起好友界面
-				MyFriendsList3 window = new MyFriendsList3(user, socket, out, in);
-				window.setFrameVisible(true);
+				new MyFriendsList3(user, socket, out, in);
 				this.cancel();
 			}
 		}, 1000);// 延迟x毫秒后启动

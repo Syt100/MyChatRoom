@@ -215,8 +215,7 @@ public class Login3 {
 							layeredPane_operation.setLayer(panel_operation, 10);
 							frame.dispose();//注销当前登录窗口
 							//拉起好友界面
-							MyFriendsList3 window = new MyFriendsList3();
-							window.setFrameVisible(true);
+							new MyFriendsList3();
 							this.cancel();
 						}
 					}, 1000);// 延迟x毫秒后启动
