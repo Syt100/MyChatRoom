@@ -94,11 +94,20 @@ public class BubblePanelBorder extends JPanel {
 	
 	/**
 	 * @param isSelf
+	 */
+	public BubblePanelBorder(boolean isSelf) {
+		this.isSelf = isSelf;
+		init();
+	}
+
+	/**
+	 * @param isSelf
 	 * @param message
 	 */
 	public BubblePanelBorder(boolean isSelf, String message) {
 		this.isSelf = isSelf;
 		this.message = message;
+		init();
 	}
 
 	/**
@@ -110,6 +119,7 @@ public class BubblePanelBorder extends JPanel {
 		this.isSelf = isSelf;
 		this.name = name;
 		this.message = message;
+		init();
 	}
 
 	/**
@@ -123,6 +133,7 @@ public class BubblePanelBorder extends JPanel {
 		this.image = image;
 		this.name = name;
 		this.message = message;
+		init();
 	}
 
 	/**
