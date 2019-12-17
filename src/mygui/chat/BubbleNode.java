@@ -57,7 +57,7 @@ public class BubbleNode extends JPanel{
 		JLabel lblNewLabel = new JLabel("这是我的昵称");
 		panel.add(lblNewLabel);
 		
-		BubblePanelBorder panel_2 = new BubblePanelBorder();
+		BubblePanelBorder panel_2 = new BubblePanelBorder(true, "时跃天", "qwefcerggggggggggg");
 		panel_4.add(panel_2);
 //		panel_2.setOpaque(true);
 		panel_2.setLayout(new BorderLayout(0, 0));
