@@ -278,9 +278,10 @@ public class MultiServerFrame {
 	 * @param oldName
 	 * @param newName
 	 */
-	public static void updateClientShowName(String oldName, String newName) {
+	protected static void updateClientShowName(String oldName, String newName) {
 		// TODO 此处应该加咩找到的处理
 		int index = dlm.indexOf(oldName);// 搜索指定元素的位置，如果没有找到，返回-1
+		System.out.println("index:" + index);
 		dlm.remove(index);
 		// TODO 这里不确定是否会覆盖原来index位置的元素
 		dlm.add(index, newName);
@@ -530,27 +531,37 @@ class MultiTalkServerThread extends Thread {
 					String received = clientIn.readLine();
 					jsonObject = JSONObject.parseObject(received);
 
-					// 消息来源为测试客户端
-					if (jsonObject.getString("type") != null && jsonObject.getString("type").equals("test")) {
-						processTest();
-						// 客户端请求刷新所有客户端列表
-						if (jsonObject.getString("operation") != null && jsonObject.getString("operation").equals("getClientList")) {
-							MultiServerFrame.putAllClientChanged();
-						}
-						if (jsonObject.getString("targetName") != null) {
-							String name[] = {jsonObject.getString("targetName")};
-							MultiServerFrame.updateReadyToSendClient(name);
-							msg.setSelfName(this.name);
-							msg.setTargetName(name[0]);
-							if (jsonObject.getString("text") != null) {
-								msg.setText(jsonObject.getString("text"));
+					if (jsonObject.getString("type") != null) {
+						// 消息来源为测试客户端
+						if (jsonObject.getString("type").equals("test")) {
+							processTest();
+							// 客户端请求刷新所有客户端列表
+							if (jsonObject.getString("operation") != null
+									&& jsonObject.getString("operation").equals("getClientList")) {
+								MultiServerFrame.putAllClientChanged();
 							}
-							MultiServerFrame.sendMessageToClient(msg);
+							// 给客户端发消息
+							if (jsonObject.getString("targetName") != null) {
+								String name[] = { jsonObject.getString("targetName") };
+								MultiServerFrame.updateReadyToSendClient(name);
+								msg.setSelfName(this.name);
+								msg.setTargetName(name[0]);
+								if (jsonObject.getString("text") != null) {
+									msg.setText(jsonObject.getString("text"));
+								}
+								MultiServerFrame.sendMessageToClient(msg);
+							}
 						}
-					} else if (received.startsWith("login")) {
-						processLogin(received);
+						// 消息来源为登录界面的登录验证请求
+						if (jsonObject.getString("type").equals("login")) {
+							processLogin(jsonObject);
+						}
+						// 消息来源为登录界面的注册请求
+						if (jsonObject.getString("type").equals("register")) {
+							processRegister(jsonObject);
+						}
 					} else if (received.startsWith("register")) {
-						processRegister(received);
+						
 					} else if (received.startsWith("online")) {
 
 					} else if (received.startsWith("talk")) {
@@ -595,20 +606,32 @@ class MultiTalkServerThread extends Thread {
 	/**
 	 * 处理登录请求
 	 * 
-	 * @param received
+	 * @param JSONObject jo
 	 */
-	private void processLogin(String received) {
-		String[] rec = received.split("\\.");
-		name = rec[0] + "登录中";
-		String id = rec[1];
-		String password = rec[2];
+	private void processLogin(JSONObject jo) {
+		// 从JSON字符串中获取用户
+		Users user = jo.getObject("selfUser", Users.class);
+		if (isAddToList == false) {// 如果是客户端第一次连接，就设置线程名，不需要修改
+			name = user.getId() + "登录中";
+		} else {// 客户端不是第一次连接，因为用户的ID可能会改变，因此要修改线程名，与当前登录的客户端同步，不然导致服务端显示的列表信息删不掉
+			MultiServerFrame.updateClientShowName(name, user.getId() + "登录中");
+			name = user.getId() + "登录中";// 更新线程名
+		}
+		String id = user.getId();
 		try {
-			checkLogin(id, password);
-			Users user = getUsersInformationById(id);
-			out.println("success" + "." + user.getId() + "." + user.getName() + "." + user.getFriends());
+			checkLogin(user);
+			Users u = getUsersInformationById(id);
+			Message mg = new Message();
+			mg.setSelfUser(u);
+			mg.setType("login");
+			mg.setOperation("success");// 登陆成功
+			out.println(JSON.toJSONString(mg));
 			out.flush();
-		} catch (AccountInputException e) {
-			out.println(e.getMessage());
+		} catch (AccountInputException e) {// 登陆失败，密码错误等
+			Message mg = new Message();
+			mg.setType("login");
+			mg.setOperation(e.getMessage());
+			out.println(JSON.toJSONString(mg));
 			out.flush();
 		}
 	}
@@ -618,19 +641,30 @@ class MultiTalkServerThread extends Thread {
 	 * 
 	 * @param received
 	 */
-	private void processRegister(String received) {
+	private void processRegister(JSONObject jo) {
 		// 特殊字符作为分隔符时需要使用\\进行转义(比如使用\\作为分隔符的话，则转义为\\\\)
 		// 特殊字符有 .$|()[{^?*+\\
-		String[] rec = received.split("\\.");
-		name = rec[0] + "注册中";
-		String id = rec[1];
-		String name = rec[2];
-		String password = rec[3];
-		String friends = rec[4];
-		Users user = new Users(id, name, password, friends);
+		// String[] rec = received.split("\\.");
+		
+		// 从JSON字符串中获取用户
+		Users user = jo.getObject("selfUser", Users.class);
+		
+		if (isAddToList == false) {// 如果是客户端第一次连接，就设置线程名，不需要修改
+			name = user.getId() + "注册中";
+		} else {// 客户端不是第一次连接，因为用户的ID可能会改变，因此要修改线程名，与当前登录的客户端同步，不然导致服务端显示的列表信息删不掉
+			MultiServerFrame.updateClientShowName(name, user.getId() + "注册中");
+			name = user.getId() + "注册中";// 更新线程名
+		}
+		
 		XMLOperation xml = new XMLOperation();
 		xml.addUser(user);
-		out.println("success");
+		
+		Message mg = new Message();
+		mg.setSelfUser(user);
+		mg.setType("register");
+		mg.setOperation("success");// 注册成功
+		
+		out.println(JSON.toJSONString(mg));
 		out.flush();
 	}
 
@@ -661,17 +695,17 @@ class MultiTalkServerThread extends Thread {
 	/**
 	 * 是否允许登录
 	 * 
-	 * @param id
-	 * @param password
+	 * @param users
 	 * @return
 	 * @throws AccountInputException
 	 */
-	private boolean checkLogin(String id, String password) throws AccountInputException {
-		Users users = new Users(id, password);
+	private boolean checkLogin(Users users) throws AccountInputException {
+		XMLOperation xml = new XMLOperation();
+		Users trueUser = xml.getUsersById(users.getId());
 		if (!users.isAccountExitById(users)) {
 			throw new AccountInputException(ConstantStatus.LOGIN_STATUS_ACCOUNT_NOT_EXIST);
 		}
-		if (password.equals(users.getPassWordById(id))) {
+		if (users.getPassword().equals(trueUser.getPassword())) {
 			return true;
 		} else {
 			throw new AccountInputException(ConstantStatus.LOGIN_STATUS_ERROR_PASSWORD);
