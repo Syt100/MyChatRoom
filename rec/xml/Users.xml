@@ -1,37 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <users> 
-  <user index="1"> 
-    <id>1234</id>  
-    <name>tom</name>  
-    <password>12345</password> 
-  </user>  
-  <user index="2"> 
-    <id>2345</id>  
-    <name>jack</name>  
-    <password>abc</password> 
-  </user>  
-  <user index="3"> 
-    <id>3456</id>  
-    <name>john</name>  
-    <password>www</password> 
-  </user>  
-  <user index="4"> 
-    <id>4567</id>  
-    <name>jhn</name>  
+  <user state="normal"> 
+    <id>8899</id>  
+    <name>aiudnsv</name>  
     <password>zzz</password>  
-    <friends>1234,2345,3456</friends> 
+    <friends>1234,</friends> 
   </user>  
-  <user index="4"> 
-    <id>8888</id>  
-    <name>null</name>  
-    <password>12</password>  
-    <friends>null</friends> 
+  <user state="normal"> 
+    <id>1234</id>  
+    <name>时跃天</name>  
+    <password>111</password>  
+    <friends>8899,2009</friends> 
   </user>  
-  <user index="4">
-    <id>8889</id>
-    <name>哈哈</name>
+  <user state="normal">
+    <id>2009</id>
+    <name>木木夕</name>
     <password>111</password>
-    <friends>,</friends>
+    <friends>8899,1234</friends>
   </user>
 </users>
