@@ -1,12 +1,16 @@
 package mygui.friendslist2;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Frame;
-import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
-import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -18,40 +22,30 @@ import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import javax.swing.AbstractListModel;
 import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
+import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTree;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.border.MatteBorder;
 import javax.swing.tree.TreePath;
 
 import bean.Users;
+import mygui.chat.Chat;
 import mygui.frameutil.BackgroundJPanel;
 import mygui.frameutil.ResizeFrame;
 import util.XMLOperation;
-
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
-import javax.swing.JTree;
-import javax.swing.JLayeredPane;
-import javax.swing.JList;
-import javax.swing.JScrollPane;
-import javax.swing.border.EmptyBorder;
-import javax.swing.JTextArea;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.border.MatteBorder;
 
 public class MyFriendsList3 {
 
@@ -155,7 +149,7 @@ public class MyFriendsList3 {
 	/** JTree的根节点 */
 	private MyTreeNode root;
 	/** JTree的自定义渲染器 */
-	private MyTreeCellRenderer renderer = new MyTreeCellRenderer();
+	private MyTreeCellRenderer renderer = new MyTreeCellRenderer(this);
 	/** 滚动面板 */
 	private JScrollPane scrollPane = new JScrollPane();
 	/** 显示好友列表的树 */
@@ -473,6 +467,7 @@ public class MyFriendsList3 {
 			Users friends = xml.getUsersById(friend[i]);
 			System.out.println(friends.getName());
 			node[i] = new MyTreeNode(ico1, friends.getName(), "人生若只如初见");
+			node[i].setId(friends.getId());
 			node_main.add(node[i]);
 		}
 		
@@ -672,6 +667,15 @@ public class MyFriendsList3 {
 	private ImageIcon produceImage(String name) {
 		ImageIcon backImage = new ImageIcon(getClass().getResource("/Images/" + name));
 		return backImage;
+	}
+	
+	protected void chatWithFriend() {
+		XMLOperation xml = new XMLOperation();
+		Users targetUser = xml.getUsersById(renderer.getNode().getId());
+		Chat window = new Chat(user, targetUser, out, in);
+		window.setIcon(renderer.getNode().getIcon());
+		window.setTitle(renderer.getNode().getName());
+		window.setSign(renderer.getNode().getSign());
 	}
 
 	/**
