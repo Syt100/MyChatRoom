@@ -1,44 +1,46 @@
 package mygui.chat;
 
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.JButton;
-import javax.swing.Icon;
-
+import java.awt.Color;
 import java.awt.Dimension;
-import javax.swing.JLabel;
-import javax.swing.JTextArea;
-import javax.swing.JScrollPane;
-import javax.swing.UIManager;
-import javax.swing.ImageIcon;
-import javax.swing.JSplitPane;
+import java.awt.EventQueue;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.awt.GridBagLayout;
-import java.awt.Image;
-import java.awt.Color;
-import java.awt.Font;
+import java.io.BufferedReader;
+import java.io.PrintWriter;
+
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 
+import bean.Message;
 import bean.Users;
 import util.VerticalFlowLayout;
-
-import javax.swing.JComboBox;
-import javax.imageio.ImageIO;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JProgressBar;
 
 /**
  * 颜色设计来自于https://www.runoob.com/tags/html-colorpicker.html
  * 
+ * @author xuxin
+ *
+ */
+/**
  * @author xuxin
  *
  */
@@ -50,8 +52,8 @@ public class Chat {
 	private JLabel lbl_information = new JLabel();
 
 	private Icon icon = new ImageIcon(Chat.class.getResource("/Images/223209_3.jpg"));// 图片地址
-	private String title = new String("[\u597D\u53CB\u6635\u79F0]");
-	private String sign = new String("\u597D\u53CB\u4FE1\u606F");
+	private String title = new String("[好友昵称]");
+	private String sign = new String("好友信息");
 	private JPanel panel_liaotian;
 	private JTextArea textArea_shuru;
 
@@ -61,6 +63,7 @@ public class Chat {
 	
 	private Users thisUser = null;
 	private Users targetUser = null;
+	private ChatThread chatThread;
 
 	/**
 	 * Launch the application.
@@ -79,7 +82,7 @@ public class Chat {
 	}
 
 	/**
-	 * Create the application.
+	 * 无参构造，仅用作测试启动
 	 */
 	public Chat() {
 		initialize();
@@ -89,14 +92,20 @@ public class Chat {
 	/**
 	 * @param thisUser
 	 * @param targetUser
+	 * @param out
+	 * @param in
 	 */
-	public Chat(Users thisUser, Users targetUser) {
+	public Chat(Users thisUser, Users targetUser, PrintWriter out, BufferedReader in) {
 		this.thisUser = thisUser;
 		this.targetUser = targetUser;
+		initialize();
+		frame.setVisible(true);
+		chatThread = new ChatThread(this, out, in);
+		chatThread.start();
 	}
 
 	/**
-	 * Initialize the contents of the frame.
+	 * 初始化界面
 	 */
 	private void initialize() {
 		frame = new JFrame();
@@ -300,18 +309,27 @@ public class Chat {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// TODO 自动生成的方法存根
-			addMessagetoPanel();
+			String text = textArea_shuru.getText();
+			addMessagetoPanel(true, thisUser.getName(), text);
+			Message msg = new Message();
+			msg.setType("talk");
+			msg.setSelfUser(thisUser);
+			msg.setTargetUser(targetUser);
+			msg.setSelfId(thisUser.getId());
+			msg.setSelfName(thisUser.getName());
+			msg.setTargetId(targetUser.getId());
+			msg.setTargetName(targetUser.getName());
+			msg.setText(text);
+			chatThread.sendMessage(msg);
 		}
 	}
 
-	private void addMessagetoPanel() {
-		String text = textArea_shuru.getText();
-
+	protected void addMessagetoPanel(boolean isSelf, String name ,String text) {
 		gbc_liaotianjilu.gridx = 0;
 		gbc_liaotianjilu.gridy = messageCount++;
 		gbc_liaotianjilu.fill = GridBagConstraints.BOTH;
 
-		BubblePanelBorder bub = new BubblePanelBorder(text);
+		BubblePanelBorder bub = new BubblePanelBorder(isSelf, name ,text);
 
 		panel_liaotian.add(bub, gbc_liaotianjilu);
 

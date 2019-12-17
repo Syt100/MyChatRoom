@@ -453,7 +453,7 @@ public class MultiServerFrame {
 			for (int i = 0, j = 0; i < currentIndices.length; i++) {
 				names[j++] = dlm.elementAt(currentIndices[i]);
 			}
-			
+
 			// 通知所有客户端，客户端列表选择改变
 			putAllClientChanged();
 
@@ -530,10 +530,11 @@ class MultiTalkServerThread extends Thread {
 				if (clientBye == false) {// 如果客户端没有说拜拜
 					String received = clientIn.readLine();
 					jsonObject = JSONObject.parseObject(received);
+					String type = jsonObject.getString("type");
 
-					if (jsonObject.getString("type") != null) {
+					if (type != null) {
 						// 消息来源为测试客户端
-						if (jsonObject.getString("type").equals("test")) {
+						if (type.equals("test")) {
 							processTest();
 							// 客户端请求刷新所有客户端列表
 							if (jsonObject.getString("operation") != null
@@ -553,22 +554,19 @@ class MultiTalkServerThread extends Thread {
 							}
 						}
 						// 消息来源为登录界面的登录验证请求
-						if (jsonObject.getString("type").equals("login")) {
+						if (type.equals("login")) {
 							processLogin(jsonObject);
 						}
 						// 消息来源为登录界面的注册请求
-						if (jsonObject.getString("type").equals("register")) {
+						if (type.equals("register")) {
 							processRegister(jsonObject);
 						}
-					} else if (received.startsWith("register")) {
-						
-					} else if (received.startsWith("online")) {
-
-					} else if (received.startsWith("talk")) {
-						processTalk(received);
-					} else {
-						MultiServerFrame.showMsgFromClient(received);
+						// 消息来源为聊天界面的聊天请求
+						if (type.equals("talk")) {
+							processTalk(jsonObject);
+						}
 					}
+					MultiServerFrame.showMsgFromClient(received);
 
 					if (isAddToList == false) {
 						if (name != null) {
@@ -586,7 +584,6 @@ class MultiTalkServerThread extends Thread {
 			clientIn.close();
 			socket.close();
 		} catch (IOException e) {
-			// e.printStackTrace();
 			System.out.println("客户端" + name + "断开了连接");
 			MultiServerFrame.clientNumber--;
 			MultiServerFrame.flushClientCountShow();
@@ -613,9 +610,11 @@ class MultiTalkServerThread extends Thread {
 		Users user = jo.getObject("selfUser", Users.class);
 		if (isAddToList == false) {// 如果是客户端第一次连接，就设置线程名，不需要修改
 			name = user.getId() + "登录中";
+			this.setName(name);
 		} else {// 客户端不是第一次连接，因为用户的ID可能会改变，因此要修改线程名，与当前登录的客户端同步，不然导致服务端显示的列表信息删不掉
 			MultiServerFrame.updateClientShowName(name, user.getId() + "登录中");
 			name = user.getId() + "登录中";// 更新线程名
+			this.setName(name);
 		}
 		String id = user.getId();
 		try {
@@ -645,32 +644,55 @@ class MultiTalkServerThread extends Thread {
 		// 特殊字符作为分隔符时需要使用\\进行转义(比如使用\\作为分隔符的话，则转义为\\\\)
 		// 特殊字符有 .$|()[{^?*+\\
 		// String[] rec = received.split("\\.");
-		
+
 		// 从JSON字符串中获取用户
 		Users user = jo.getObject("selfUser", Users.class);
-		
+
 		if (isAddToList == false) {// 如果是客户端第一次连接，就设置线程名，不需要修改
 			name = user.getId() + "注册中";
+			this.setName(name);
 		} else {// 客户端不是第一次连接，因为用户的ID可能会改变，因此要修改线程名，与当前登录的客户端同步，不然导致服务端显示的列表信息删不掉
 			MultiServerFrame.updateClientShowName(name, user.getId() + "注册中");
 			name = user.getId() + "注册中";// 更新线程名
+			this.setName(name);
 		}
-		
+
 		XMLOperation xml = new XMLOperation();
 		xml.addUser(user);
-		
+
 		Message mg = new Message();
 		mg.setSelfUser(user);
 		mg.setType("register");
 		mg.setOperation("success");// 注册成功
-		
+
 		out.println(JSON.toJSONString(mg));
 		out.flush();
 	}
 
-	private void processTalk(String received) {
-		String[] rec = received.split("\\.");
-		name = rec[0] + "聊天中";
+	/**
+	 * 处理聊天请求
+	 * 
+	 * @param jo
+	 */
+	private void processTalk(JSONObject jo) {
+		// 从JSON字符串中获取用户
+		Users selfUser = jo.getObject("selfUser", Users.class);
+		Users targetUser = jo.getObject("targetUser", Users.class);
+		
+		if (isAddToList == false) {// 如果是客户端第一次连接，就设置线程名，不需要修改
+			name = selfUser.getId();
+			this.setName(name);
+		} else {// 客户端不是第一次连接，因为用户的ID可能会改变，因此要修改线程名，与当前登录的客户端同步，不然导致服务端显示的列表信息删不掉
+			MultiServerFrame.updateClientShowName(name, selfUser.getId());
+			name = selfUser.getId();// 更新线程名
+			this.setName(name);
+		}
+		
+		String name[] = { jo.getString("targetId") };
+		MultiServerFrame.updateReadyToSendClient(name);
+		Message mg = jo.toJavaObject(Message.class);
+
+		MultiServerFrame.sendMessageToClient(mg);
 
 	}
 
