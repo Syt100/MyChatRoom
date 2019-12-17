@@ -13,8 +13,6 @@ import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Timer;
@@ -93,14 +91,6 @@ public class Login4 {
 	private JLabel lbl_erweima;
 	/** 显示提示信息，默认隐藏，按需显示 */
 	private JLabel lbl_tips;
-	
-	// 网络部分
-	/** 客户端套接字 */
-	private Socket socket = null;
-	/** 客户端输出流 */
-	private PrintWriter out = null;
-	/** 客户端输入流 */
-	private BufferedReader in = null;
 
 	/**
 	 * Launch the application.
@@ -127,6 +117,9 @@ public class Login4 {
 		initMyMouseListener();
 		setTop(panel_operation);// 将主面板置顶
 		frame.setVisible(true);// 一般在构造方法最后一步
+		// 连接服务器
+		LoginTread loginThread = new LoginTread(this, "12");
+		loginThread.start();
 	}
 
 	/**
@@ -400,7 +393,11 @@ public class Login4 {
 		@Override
 		public void mouseClicked(MouseEvent e) {// 鼠标点击
 			if (e.getSource() == btn_denglu) {// 点击登录按钮
-				verificationAccountFromServer();
+				// TODO 如果服务端未打开，错误处理
+				// loginThread.verificationAccountFromServer();
+				LoginTread lt = new LoginTread(Login4.this, "login");
+				lt.start();
+				lt.verificationAccountFromServer();
 //				int judge = judgeLoginStatus();
 //				if (judge == 1) {
 //					showTipsByThread("账号或密码不能为空！");
@@ -445,7 +442,10 @@ public class Login4 {
 				}else {// 注册成功
 					setTop(panel_operation);
 					panel_header.setVisible(true);
-					registerAccountFromServer(panel_register.getUser());
+					LoginTread lt = new LoginTread(Login4.this, "register");
+					lt.start();
+					lt.registerAccountFromServer(panel_register.getUser());
+					//loginThread.registerAccountFromServer(panel_register.getUser());
 				}
 			}
 			if (e.getSource() == panel_register.btn_quxiao) {// 注册页面中的取消按钮
@@ -572,54 +572,6 @@ public class Login4 {
 	}
 	
 	/**
-	 * 初始化网络相关
-	 * @throws Exception 
-	 */
-	private void initSocket() throws Exception {
-		if (socket != null) {// 保证只有一个socket，不重复初始化
-			return;
-		}
-		// 初始化Socket
-		try {
-			socket = new Socket("127.0.0.1", 4444);
-		} catch (IOException e) {
-			System.out.println("无法连接到服务器");
-			showTipsByTimer("无法连接到服务器");
-			throw new Exception("无法连接到服务器");
-		}
-		showTipsByTimer("已连接到服务器:127.0.0.1");
-		System.out.println("已连接到服务器:127.0.0.1");
-		// 初始化输入输出流
-		try {
-			out = new PrintWriter(socket.getOutputStream());
-			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		} catch (IOException e) {
-			System.out.println("I/O流出错");
-			throw new Exception("I/O流出错");
-		}
-	}
-	
-	/**
-	 * 关闭套接字和流
-	 */
-	private void closeSocketAndStream() {
-		try {
-			if(out != null) {
-				out.close();
-			}
-			if(in != null) {
-				in.close();
-			}
-			if(socket != null) {
-				socket.close();
-			}
-		} catch (IOException e) {
-			// TODO 自动生成的 catch 块
-			e.printStackTrace();
-		}
-	}
-	
-	/**
 	 * 设置要显示在顶端的组件，将其他面板隐藏
 	 * @param jc 要设置可见为真的组件（面板）
 	 */
@@ -667,7 +619,7 @@ public class Login4 {
 	 * @return users
 	 * @throws AccountInputException 
 	 */
-	private Users getUserFromInput() throws AccountInputException {
+	protected Users getUserFromInput() throws AccountInputException {
 		String id = comboBox_zhanghao.getEditor().getItem().toString().trim();// 获取输入的账号
 		char[] password0 = passwordField_mima.getPassword();// 获取输入的密码（char)格式
 		/* 获取组合框输入的文本； JComboBox有一个getEditor()方法，getEditor()方法返回ComboBoxEditor,
@@ -679,77 +631,6 @@ public class Login4 {
 		}
 		Users user = new Users(id, password);
 		return user;
-	}
-	
-	/**
-	 * 从服务器验证账号密码是否匹配
-	 */
-	private void verificationAccountFromServer() {
-		try {
-			initSocket();
-		} catch (Exception e1) {
-			System.out.println(e1.toString());
-			return;
-		}
-		Users user = null;
-		String comfirm = null;
-		try {
-			user = getUserFromInput();
-		} catch (AccountInputException e) {
-			showTipsByTimer(e.getMessage());
-			out.println("login." + "0" + "." + "0");
-			out.flush();
-			return;
-		}
-		out.println("login." + user.getId() + "." + user.getPassword());
-		out.flush();
-		try {
-			comfirm = in.readLine();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		if(comfirm.startsWith("success")) {
-			String[] information = comfirm.split("\\.");
-			user.setName(information[2]);
-			user.setFriends(information[3]);
-			System.out.println("success");
-			skipToFriendList(user);// 跳转到好友列表界面
-		}else {
-			System.out.println(comfirm);
-			showTipsByTimer(comfirm);
-		}
-	}
-	
-	/**
-	 * 上传Users到服务器注册账户
-	 * @param user
-	 */
-	private void registerAccountFromServer(Users user) {
-		try {
-			initSocket();
-		} catch (Exception e1) {
-			System.out.println(e1.toString());
-			return;
-		}
-		String id = user.getId();
-		String name = user.getName();
-		String password = user.getPassword();
-		String friends = user.getFriends();
-		out.println("register." + id + "." + name + "." + password + "." + friends);
-		out.flush();
-		String comfirm = null;
-		try {
-			comfirm = in.readLine();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		if(comfirm.equals("success")) {
-			System.out.println("success");
-			showTipsByTimer("注册成功");
-		}else {
-			System.out.println(comfirm);
-			showTipsByTimer(comfirm);
-		}
 	}
 	
 	/**
@@ -787,7 +668,7 @@ public class Login4 {
 	 * 更改提示标签的内容，通过计时器
 	 * @param tip 要显示的提示内容
 	 */
-	private void showTipsByTimer(String tip) {
+	protected void showTipsByTimer(String tip) {
 		lbl_tips.setText(tip);
 		lbl_tips.setVisible(true);
 		// 用计时器实现延迟
@@ -803,7 +684,7 @@ public class Login4 {
 	/**
 	 * 登录成功后，跳转到好友列表
 	 */
-	public void skipToFriendList(Users user) {
+	public void skipToFriendList(Users user, Socket socket, PrintWriter out, BufferedReader in) {
 		setTop(panel_landing);
 		
 		// 用计时器实现延迟
@@ -811,7 +692,6 @@ public class Login4 {
 		timer.schedule(new TimerTask() {
 			public void run() {
 				// TODO 此处可显示登录成功
-				//closeSocketAndStream();
 				frame.dispose();// 注销当前登录窗口
 				// 拉起好友界面
 				MyFriendsList3 window = new MyFriendsList3(user, socket, out, in);
