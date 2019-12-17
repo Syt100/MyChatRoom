@@ -22,10 +22,16 @@
     <password>zzz</password>  
     <friends>1234,2345,3456</friends> 
   </user>  
+  <user index="4"> 
+    <id>8888</id>  
+    <name>null</name>  
+    <password>12</password>  
+    <friends>null</friends> 
+  </user>  
   <user index="4">
-    <id>8888</id>
-    <name>null</name>
-    <password>12</password>
-    <friends>null</friends>
+    <id>8889</id>
+    <name>哈哈</name>
+    <password>111</password>
+    <friends>,</friends>
   </user>
 </users>
