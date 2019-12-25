@@ -3,7 +3,6 @@ package mygui.chat;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -33,52 +32,61 @@ import javax.swing.border.MatteBorder;
 import bean.Message;
 import bean.Users;
 import util.VerticalFlowLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
+ * 聊天窗口
  * 颜色设计来自于https://www.runoob.com/tags/html-colorpicker.html
  * 
  * @author xuxin
  *
  */
-/**
- * @author xuxin
- *
- */
 public class Chat {
-
+	
+	/** 窗口的框架 */
 	private JFrame frame;
+	/** 框架的内容面板 */
 	private JPanel contentPane;
+	/** 放置左侧的消息列表中的好友头像 */
 	private JLabel lbl_images = new JLabel();
+	/** 左侧的消息列表中的好友信息 */
 	private JLabel lbl_information = new JLabel();
-
-	private Icon icon = new ImageIcon(Chat.class.getResource("/Images/223209_3.jpg"));// 图片地址
+	/** 默认的左侧的消息列表中的好友头像 */
+	private Icon icon = new ImageIcon(Chat.class.getResource("/Images/223209_3.jpg"));
+	
+	/** 窗口的标题 */
 	private String title = new String("[好友昵称]");
+	/** 默认的左侧的消息列表中的好友信息 */
 	private String sign = new String("好友信息");
+	
+	/** 显示聊天消息记录的面板 */
 	private JPanel panel_liaotian;
+	/** 输入消息的输入框 */
 	private JTextArea textArea_shuru;
 
+	/** 布局约束，用于聊天记录面板上显示单个聊天气泡 */
 	private GridBagConstraints gbc_liaotianjilu = new GridBagConstraints();
+	/** 确保聊天气泡是从下面开始显示，而不是上面 */
 	private int messageCount = 3;
+	/** 进度条，为发送文件预留的 */
 	private JProgressBar progressBar;
 	
+	/** 当前用户 */
 	private Users thisUser = null;
+	/** 与当前用户聊天的用户 */
 	private Users targetUser = null;
+	
+	/** 聊天窗口的接收服务端消息的线程 */
 	private ChatThread chatThread;
-
-	/**
-	 * Launch the application.
-	 */
+	
+	/** 是否启用群聊模式 */
+	private boolean isGroupChat = false;
+	
+	
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					// UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-					Chat window = new Chat();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+		// UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		new Chat();
 	}
 
 	/**
@@ -95,9 +103,10 @@ public class Chat {
 	 * @param out
 	 * @param in
 	 */
-	public Chat(Users thisUser, Users targetUser, PrintWriter out, BufferedReader in) {
+	public Chat(Users thisUser, Users targetUser, PrintWriter out, BufferedReader in, boolean isGroupChat) {
 		this.thisUser = thisUser;
 		this.targetUser = targetUser;
+		this.isGroupChat = isGroupChat;
 		initialize();
 		frame.setVisible(true);
 		chatThread = new ChatThread(this, out, in);
@@ -113,6 +122,7 @@ public class Chat {
 		frame.setIconImage(Toolkit.getDefaultToolkit().getImage(Chat.class.getResource("/Images/223209_3.jpg")));
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setBounds(100, 100, 630, 460);
+		frame.addWindowListener(new CloseWindow());// 窗口被关闭，通知线程停止接收消息
 
 		contentPane = new JPanel();
 		contentPane.setBackground(Color.WHITE);
@@ -213,84 +223,83 @@ public class Chat {
 		gbl_panel_liaotian.rowWeights = new double[] { Double.MIN_VALUE };
 		panel_liaotian.setLayout(gbl_panel_liaotian);
 
-		JPanel panel_1 = new JPanel();
-		panel_1.setBorder(new MatteBorder(1, 0, 1, 0, (Color) Color.GRAY));
-		panel_1.setBackground(Color.WHITE);
-		FlowLayout flowLayout = (FlowLayout) panel_1.getLayout();
-		flowLayout.setHgap(10);
-		flowLayout.setAlignment(FlowLayout.LEFT);
-		scrollPane.setColumnHeaderView(panel_1);
+		JPanel panel_dinglan = new JPanel();
+		panel_dinglan.setBorder(new MatteBorder(1, 0, 1, 0, (Color) Color.GRAY));
+		panel_dinglan.setBackground(Color.WHITE);
+		FlowLayout fl_panel_dinglan = (FlowLayout) panel_dinglan.getLayout();
+		fl_panel_dinglan.setHgap(10);
+		fl_panel_dinglan.setAlignment(FlowLayout.LEFT);
+		scrollPane.setColumnHeaderView(panel_dinglan);
 
 		JLabel lblNewLabel_1 = new JLabel("聊天");
 		lblNewLabel_1.setFont(new Font("微软雅黑", Font.PLAIN, 14));
-		panel_1.add(lblNewLabel_1);
+		panel_dinglan.add(lblNewLabel_1);
 
 		JLabel lblNewLabel_2 = new JLabel("公告");
 		lblNewLabel_2.setFont(new Font("微软雅黑", Font.PLAIN, 14));
-		panel_1.add(lblNewLabel_2);
+		panel_dinglan.add(lblNewLabel_2);
 
 		JLabel lblNewLabel_3 = new JLabel("相册");
 		lblNewLabel_3.setFont(new Font("微软雅黑", Font.PLAIN, 14));
-		panel_1.add(lblNewLabel_3);
+		panel_dinglan.add(lblNewLabel_3);
 
 		JLabel lblNewLabel_4 = new JLabel("文件");
 		lblNewLabel_4.setFont(new Font("微软雅黑", Font.PLAIN, 14));
-		panel_1.add(lblNewLabel_4);
+		panel_dinglan.add(lblNewLabel_4);
 
 		JLabel lblNewLabel_5 = new JLabel("活动");
 		lblNewLabel_5.setFont(new Font("微软雅黑", Font.PLAIN, 14));
-		panel_1.add(lblNewLabel_5);
+		panel_dinglan.add(lblNewLabel_5);
 
 		JLabel lblNewLabel_6 = new JLabel("设置");
 		lblNewLabel_6.setFont(new Font("微软雅黑", Font.PLAIN, 14));
-		panel_1.add(lblNewLabel_6);
+		panel_dinglan.add(lblNewLabel_6);
 
-		JComboBox comboBox = new JComboBox();
+		JComboBox<String> comboBox = new JComboBox<String>();
 		comboBox.setBorder(new EmptyBorder(0, 0, 0, 0));
 		comboBox.setFocusable(false);
 		comboBox.setBackground(Color.WHITE);
-		comboBox.setModel(new DefaultComboBoxModel(new String[] { "设置", "查看群资料", "更新群信息" }));
+		comboBox.setModel(new DefaultComboBoxModel<String>(new String[] { "设置", "查看群资料", "更新群信息" }));
 		comboBox.setFont(new Font("微软雅黑", Font.PLAIN, 14));
-		panel_1.add(comboBox);
+		panel_dinglan.add(comboBox);
 
-		JScrollPane scrollPane_2 = new JScrollPane();
-		scrollPane_2.setPreferredSize(new Dimension(110, contentPane.getHeight()));
-		scrollPane_2.setBorder(new MatteBorder(1, 0, 0, 1, (Color) Color.GRAY));
-		contentPane.add(scrollPane_2, BorderLayout.WEST);
+		JScrollPane scrollPane_xiaoxi = new JScrollPane();
+		scrollPane_xiaoxi.setPreferredSize(new Dimension(110, contentPane.getHeight()));
+		scrollPane_xiaoxi.setBorder(new MatteBorder(1, 0, 0, 1, (Color) Color.GRAY));
+		contentPane.add(scrollPane_xiaoxi, BorderLayout.WEST);
 
-		JPanel panel = new JPanel();
-		panel.setBackground(new Color(51, 153, 255));
-		scrollPane_2.setColumnHeaderView(panel);
+		JPanel panel_xiaoxiliebiao = new JPanel();
+		panel_xiaoxiliebiao.setBackground(new Color(51, 153, 255));
+		scrollPane_xiaoxi.setColumnHeaderView(panel_xiaoxiliebiao);
 
 		JLabel lblNewLabel = new JLabel("消息列表");
 		lblNewLabel.setForeground(Color.WHITE);
 		lblNewLabel.setFont(new Font("微软雅黑", Font.PLAIN, 14));
-		panel.add(lblNewLabel);
+		panel_xiaoxiliebiao.add(lblNewLabel);
 
-		JPanel panel_2 = new JPanel();
-		panel_2.setBackground(new Color(51, 153, 255));
-		scrollPane_2.setViewportView(panel_2);
+		JPanel panel_flow = new JPanel();
+		panel_flow.setBackground(new Color(51, 153, 255));
+		scrollPane_xiaoxi.setViewportView(panel_flow);
 
-		VerticalFlowLayout verticalFlowLayout = new VerticalFlowLayout();
-		verticalFlowLayout.setHfill(true);
-		verticalFlowLayout.setAlignment(VerticalFlowLayout.TOP);
-		verticalFlowLayout.setHgap(0);
-		panel_2.setLayout(verticalFlowLayout);
+		VerticalFlowLayout vfl_panel_flow = new VerticalFlowLayout();
+		vfl_panel_flow.setHfill(true);
+		vfl_panel_flow.setAlignment(VerticalFlowLayout.TOP);
+		vfl_panel_flow.setHgap(0);
+		panel_flow.setLayout(vfl_panel_flow);
 
-		JPanel panel_3 = new JPanel();
-		panel_3.setBackground(new Color(217, 217, 217, 130));
-		panel_2.add(panel_3);
+		JPanel panel_test = new JPanel();
+		panel_test.setBackground(new Color(217, 217, 217, 130));
+		panel_flow.add(panel_test);
 
-		JLabel lblNewLabel_7 = new JLabel("New label");
+		JLabel lblNewLabel_7 = new JLabel("测试多个好友");
 		lblNewLabel_7.setForeground(Color.WHITE);
-		panel_3.add(lblNewLabel_7);
+		panel_test.add(lblNewLabel_7);
 
 		// 创建两块面板分别放好友基本信息、 聊天输入记录具体实现
 		JPanel friend_information = new JPanel();
-		panel_2.add(friend_information);
+		panel_flow.add(friend_information);
 		friend_information.setBackground(new Color(217, 217, 217, 130));
 		friend_information.setBorder(new EmptyBorder(0, 0, 5, 0));
-		// jp1.setBounds(new Rectangle(0, 0, 470, 25));
 		friend_information.setSize(470, 25);
 		friend_information.setLayout(new BorderLayout(0, 0));
 
@@ -304,22 +313,50 @@ public class Chat {
 		lbl_information.setText(sign);// 设置签名
 		friend_information.add(lbl_information);
 	}
+	
+	/**
+	 * 窗口关闭事件监听
+	 * @author xuxin
+	 *
+	 */
+	private class CloseWindow extends WindowAdapter {
+		@Override
+		public void windowClosing(WindowEvent e) {
+			if (chatThread != null) {
+				// 窗口关闭，断开连接
+				chatThread.close();
+			}
+		}
+	}
 
+	/**
+	 * 点击发送按钮的监听事件
+	 * @author xuxin
+	 *
+	 */
 	private class SendMessage implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO 自动生成的方法存根
 			String text = textArea_shuru.getText();
 			addMessagetoPanel(true, thisUser.getName(), text);
-			Message msg = new Message();
-			msg.setType("talk");
-			msg.setSelfUser(thisUser);
-			msg.setTargetUser(targetUser);
-			msg.setSelfId(thisUser.getId());
-			msg.setSelfName(thisUser.getName());
-			msg.setTargetId(targetUser.getId());
-			msg.setTargetName(targetUser.getName());
-			msg.setText(text);
+			Message msg;
+			if (isGroupChat == false) {
+				msg = new Message();
+				msg.setType("talk");
+				msg.setSelfId(thisUser.getId());
+				msg.setSelfName(thisUser.getName());
+				msg.setTargetId(targetUser.getId());
+				msg.setTargetName(targetUser.getName());
+				msg.setText(text);
+			} else {
+				msg = new Message();
+				msg.setType("GroupChat");
+				msg.setSelfId(thisUser.getId());
+				msg.setSelfName(thisUser.getName());
+				msg.setTargetId(targetUser.getId());
+				msg.setTargetName(targetUser.getName());
+				msg.setText(text);
+			}
 			chatThread.sendMessage(msg);
 		}
 	}
@@ -329,22 +366,13 @@ public class Chat {
 		gbc_liaotianjilu.gridy = messageCount++;
 		gbc_liaotianjilu.fill = GridBagConstraints.BOTH;
 
-		BubblePanelBorder bub = new BubblePanelBorder(isSelf, name ,text);
+		ChatBubble bub = new ChatBubble(isSelf, name ,text);
 
 		panel_liaotian.add(bub, gbc_liaotianjilu);
 
 		bub.setPreferredSize(new Dimension(0, bub.getPanelHight(panel_liaotian.getWidth())));
 
 		panel_liaotian.updateUI();
-	}
-
-	/**
-	 * 设置窗口是否可见
-	 * 
-	 * @param t
-	 */
-	public void setFrameVisiable(boolean t) {
-		frame.setVisible(t);
 	}
 
 	/**
@@ -374,7 +402,11 @@ public class Chat {
 	 */
 	public void setTitle(String title) {
 		this.title = title;
-		frame.setTitle(title);
+		if (isGroupChat == true) {
+			frame.setTitle(title + "群聊模式");
+		} else {
+			frame.setTitle(title);
+		}
 	}
 
 	/**
@@ -390,6 +422,13 @@ public class Chat {
 	public void setSign(String sign) {
 		this.sign = sign;
 		lbl_information.setText(sign);// 设置签名
+	}
+
+	/**
+	 * @return thisUser
+	 */
+	protected Users getThisUser() {
+		return thisUser;
 	}
 
 }
