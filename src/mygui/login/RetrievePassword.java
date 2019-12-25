@@ -5,7 +5,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 /**
- * 找回密码
+ * 找回密码面板
  * @author xuxin
  *
  */
@@ -20,13 +20,14 @@ public class RetrievePassword extends JPanel {
 	public final JButton btn_return = new JButton("返回");
 
 	/**
-	 * Create the panel.
+	 * 构造方法
 	 */
 	public RetrievePassword() {
 		setSize(430, 281);
 		add(lbl_tips);
 		
-		lbl_tips.setText("这是一个找回密码的面板");
+		// JLabel支持简单的html语法，利用<br>标签实现换行
+		lbl_tips.setText("<html>这是一个找回密码的面板。<br>额，暂时还没做好。</html>");
 		
 		add(btn_return);
 	}
