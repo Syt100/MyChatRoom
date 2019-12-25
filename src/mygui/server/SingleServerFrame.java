@@ -1,6 +1,5 @@
 package mygui.server;
 
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -18,6 +17,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+/**
+ * 单线程服务端的界面
+ * @author xuxin
+ *
+ */
 public class SingleServerFrame {
 
 	private JFrame frame;
@@ -39,26 +43,15 @@ public class SingleServerFrame {
 	
 	String exitCode = "exit(0):123456";
 
-	/**
-	 * Launch the application.
-	 */
+
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-SingleServerFrame window = new SingleServerFrame();
-					window.frame.setVisible(true);
-		 window.initSocket();
+		SingleServerFrame window = new SingleServerFrame();
+		window.frame.setVisible(true);
+		window.initSocket();
 	}
 
 	/**
-	 * Create the application.
+	 * 
 	 */
 	public SingleServerFrame() {
 		initialize();
@@ -66,7 +59,7 @@ SingleServerFrame window = new SingleServerFrame();
 	}
 
 	/**
-	 * Initialize the contents of the frame.
+	 * 
 	 */
 	private void initialize() {
 		frame = new JFrame();
