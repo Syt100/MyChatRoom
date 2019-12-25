@@ -10,6 +10,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 /**
+ * 实现面板上的背景图片
+ * 
  * @author xuxin
  *
  */
@@ -23,17 +25,17 @@ public class BackgroundJPanel extends JPanel {
 	 * 填充整个面板的图片
 	 */
 	private Image backGroundImg;
-	
+
 	/**
 	 * 默认的无参构造方法
 	 */
 	public BackgroundJPanel() {
-		// TODO 自动生成的构造函数存根
 		super();
 	}
-	
+
 	/**
 	 * 用Image对象构造
+	 * 
 	 * @param backGroundImg
 	 */
 	public BackgroundJPanel(Image backGroundImg) {
@@ -42,15 +44,16 @@ public class BackgroundJPanel extends JPanel {
 
 	/**
 	 * 用ImageIcon对象构造
+	 * 
 	 * @param backGroundImgIcon
 	 */
 	public BackgroundJPanel(ImageIcon backGroundImgIcon) {
-		// TODO 自动生成的构造函数存根
 		this.backGroundImg = backGroundImgIcon.getImage();
 	}
 
 	/**
 	 * 获取背景
+	 * 
 	 * @return backGroundImg Image对象
 	 */
 	public Image getBackGroundImg() {
@@ -59,6 +62,7 @@ public class BackgroundJPanel extends JPanel {
 
 	/**
 	 * 设置背景
+	 * 
 	 * @param backGroundImg 要设置的 backGroundImg
 	 */
 	public void setBackGroundImg(Image backGroundImg) {
@@ -69,7 +73,7 @@ public class BackgroundJPanel extends JPanel {
 	protected void paintComponent(Graphics g) {
 		// 这一句可以清除之前绘制的图像，在这个例子中看不出来效果，若是java做画图板的程序就能看出来
 		super.paintComponent(g);
-		// 此方法有很多种，看的眼花缭乱，了解参数了就好多了，这里说一下基本的
+		// 此方法有很多种，下面是方法说明
 		// 1：image对象
 		// 2：重绘的起始横坐标
 		// 3：重绘的起始纵坐标
