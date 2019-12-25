@@ -3,7 +3,6 @@ package mygui.friendslist2;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Frame;
@@ -26,6 +25,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -47,6 +47,11 @@ import mygui.frameutil.BackgroundJPanel;
 import mygui.frameutil.ResizeFrame;
 import util.XMLOperation;
 
+/**
+ * 好友列表
+ * @author xuxin
+ *
+ */
 public class MyFriendsList3 {
 
 	/** 窗体 */
@@ -82,7 +87,7 @@ public class MyFriendsList3 {
 	private Color COLOR_TABLE_SELECTED = Color.BLACK;
 
 	/** 默认的窗口背景图片 */
-	private ImageIcon backGroundImgIcon = new ImageIcon(getClass().getResource("/Images/back02.jpg"));
+	private ImageIcon backGroundImgIcon = new ImageIcon(getClass().getResource("/Images/back03.jpg"));
 
 	/** 窗口标题 */
 	private static String title = new String(" 我的QQ");
@@ -112,13 +117,13 @@ public class MyFriendsList3 {
 	/** 存放昵称，签名 */
 	private final JPanel panel_name = new JPanel();
 	/** 存放昵称 */
-	private final JLabel lbl_name = new JLabel("New label");
+	private final JLabel lbl_name = new JLabel("");
 	/** 存放签名 */
 	private final JTextArea textArea_sign = new JTextArea();
 	/** 天气面板 */
 	private final JPanel panel_weather = new JPanel();
 	/** 存放天气 */
-	private final JLabel lbl_weather = new JLabel("New label");
+	private final JLabel lbl_weather = new JLabel("");
 
 	/** 搜索面板 */
 	private final JPanel panel_search = new JPanel();
@@ -162,6 +167,9 @@ public class MyFriendsList3 {
 	/** 底栏的面板，菜单面板 */
 	private final JLabel lbl_menu = new JLabel();
 	
+	/** 是否群聊的开关 */
+	private final JCheckBox chckbx_qunliao = new JCheckBox("开启群聊模式");
+	
 	// 用户
 	/** 接收从客户端接收的Users类 */
 	private Users user = null;
@@ -173,20 +181,11 @@ public class MyFriendsList3 {
 	private PrintWriter out = null;
 	/** 接收从登陆页面传来的in输入流 */
 	private BufferedReader in = null;
+	
 
-	/**
-	 * Launch the application.
-	 */
+
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					new MyFriendsList3();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+		new MyFriendsList3();
 	}
 
 	/**
@@ -339,6 +338,8 @@ public class MyFriendsList3 {
 		panel_down.setLayout(new BorderLayout(0, 0));
 		panel_down.add(panel_down_left, BorderLayout.WEST);
 		panel_down.add(panel_down_right, BorderLayout.EAST);
+		
+		panel_down_right.add(chckbx_qunliao);
 		panel_down_left.add(lbl_menu);
 
 	}
@@ -385,7 +386,7 @@ public class MyFriendsList3 {
 	private void initialize(Users user) {
 		lbl_title.setText(title);
 		lbl_header.setIcon(produceImage("223209_3.jpg"));
-		lbl_name.setText(user.getName());
+		lbl_name.setText(user.getName() + "(" + user.getId() + ")");
 		lbl_weather.setText("晴");
 		lbl_search.setIcon(toSuitableIcon(20, 20, "search_icon.png"));
 
@@ -405,10 +406,10 @@ public class MyFriendsList3 {
 	 * 初始化JTree的节点，即好友列表（默认调试用）
 	 */
 	private void initJTreeNode() {
-		Icon ico1 = new ImageIcon(MyFriendsList.class.getResource("/Images/1.png"));
-		Icon ico2 = new ImageIcon(MyFriendsList.class.getResource("/Images/2.png"));
-		Icon ico3 = new ImageIcon(MyFriendsList.class.getResource("/Images/3.png"));
-		Icon ico4 = new ImageIcon(MyFriendsList.class.getResource("/Images/4.png"));
+		Icon ico1 = new ImageIcon(getClass().getResource("/Images/1.png"));
+		Icon ico2 = new ImageIcon(getClass().getResource("/Images/2.png"));
+		Icon ico3 = new ImageIcon(getClass().getResource("/Images/3.png"));
+		Icon ico4 = new ImageIcon(getClass().getResource("/Images/4.png"));
 
 		root = new MyTreeNode();
 		MyTreeNode node1 = new MyTreeNode("我的好友");
@@ -454,10 +455,10 @@ public class MyFriendsList3 {
 //			return;
 //		}
 		
-		Icon ico1 = new ImageIcon(MyFriendsList.class.getResource("/Images/1.png"));
-		Icon ico2 = new ImageIcon(MyFriendsList.class.getResource("/Images/2.png"));
-		Icon ico3 = new ImageIcon(MyFriendsList.class.getResource("/Images/3.png"));
-		Icon ico4 = new ImageIcon(MyFriendsList.class.getResource("/Images/4.png"));
+		Icon ico1 = new ImageIcon(getClass().getResource("/Images/1.png"));
+		Icon ico2 = new ImageIcon(getClass().getResource("/Images/2.png"));
+		Icon ico3 = new ImageIcon(getClass().getResource("/Images/3.png"));
+		Icon ico4 = new ImageIcon(getClass().getResource("/Images/4.png"));
 		
 		XMLOperation xml = new XMLOperation();
 		MyTreeNode node_main = new MyTreeNode("我的好友");
@@ -510,13 +511,12 @@ public class MyFriendsList3 {
 			@Override
 			public void mouseMoved(MouseEvent e) {// 鼠标移动
 				if (e.getSource() == tree) {// tree的事件，实现鼠标悬浮高亮
-					int x = e.getX(), y = e.getY();
 					TreePath selPath = tree.getPathForLocation(e.getX(), e.getY());
 					if (selPath != null) {
 						//MyTreeNode clicNode = (MyTreeNode) tree.getLastSelectedPathComponent();
 						//MyTreeNode currentNode = (MyTreeNode) selPath.getLastPathComponent();
 						//实现鼠标悬浮高亮
-						MyTreeCellRenderer.mouseRow = tree.getRowForLocation(x, y);
+						MyTreeCellRenderer.mouseRow = tree.getRowForLocation(e.getX(), e.getY());
 						tree.repaint();
 					}else {//鼠标在节点之外，取消高亮
 						MyTreeCellRenderer.mouseRow = -1;
@@ -669,10 +669,14 @@ public class MyFriendsList3 {
 		return backImage;
 	}
 	
+	/**
+	 * 双击好友节点后，打开好友聊天界面
+	 */
 	protected void chatWithFriend() {
+		boolean isSel = chckbx_qunliao.isSelected();
 		XMLOperation xml = new XMLOperation();
 		Users targetUser = xml.getUsersById(renderer.getNode().getId());
-		Chat window = new Chat(user, targetUser, out, in);
+		Chat window = new Chat(user, targetUser, out, in, isSel);
 		window.setIcon(renderer.getNode().getIcon());
 		window.setTitle(renderer.getNode().getName());
 		window.setSign(renderer.getNode().getSign());
@@ -692,6 +696,10 @@ public class MyFriendsList3 {
 		return backImage;
 	}
 
+	/**
+	 * 创建换肤对话框
+	 * @param curPoint
+	 */
 	private void skinOption(Point curPoint) {
 		int width = 126;// 对话框宽度
 		int height = 170;// 对话框高度
