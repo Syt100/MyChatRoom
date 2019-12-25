@@ -14,7 +14,8 @@ import bean.Users;
 import exception.AccountInputException;
 
 /**
- * 登录界面的网络、流的处理线程。当登录客户端启动时，便启动本线程，由这个线程处理与服务端通信的事件。
+ * 登录界面的网络、流的处理线程，接收从服务端发来的登陆成功、登录失败、注册成功等消息。
+ * 当登录客户端启动时，便启动本线程，由这个线程处理与服务端通信的事件。
  * 由于可能存在连接服务端失败的情况，只能重新new一个线程
  * 
  * @author xuxin
@@ -31,6 +32,9 @@ public class LoginTread extends Thread {
 	protected static PrintWriter out = null;
 	/** 客户端输入流 */
 	protected static BufferedReader in = null;
+	
+	/** 登录界面是否已经结束 */
+	private static boolean isClose = false;
 
 	/**
 	 * 默认无参数构造方法
@@ -58,8 +62,9 @@ public class LoginTread extends Thread {
 		try {
 			initSocket();
 			while (true) {
+				
 				String received = in.readLine();
-				System.out.println(received);
+				System.out.println(getClass() + received);
 
 				JSONObject jsonObject = JSONObject.parseObject(received);
 				String type = jsonObject.getString("type");
@@ -69,23 +74,26 @@ public class LoginTread extends Thread {
 					if ("success".equals(operation)) {// 如果服务端返回登陆成功
 						Users u = jsonObject.getObject("selfUser", Users.class);
 						login.skipToFriendList(u, socket, out, in);
-						break;
+						// break;
 					} else {// 服务端会返回失败原因
 						login.showTipsByTimer(operation);
 						System.out.println(operation);
-						break;
+						// break;
 					}
 				}
 				// 服务端返回注册的反馈信息
 				if (type != null && "register".equals(type)) {
 					if ("success".equals(operation)) {// 如果服务端返回注册成功
 						login.showTipsByTimer("注册成功！");
-						break;
+						// break;
 					} else {// 服务端会返回失败原因
 						login.showTipsByTimer(operation);
 						System.out.println(operation);
-						break;
+						// break;
 					}
+				}
+				if (isClose || socket == null) {
+					break;
 				}
 			}
 		} catch (IOException e) {
@@ -168,6 +176,26 @@ public class LoginTread extends Thread {
 
 		out.println(JSON.toJSONString(msg));
 		out.flush();
+	}
+	
+	/**
+	 * 静态方法，关闭所有的登录线程
+	 * @param f
+	 */
+	protected static void closeLoginTheard(boolean f) {
+		isClose = f;
+	}
+	
+	/**
+	 * 判断是否已经连上了服务器，如果连上了就不用new 本类了。
+	 * @return
+	 */
+	protected static boolean isConnected() {
+		if(socket == null) {
+			return false;
+		}else {
+			return true;
+		}
 	}
 
 	/**

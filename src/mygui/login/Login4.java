@@ -3,7 +3,6 @@ package mygui.login;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Frame;
@@ -38,6 +37,11 @@ import mygui.frameutil.ResizeFrame;
 import mygui.friendslist2.MyFriendsList3;
 import util.ConstantStatus;
 
+/**
+ * 登录界面。为什么Login后面还有个4，因为前面做了好几个，都被抛弃了。
+ * @author xuxin
+ *
+ */
 public class Login4 {
 
 	/** 可调大小窗体 */
@@ -91,24 +95,17 @@ public class Login4 {
 	private JLabel lbl_erweima;
 	/** 显示提示信息，默认隐藏，按需显示 */
 	private JLabel lbl_tips;
+	
+	/** 登录界面的后台线程，处理接收消息、初始化socket */
+	private LoginTread loginThread;
 
-	/**
-	 * Launch the application.
-	 */
+	
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					new Login4();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+		new Login4();
 	}
 
 	/**
-	 * Create the application.
+	 * 构造方法，初始化界面及事件
 	 */
 	public Login4() {
 		initBackGround();
@@ -116,9 +113,8 @@ public class Login4 {
 		initMyFocusListener();
 		initMyMouseListener();
 		setTop(panel_operation);// 将主面板置顶
-		frame.setVisible(true);// 一般在构造方法最后一步
-		// 连接服务器
-		LoginTread loginThread = new LoginTread(this, "12");
+		frame.setVisible(true);
+		loginThread = new LoginTread(this, "Login");
 		loginThread.start();
 	}
 
@@ -393,19 +389,14 @@ public class Login4 {
 		@Override
 		public void mouseClicked(MouseEvent e) {// 鼠标点击
 			if (e.getSource() == btn_denglu) {// 点击登录按钮
-				// TODO 如果服务端未打开，错误处理
-				// loginThread.verificationAccountFromServer();
-				LoginTread lt = new LoginTread(Login4.this, "login");
-				lt.start();
-				lt.verificationAccountFromServer();
-//				int judge = judgeLoginStatus();
-//				if (judge == 1) {
-//					showTipsByThread("账号或密码不能为空！");
-//				} else if (judge == 2) {
-//					skipToFriendList();
-//				} else if (judge == 3) {
-//					showTipsByTimer("账号或密码错误，请重试！");
-//				}
+				if (LoginTread.isConnected()) {
+					loginThread.verificationAccountFromServer();
+				} else {
+					// 如果服务端未打开
+					loginThread = new LoginTread(Login4.this, "login");
+					loginThread.start();
+					loginThread.verificationAccountFromServer();
+				}
 			}
 			
 		}
@@ -442,10 +433,13 @@ public class Login4 {
 				}else {// 注册成功
 					setTop(panel_operation);
 					panel_header.setVisible(true);
-					LoginTread lt = new LoginTread(Login4.this, "register");
-					lt.start();
-					lt.registerAccountFromServer(panel_register.getUser());
-					//loginThread.registerAccountFromServer(panel_register.getUser());
+					if (LoginTread.isConnected()) {
+						loginThread.registerAccountFromServer(panel_register.getUser());
+					} else {
+						loginThread = new LoginTread(Login4.this, "register");
+						loginThread.start();
+						loginThread.registerAccountFromServer(panel_register.getUser());
+					}
 				}
 			}
 			if (e.getSource() == panel_register.btn_quxiao) {// 注册页面中的取消按钮
@@ -694,6 +688,7 @@ public class Login4 {
 				// TODO 此处可显示登录成功
 				frame.dispose();// 注销当前登录窗口
 				// 拉起好友界面
+				LoginTread.closeLoginTheard(true);// 把登录的线程关闭
 				new MyFriendsList3(user, socket, out, in);
 				this.cancel();
 			}
