@@ -10,6 +10,7 @@ import com.alibaba.fastjson.JSONObject;
 import bean.Message;
 
 /**
+ * 聊天界面的网络、流处理线程，读取从服务端收到的消息，并显示在聊天界面上。
  * @author xuxin
  *
  */
@@ -23,9 +24,9 @@ public class ChatThread extends Thread {
 	/** 接收从好友列表页面传来的in输入流 */
 	private BufferedReader in;
 	
-	/**
-	 * 
-	 */
+	/** 是否已经关闭窗口 */
+	private boolean isCloseed = true;
+	
 	public ChatThread() {
 
 	}
@@ -44,17 +45,17 @@ public class ChatThread extends Thread {
 	@Override
 	public void run() {
 		try {
-			while (true) {
+			while (isCloseed) {
 				String received = in.readLine();
 				System.out.println(getClass() + received);
 				
-				JSONObject jo = JSON.parseObject(received);
+				JSONObject jo = JSONObject.parseObject(received);
 				String type = jo.getString("type");
-				String targetName = jo.getString("targetName");
+				String selfId = jo.getString("selfId");
 				String selfName = jo.getString("selfName");
 				String text = jo.getString("text");
 				
-				if (type != null && type.equals("talk")) {
+				if (type != null && type.equals("talk") && !chat.getThisUser().getId().equals(selfId)) {
 					chat.addMessagetoPanel(false, selfName, text);
 				}
 				
@@ -68,6 +69,11 @@ public class ChatThread extends Thread {
 	protected void sendMessage(Message msg) {
 		out.println(JSON.toJSONString(msg));
 		out.flush();
+	}
+	
+	protected void close() {
+		isCloseed = false;
+		System.out.println("聊天窗口已关闭");
 	}
 
 }
