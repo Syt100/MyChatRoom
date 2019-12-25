@@ -10,16 +10,16 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-
-import javax.swing.JList;
-import javax.swing.DefaultListModel;
+import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import com.alibaba.fastjson.JSON;
@@ -31,8 +31,11 @@ import exception.AccountInputException;
 import util.ConstantStatus;
 import util.XMLOperation;
 
-import javax.swing.event.ListSelectionEvent;
-
+/**
+ * 多线程的服务端，可以与多个客户端通信
+ * @author xuxin
+ *
+ */
 public class MultiServerFrame {
 
 	private static JFrame frame;
@@ -184,7 +187,7 @@ public class MultiServerFrame {
 				Socket socket = serverSocket.accept(); // 阻塞等待客户端的连接
 				clientNumber++;// 当有客户端连接进来后，客户端数量加一
 				textArea_showMessage.append("有" + clientNumber + "个客户端已连接\n");
-				new MultiTalkServerThread(threadGroup, socket, clientNumber).start();// 启动一个线程处理客户端请求
+				new MultiTalkServerThread(threadGroup, socket).start();// 启动一个线程处理客户端请求
 			}
 			serverSocket.close();
 		} catch (IOException e) {
@@ -193,9 +196,11 @@ public class MultiServerFrame {
 	}
 
 	/**
+	 * 单客户端的方法。已弃用
+	 * 
 	 * @param clientSocket
 	 */
-	public static void connetToClient(Socket clientSocket) {
+	private static void connetToClient(Socket clientSocket) {
 		// addClientShowToList();
 		try {
 			// 由Socket对象得到输出流，并构造相应的PrintWriter对象
@@ -344,6 +349,17 @@ public class MultiServerFrame {
 	}
 
 	/**
+	 * 把 所有的客户端数组名称放入serverThreads数组，实现群聊
+	 */
+	protected static void updateReadyToSendAllClient() {
+		String[] allNames = new String[dlm.getSize()];
+		for (int i = 0; i < dlm.getSize(); i++) {
+			allNames[i] = dlm.get(i);
+		}
+		MultiServerFrame.updateReadyToSendClient(allNames);
+	}
+
+	/**
 	 * 清空待发送的客户端列表
 	 */
 	protected static void clearServerThread() {
@@ -364,7 +380,7 @@ public class MultiServerFrame {
 	 * 
 	 * @param msg 要发送的消息
 	 */
-	protected static void sendMessageToClient(String message) {
+	private static void sendMessageToClient(String message) {
 		Message msg;
 		PrintWriter out;
 		for (MultiTalkServerThread thread : serverThreads) {
@@ -394,28 +410,6 @@ public class MultiServerFrame {
 					out.println(JSON.toJSONString(message));
 					out.flush();
 				}
-			}
-		}
-	}
-
-	/**
-	 * 用于服务端向客户端发消息
-	 * 
-	 * @param type
-	 * @param selfName
-	 * @param targetName
-	 * @param text
-	 */
-	protected static void sendMessageToClient(String type, String selfName, String targetName, String text) {
-		msg.setStatus(1);
-		msg.setType(type);
-		msg.setSelfName(selfName);
-		msg.setTargetName(targetName);
-		msg.setText(text);
-		for (MultiTalkServerThread thread : serverThreads) {
-			if (thread != null && thread.getOutPut() != null) {
-				thread.getOutPut().println(JSON.toJSONString(msg));
-				thread.getOutPut().flush();
 			}
 		}
 	}
@@ -486,17 +480,20 @@ public class MultiServerFrame {
 	}
 }
 
+/**
+ * 服务端的线程。每个线程对应连接到一个客户端
+ * @author xuxin
+ *
+ */
 class MultiTalkServerThread extends Thread {
 	/** 用于和客户端通信的Socket */
 	private Socket socket = null;
-	@SuppressWarnings("unused")
-	private int clientNumber;// 第几个客户端，暂时没用
+	/** 用于表示当前线程的账号ID， */
+	private String id;
 
 	/** 线程名 */
 	private String name = null;
-	/**
-	 * 每当有新客户端练上来，就要在客户端列表上加一个客户端的名字。 此操作只执行一次，用于在循环里判断是否已经添加
-	 */
+	/** 每当有新客户端练上来，就要在客户端列表上加一个客户端的名字。 此操作只执行一次，用于在循环里判断是否已经添加 */
 	private boolean isAddToList = false;
 	private static boolean localBye = false;// 本机说拜拜
 	private static boolean clientBye = false;// 客户端输入流说拜拜
@@ -508,17 +505,15 @@ class MultiTalkServerThread extends Thread {
 	/** 用于解析从客户端收到的JSON字符串 */
 	private JSONObject jsonObject = null;
 
-	public MultiTalkServerThread(ThreadGroup tg, Socket socket, int clientNumber) {
-		super(tg, "" + clientNumber);
+	public MultiTalkServerThread(ThreadGroup tg, Socket socket) {
+		super(tg, "null");
 		this.socket = socket;
-		this.clientNumber = clientNumber;
 		msg.setStatus(1);
 		msg.setSelfName("server");
 	}
 
 	@Override
 	public void run() {
-		// MultiServerFrame.connetToClient(socket);
 		try {
 			out = new PrintWriter(socket.getOutputStream(), true);
 			clientIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -564,6 +559,11 @@ class MultiTalkServerThread extends Thread {
 						// 消息来源为聊天界面的聊天请求
 						if (type.equals("talk")) {
 							processTalk(jsonObject);
+							System.out.println("收到了一条消息");
+						}
+						// 群聊
+						if (type.equals("GroupChat")) {
+							processGroupChat(jsonObject);
 						}
 					}
 					MultiServerFrame.showMsgFromClient(received);
@@ -609,11 +609,11 @@ class MultiTalkServerThread extends Thread {
 		// 从JSON字符串中获取用户
 		Users user = jo.getObject("selfUser", Users.class);
 		if (isAddToList == false) {// 如果是客户端第一次连接，就设置线程名，不需要修改
-			name = user.getId() + "登录中";
+			name = user.getId();
 			this.setName(name);
 		} else {// 客户端不是第一次连接，因为用户的ID可能会改变，因此要修改线程名，与当前登录的客户端同步，不然导致服务端显示的列表信息删不掉
-			MultiServerFrame.updateClientShowName(name, user.getId() + "登录中");
-			name = user.getId() + "登录中";// 更新线程名
+			MultiServerFrame.updateClientShowName(name, user.getId());
+			name = user.getId();// 更新线程名
 			this.setName(name);
 		}
 		String id = user.getId();
@@ -675,25 +675,65 @@ class MultiTalkServerThread extends Thread {
 	 * @param jo
 	 */
 	private void processTalk(JSONObject jo) {
-		// 从JSON字符串中获取用户
-		Users selfUser = jo.getObject("selfUser", Users.class);
-		Users targetUser = jo.getObject("targetUser", Users.class);
-		
+		// 从JSON字符串中获取消息发送方和接收方
+		String selfId = jo.getString("selfId");
+		String targetId = jo.getString("targetId");
+
 		if (isAddToList == false) {// 如果是客户端第一次连接，就设置线程名，不需要修改
-			name = selfUser.getId();
+			name = selfId;
 			this.setName(name);
 		} else {// 客户端不是第一次连接，因为用户的ID可能会改变，因此要修改线程名，与当前登录的客户端同步，不然导致服务端显示的列表信息删不掉
-			MultiServerFrame.updateClientShowName(name, selfUser.getId());
-			name = selfUser.getId();// 更新线程名
+			MultiServerFrame.updateClientShowName(name, selfId);
+			name = selfId;// 更新线程名
 			this.setName(name);
 		}
-		
-		String name[] = { jo.getString("targetId") };
+
+		String name[] = { targetId };
 		MultiServerFrame.updateReadyToSendClient(name);
-		Message mg = jo.toJavaObject(Message.class);
+		// Message mg = jo.toJavaObject(Message.class);
+		Message mg = new Message();
+		mg.setType("talk");
+		mg.setSelfId(selfId);
+		mg.setSelfName(jo.getString("selfName"));
+		mg.setTargetId(targetId);
+		mg.setTargetName(jo.getString("targetName"));
+		mg.setText(jo.getString("text"));
 
 		MultiServerFrame.sendMessageToClient(mg);
+		System.out.println("有人聊天了");
+	}
 
+	/**
+	 * 处理群聊请求
+	 * 
+	 * @param jo
+	 */
+	private void processGroupChat(JSONObject jo) {
+		// 从JSON字符串中获取消息发送方和接收方
+		String selfId = jo.getString("selfId");
+		String targetId = jo.getString("targetId");
+
+		if (isAddToList == false) {// 如果是客户端第一次连接，就设置线程名，不需要修改
+			name = selfId;
+			this.setName(name);
+		} else {// 客户端不是第一次连接，因为用户的ID可能会改变，因此要修改线程名，与当前登录的客户端同步，不然导致服务端显示的列表信息删不掉
+			MultiServerFrame.updateClientShowName(name, selfId);
+			name = selfId;// 更新线程名
+			this.setName(name);
+		}
+
+		MultiServerFrame.updateReadyToSendAllClient();
+
+		Message mg = new Message();
+		mg.setType("talk");
+		mg.setSelfId(selfId);
+		mg.setSelfName(jo.getString("selfName"));
+		mg.setTargetId(targetId);
+		mg.setTargetName(jo.getString("targetName"));
+		mg.setText(jo.getString("text"));
+
+		MultiServerFrame.sendMessageToClient(mg);
+		System.out.println("群聊中");
 	}
 
 	/**
@@ -710,7 +750,7 @@ class MultiTalkServerThread extends Thread {
 	 * 
 	 * @return Message msg
 	 */
-	public Message getMessage() {
+	protected Message getMessage() {
 		return msg;
 	}
 
