@@ -69,18 +69,9 @@ public class ClientFrame {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
 		ClientFrame window = new ClientFrame();
-					window.frame.setVisible(true);
-					window.initSocket();
+		window.frame.setVisible(true);
+		window.initSocket();
 	}
 
 	/**
@@ -214,7 +205,13 @@ public class ClientFrame {
 
 				if (serverBye == false) {
 					fromServer = in.readLine();
+					if(!isJsonObject(fromServer)){
+						textArea_showMessage.append("从服务端接收：" + fromServer + "\n");
+						continue;
+					}
+					
 					jsonObject = JSON.parseObject(fromServer);
+					
 					if (jsonObject.getInteger("status") == 0) {// 服务端（对方）退出
 						serverBye = true;
 						textArea_showMessage.append("服务端已退出" + "\n");
@@ -223,7 +220,9 @@ public class ClientFrame {
 						String[] name = toStringList(jsonArray);
 						flushClientListShow(name);
 						System.out.println("updateList");
-					} else {//jsonObject.getString("text")
+					} else if(jsonObject.getString("selfName") != null){// 来自其他客户端
+						textArea_showMessage.append("从" + jsonObject.getString("selfName") + "接收：" + jsonObject.getString("text") + "\n");
+					} else {//fromServer
 						textArea_showMessage.append("从服务端接收：" + fromServer + "\n");
 					}
 				}
@@ -252,41 +251,17 @@ public class ClientFrame {
 		return name;
 	}
 	
-	/**
-	 * 刷新界面上客户端数量文本框的显示
-	 */
-	private void flushClientCountShow() {
-		// textField_count.setText("" + clientNumber);
-	}
 	
 	/**
-	 * 将列表上显示的客户端数量加一个
-	 * 
+	 * 更新客户端列表、客户端数量的显示
 	 * @param name
 	 */
-	private void addClientShowToList(String name) {
-		dlm.addElement(name);
-		flushClientCountShow();
-		if (list.getSelectedIndex() == -1) {
-			list.setSelectedIndex(0);
-		}
-	}
-	
-	/**
-	 * 将列表上显示的客户端数量减一个
-	 * 
-	 * @param name
-	 */
-	private void removeClientShowToList(String name) {
-		dlm.removeElement(name);
-		flushClientCountShow();
-	}
-	
 	private void flushClientListShow(String[] name) {
 		dlm.clear();
 		for (int i = 0; i < name.length; i++) {
 			dlm.addElement(name[i]);
 		}
+		textField_count.setText("" + name.length);
 	}
 	
 	
@@ -333,5 +308,21 @@ public class ClientFrame {
 				msg.setOperation(null);
 			}
 		}
+	}
+	
+	/**
+	* 判断字符串是否可以转化为json对象
+	* @param content
+	* @return
+	*/
+	private static boolean isJsonObject(String content) {
+	    // 此处应该注意，不要使用StringUtils.isEmpty(),因为当content为"  "空格字符串时，JSONObject.parseObject可以解析成功，
+	    // 实际上，这是没有什么意义的。所以content应该是非空白字符串且不为空，判断是否是JSON数组也是相同的情况。
+	    try {
+	        JSONObject jsonStr = JSONObject.parseObject(content);
+	        return true;
+	    } catch (Exception e) {
+	        return false;
+	    }
 	}
 }
