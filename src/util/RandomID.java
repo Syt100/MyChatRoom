@@ -1,12 +1,9 @@
-/**
- * 
- */
 package util;
 
 import java.util.Random;
 
 /**
- * 这个类生成不重复的ID
+ * 这个类生成不重复的ID<br>
  * 参考：https://blog.csdn.net/qq_35619711/article/details/71437616
  * 
  * @author xuxin
@@ -17,7 +14,6 @@ public class RandomID {
 	private static int[] id;
 	@SuppressWarnings("unused")
 	private static RandomID randomID = new RandomID();
-	
 
 	/**
 	 * 这个构造方法比较耗时，尤其是交换数据
@@ -43,18 +39,19 @@ public class RandomID {
 		}
 		id = codes;
 	}
-	
+
 	/**
 	 * 生成一个ID
+	 * 
 	 * @return int
 	 */
 	public static int nextID() {
 		return id[index++];
 	}
-	
+
 	@SuppressWarnings("unused")
 	private static void show() {
-		for(int i = 0;i<id.length;i++) {
+		for (int i = 0; i < id.length; i++) {
 			System.out.println(id[i]);
 		}
 	}
