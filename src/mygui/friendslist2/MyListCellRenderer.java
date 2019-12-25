@@ -1,6 +1,3 @@
-/**
- * 12
- */
 package mygui.friendslist2;
 
 import java.awt.Color;
@@ -13,11 +10,11 @@ import javax.swing.ListCellRenderer;
 import javax.swing.border.EmptyBorder;
 
 /**
- * 这个索引标识哪个节点被高亮，在外部调用<code>setCurIndex(ci)</code>来实现设置高亮<br/>
+  * 好友列表的类中，换肤对话框的自定义列表渲染器
  * 
  * @author 原文链接：https://bbs.csdn.net/topics/350012532<br/>
  *         https://bbs.csdn.net/topics/380094912<br/>
- *         日期：2019年10月4日20:35:19<br/>
+  *         日期：2019年10月4日20:35:19<br/>
  * @apiNote 用法：<br/>
  *          <code>
  * JList list = new JList();

@@ -1,12 +1,10 @@
-/**
- * 
- */
 package exception;
 
-import bean.Users;
 import util.ConstantStatus;
 
 /**
+ * 自定义异常。可以根据状态返回字符串的错误信息
+ * 
  * @author xuxin
  *
  */
@@ -16,13 +14,19 @@ public class AccountInputException extends RuntimeException {
 	 * 已生成的串行版本标识
 	 */
 	private static final long serialVersionUID = 2899278398708610647L;
-	
+
+	/**
+	 * 登录、注册等的账号状态
+	 */
 	private int status;
-	
+
+	/**
+	 * 错误信息
+	 */
 	private String message;
 
 	/**
-	 * 
+	 * @param st 状态
 	 */
 	public AccountInputException(int st) {
 		this.status = st;
@@ -66,31 +70,26 @@ public class AccountInputException extends RuntimeException {
 		// TODO 自动生成的构造函数存根
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO 自动生成的方法存根
-
-	}
-	
 	@Override
 	public String getMessage() {
 		return message;
 	}
-	
+
 	public int getStatus() {
 		return status;
 	}
-	
+
+	/**
+	 * 根据状态参数回报文字说明
+	 */
 	private void judgeStatus() {
-		if(status == ConstantStatus.LOGIN_STATUS_SUCCESS) {
+		if (status == ConstantStatus.LOGIN_STATUS_SUCCESS) {
 			message = "登陆成功";
-		}else if(status == ConstantStatus.LOGIN_STATUS_ERROR_PASSWORD) {
+		} else if (status == ConstantStatus.LOGIN_STATUS_ERROR_PASSWORD) {
 			message = "密码错误";
-		}else if(status == ConstantStatus.LOGIN_STATUS_ACCOUNT_NOT_EXIST) {
+		} else if (status == ConstantStatus.LOGIN_STATUS_ACCOUNT_NOT_EXIST) {
 			message = "账号不存在";
-		}else if(status == ConstantStatus.LOGIN_STATUS_EMPTY_INPUT) {
+		} else if (status == ConstantStatus.LOGIN_STATUS_EMPTY_INPUT) {
 			message = "账号或密码为空";
 		}
 	}

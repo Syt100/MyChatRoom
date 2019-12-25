@@ -1,15 +1,20 @@
-/**
- * 继承JFrame类，实现去掉窗口标题栏后实现拖动窗体来移动位置、
- * 拖动鼠标调整窗口大小。
- */
 package mygui.frameutil;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-@SuppressWarnings("serial")
+/**
+ * 继承JFrame类，实现去掉窗口标题栏后实现拖动窗体来移动位置、拖动鼠标调整窗口大小。
+ * 
+ * @author xuxin
+ *
+ */
 public class ResizeFrame extends JFrame {
+	/**
+	 * 已生成的串行版本标识
+	 */
+	private static final long serialVersionUID = -270775752895603856L;
 	private boolean isTopLeft;// 是否处于左上角调整窗口状态
 	private boolean isTop;// 是否处于上边界调整窗口状态
 	private boolean isTopRight;// 是否处于右上角调整窗口状态
@@ -18,7 +23,7 @@ public class ResizeFrame extends JFrame {
 	private boolean isBottom;// 是否处于下边界调整窗口状态
 	private boolean isBottomLeft;// 是否处于左下角调整窗口状态
 	private boolean isLeft;// 是否处于左边界调整窗口状态
-	private Point point = new Point();//记录鼠标位置，用于拖动窗体
+	private Point point = new Point();// 记录鼠标位置，用于拖动窗体
 	private final static int RESIZE_WIDTH = 2;// 判定是否为调整窗口状态的范围与边界距离
 	private final static int MIN_WIDTH = 20;// 窗口最小宽度
 	private final static int MIN_HEIGHT = 20;// 窗口最小高度
@@ -116,11 +121,12 @@ public class ResizeFrame extends JFrame {
 			}
 			// 最后统一改变窗口的x、y坐标和宽度、高度，可以防止刷新频繁出现的屏闪情况
 			setBounds(nextX, nextY, nextWidth, nextHeight);
-			
+
 			/** 控制窗体拖动 */
 			Point p = c.getLocation();
-			if(!isTopLeft && !isTop && !isTopRight && !isRight && !isBottomRight && !isBottom && !isBottomLeft && !isLeft) {
-				c.setLocation(p.x + event.getX() - point.x, p.y + event.getY() - point.y);				
+			if (!isTopLeft && !isTop && !isTopRight && !isRight && !isBottomRight && !isBottom && !isBottomLeft
+					&& !isLeft) {
+				c.setLocation(p.x + event.getX() - point.x, p.y + event.getY() - point.y);
 			}
 		}
 	}
@@ -131,13 +137,19 @@ public class ResizeFrame extends JFrame {
 		public MoveAdapter(Component c) {
 			this.c = c;
 		}
-		
+
 		@Override
-		public void mousePressed(MouseEvent e) {//获取鼠标按下时的坐标
+		public void mousePressed(MouseEvent e) {// 获取鼠标按下时的坐标
 			point.x = e.getX();
 			point.y = e.getY();
 		}
 	}
+
+	/**
+	 * 测试用
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		// 一个简单的演示小例子
 		JFrame frame = new ResizeFrame();

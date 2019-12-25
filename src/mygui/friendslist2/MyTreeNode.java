@@ -1,8 +1,3 @@
-/**
- * 自定义的TreeNode，重写好友分组节点、好友信息节点
- * @author xuxin
- * @date 2019年10月1日
- */
 package mygui.friendslist2;
 
 import java.awt.BorderLayout;
@@ -24,12 +19,16 @@ import javax.swing.JTextArea;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
+ * 自定义的TreeNode，显示好友分组节点、好友信息节点
+ * 
  * @author xuxin
- *
+ * @date 2019年10月1日
  */
-@SuppressWarnings("serial")
 public class MyTreeNode extends DefaultMutableTreeNode {
 
+	/** 已生成的串行版本标识 */
+	private static final long serialVersionUID = 6323143501799628048L;
+	
 	/** 账号id */
 	private String id;
 	/** 头像 */

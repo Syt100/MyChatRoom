@@ -9,6 +9,7 @@ import javax.swing.JComponent;
 import javax.swing.plaf.basic.BasicTreeUI;
 
 /**
+ * JTree整体外观的修改
  * @author xuxin
  *
  */

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package mygui.frameutil;
 
 import java.awt.Graphics;

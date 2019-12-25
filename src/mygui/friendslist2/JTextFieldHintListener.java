@@ -7,12 +7,14 @@ import java.awt.event.FocusListener;
 import javax.swing.JTextField;
 
 /**
- * 当JTextField没有输入时，显示提示文字
- * 原文链接：https://blog.csdn.net/yanjingtp/article/details/79282365<br/>
- * date 2019年10月4日16:22:51
+ * 当JTextField没有输入时，显示提示文字<br>
+ * 原文链接：https://blog.csdn.net/yanjingtp/article/details/79282365<br>
+ * 时间 2019年10月4日16:22:51 <br>
  * 用法：<br>
  * <code>JTextField jTextField = new JTextField();
- * jTextField.addFocusListener(new JTextFieldHintListener(jTextField, "提示内容"));<code/>
+ * jTextField.addFocusListener(new JTextFieldHintListener(jTextField,
+ * "提示内容"));</code>
+ * 
  * @author xuxin
  *
  */

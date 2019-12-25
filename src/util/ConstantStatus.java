@@ -1,9 +1,7 @@
-/**
- * 
- */
 package util;
 
 /**
+ * 尝试将一些常量外部化
  * @author xuxin
  *
  */
