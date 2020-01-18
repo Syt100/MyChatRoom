@@ -12,6 +12,8 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PipedReader;
 import java.io.PrintWriter;
 
 import javax.swing.DefaultComboBoxModel;
@@ -23,11 +25,15 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 
 import bean.Message;
 import bean.Users;
@@ -60,6 +66,8 @@ public class Chat {
 	/** 默认的左侧的消息列表中的好友信息 */
 	private String sign = new String("好友信息");
 	
+	/** 聊天消息记录的滚动面板 */
+	private JScrollPane scrollPane;
 	/** 显示聊天消息记录的面板 */
 	private JPanel panel_liaotian;
 	/** 输入消息的输入框 */
@@ -103,13 +111,13 @@ public class Chat {
 	 * @param out
 	 * @param in
 	 */
-	public Chat(Users thisUser, Users targetUser, PrintWriter out, BufferedReader in, boolean isGroupChat) {
+	public Chat(Users thisUser, Users targetUser, PrintWriter out, boolean isGroupChat) {
 		this.thisUser = thisUser;
 		this.targetUser = targetUser;
 		this.isGroupChat = isGroupChat;
 		initialize();
 		frame.setVisible(true);
-		chatThread = new ChatThread(this, out, in);
+		chatThread = new ChatThread(this, out);
 		chatThread.start();
 	}
 
@@ -209,7 +217,7 @@ public class Chat {
 		splitPane.setLeftComponent(jp_left);
 		jp_left.setLayout(new BorderLayout(0, 0));
 
-		JScrollPane scrollPane = new JScrollPane();
+		scrollPane = new JScrollPane();
 		scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 		jp_left.add(scrollPane, BorderLayout.CENTER);
 
@@ -373,8 +381,100 @@ public class Chat {
 		bub.setPreferredSize(new Dimension(0, bub.getPanelHight(panel_liaotian.getWidth())));
 
 		panel_liaotian.updateUI();
+		JScrollBar sbar = scrollPane.getVerticalScrollBar();
+		sbar.setValue(sbar.getMaximum() + bub.getPanelHight(panel_liaotian.getWidth()));
+
+	}
+	
+	/**
+	 * 聊天界面的网络、流处理线程，读取从服务端收到的消息，并显示在聊天界面上。
+	 * @author xuxin
+	 *
+	 */
+	private class ChatThread extends Thread {
+
+		/** chat对象的引用 */
+		private Chat chat;
+		
+		/** 接收从好友列表页面传来的out输出流 */
+		private PrintWriter out;
+//		/** 接收从好友列表页面传来的in输入流 */
+//		private BufferedReader in;
+		
+		private PipedReader pipIn = new PipedReader();
+		
+		/** 是否已经关闭窗口 */
+		private boolean isCloseed = true;
+		
+
+		/**
+		 * @param chat
+		 * @param out
+		 * @param in
+		 */
+		public ChatThread(Chat chat, PrintWriter out) {
+			this.chat = chat;
+			this.out = out;
+//			this.in = in;
+//			this.pipIn = pipin;
+		}
+
+		@Override
+		public void run() {
+			try {
+				while (isCloseed) {
+					char ch[] = new char[1024];
+					pipIn.read(ch);
+					String received = new String(ch);
+					System.out.println(getClass() + received);
+					
+					JSONObject jo = JSONObject.parseObject(received);
+					String type = jo.getString("type");
+					String selfId = jo.getString("selfId");
+					String selfName = jo.getString("selfName");
+					String text = jo.getString("text");
+					
+					if (type != null && type.equals("talk") && !chat.getThisUser().getId().equals(selfId)) {
+						chat.addMessagetoPanel(false, selfName, text);
+					}
+					
+				}
+			} catch (IOException e) {
+				// TODO 自动生成的 catch 块
+				e.printStackTrace();
+				return;
+			}
+		}
+		
+		protected void sendMessage(Message msg) {
+			out.println(JSON.toJSONString(msg));
+			out.flush();
+		}
+		
+		protected void close() {
+			isCloseed = false;
+			try {
+				pipIn.close();
+			} catch (IOException e) {
+				// TODO 自动生成的 catch 块
+				e.printStackTrace();
+			}
+			System.out.println("聊天窗口已关闭");
+		}
+
+		/**
+		 * @return pipIn
+		 */
+		public PipedReader getPipIn() {
+			return pipIn;
+		}
+
 	}
 
+	public PipedReader getPipeIn() {
+		return chatThread.getPipIn();
+	}
+	
 	/**
 	 * @return icon
 	 */

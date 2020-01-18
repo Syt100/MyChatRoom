@@ -98,6 +98,7 @@ public class Login4 {
 	
 	/** 登录界面的后台线程，处理接收消息、初始化socket */
 	private LoginTread loginThread;
+	private ThreadGroup loginThreadGroup;
 
 	
 	public static void main(String[] args) {
@@ -114,7 +115,8 @@ public class Login4 {
 		initMyMouseListener();
 		setTop(panel_operation);// 将主面板置顶
 		frame.setVisible(true);
-		loginThread = new LoginTread(this, "Login");
+		loginThreadGroup = new ThreadGroup("登录线程组");
+		loginThread = new LoginTread(loginThreadGroup, this, "Login");
 		loginThread.start();
 	}
 
@@ -387,21 +389,6 @@ public class Login4 {
 	private class MyMouseListener extends MouseAdapter {
 
 		@Override
-		public void mouseClicked(MouseEvent e) {// 鼠标点击
-			if (e.getSource() == btn_denglu) {// 点击登录按钮
-				if (LoginTread.isConnected()) {
-					loginThread.verificationAccountFromServer();
-				} else {
-					// 如果服务端未打开
-					loginThread = new LoginTread(Login4.this, "login");
-					loginThread.start();
-					loginThread.verificationAccountFromServer();
-				}
-			}
-			
-		}
-
-		@Override
 		public void mousePressed(MouseEvent e) {// 鼠标按下
 			if (e.getSource() == lbl_erweima) {
 				lbl_erweima
@@ -412,6 +399,16 @@ public class Login4 {
 
 		@Override
 		public void mouseReleased(MouseEvent e) {// 鼠标松开
+			if (e.getSource() == btn_denglu) {// 点击登录按钮
+				if (LoginTread.isConnected()) {
+					loginThread.verificationAccountFromServer();
+				} else {
+					// 如果服务端未打开
+					loginThread = new LoginTread(loginThreadGroup, Login4.this, "login");
+					loginThread.start();
+					loginThread.verificationAccountFromServer();
+				}
+			}
 			if (e.getSource() == lbl_erweima) {// 二维码按钮
 				lbl_erweima.setIcon(new ImageIcon(getClass().getResource("/Images/qqIcon/corner_right_hover.png")));
 				setTop(panel_qrcode);
@@ -436,7 +433,7 @@ public class Login4 {
 					if (LoginTread.isConnected()) {
 						loginThread.registerAccountFromServer(panel_register.getUser());
 					} else {
-						loginThread = new LoginTread(Login4.this, "register");
+						loginThread = new LoginTread(loginThreadGroup, Login4.this, "register");
 						loginThread.start();
 						loginThread.registerAccountFromServer(panel_register.getUser());
 					}
@@ -688,7 +685,6 @@ public class Login4 {
 				// TODO 此处可显示登录成功
 				frame.dispose();// 注销当前登录窗口
 				// 拉起好友界面
-				LoginTread.closeLoginTheard(true);// 把登录的线程关闭
 				new MyFriendsList3(user, socket, out, in);
 				this.cancel();
 			}

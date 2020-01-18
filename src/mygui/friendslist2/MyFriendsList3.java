@@ -18,6 +18,8 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PipedReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
@@ -174,7 +176,7 @@ public class MyFriendsList3 {
 	/** 接收从客户端接收的Users类 */
 	private Users user = null;
 	
-	// 网络
+	// 网络、流
 	/** 接收从登陆页面传来的socket */
 	private Socket socket = null;
 	/** 接收从登陆页面传来的out输出流 */
@@ -182,7 +184,11 @@ public class MyFriendsList3 {
 	/** 接收从登陆页面传来的in输入流 */
 	private BufferedReader in = null;
 	
-
+	// private PipedReader pipIn = new PipedReader();
+	
+	// 线程
+	private ThreadGroup threadGroup;
+	private MyFriendsListThread friThread;
 
 	public static void main(String[] args) {
 		new MyFriendsList3();
@@ -224,6 +230,10 @@ public class MyFriendsList3 {
 		initColor();
 		initListener();// 初始化窗口事件监听，实现窗口拖动、最小化、关闭
 		frame.setVisible(true);
+		
+		threadGroup = new ThreadGroup("好友列表线程组");
+		friThread = new MyFriendsListThread(threadGroup, "friend", this);
+		friThread.start();
 	}
 
 	/**
@@ -676,7 +686,14 @@ public class MyFriendsList3 {
 		boolean isSel = chckbx_qunliao.isSelected();
 		XMLOperation xml = new XMLOperation();
 		Users targetUser = xml.getUsersById(renderer.getNode().getId());
-		Chat window = new Chat(user, targetUser, out, in, isSel);
+		
+		Chat window = new Chat(user, targetUser, out, isSel);
+		try {
+			window.getPipeIn().connect(friThread.getPipOut());
+		} catch (IOException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+		}
 		window.setIcon(renderer.getNode().getIcon());
 		window.setTitle(renderer.getNode().getName());
 		window.setSign(renderer.getNode().getSign());
@@ -833,5 +850,26 @@ public class MyFriendsList3 {
 				// dialog.setExtendedState(JFrame.ICONIFIED);
 			}
 		});
+	}
+
+	/**
+	 * @return socket
+	 */
+	protected Socket getSocket() {
+		return socket;
+	}
+
+	/**
+	 * @return out
+	 */
+	protected PrintWriter getOut() {
+		return out;
+	}
+
+	/**
+	 * @return in
+	 */
+	protected BufferedReader getIn() {
+		return in;
 	}
 }

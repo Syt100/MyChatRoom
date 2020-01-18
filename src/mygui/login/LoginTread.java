@@ -36,22 +36,18 @@ public class LoginTread extends Thread {
 	/** 登录界面是否已经结束 */
 	private static boolean isClose = false;
 
-	/**
-	 * 默认无参数构造方法
-	 */
-	public LoginTread() {
-
-	}
 
 	/**
 	 * 将Login4类对象的引用传入，以便调用其方法。
 	 * 
+	 * @param tg
 	 * @param login
 	 * @param name  设置线程名
 	 */
-	public LoginTread(Login4 login, String name) {
+	public LoginTread(ThreadGroup tg, Login4 login, String name) {
+		super(tg, name);
 		this.login = login;
-		this.setName(name);
+		this.setDaemon(true);
 	}
 
 	/**
@@ -73,6 +69,7 @@ public class LoginTread extends Thread {
 				if (type != null && "login".equals(type)) {
 					if ("success".equals(operation)) {// 如果服务端返回登陆成功
 						Users u = jsonObject.getObject("selfUser", Users.class);
+						isClose = true;// 结束自己线程
 						login.skipToFriendList(u, socket, out, in);
 						// break;
 					} else {// 服务端会返回失败原因
@@ -182,8 +179,8 @@ public class LoginTread extends Thread {
 	 * 静态方法，关闭所有的登录线程
 	 * @param f
 	 */
-	protected static void closeLoginTheard(boolean f) {
-		isClose = f;
+	protected static void closeLoginTheard() {
+		isClose = true;
 	}
 	
 	/**
