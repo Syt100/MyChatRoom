@@ -23,6 +23,7 @@ import java.io.PipedReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -67,8 +68,6 @@ public class MyFriendsList3 {
 	/** 皮肤按钮 */
 	private JLabel skinButton = new JLabel();
 	
-	/** 记录鼠标位置，用于skinOption中实现鼠标高亮 */
-	private Point skinPoint = new Point();
 	/** pLocation记录frame在屏幕上的位置，用于最大化后还原之前的位置 */
 	private Point pLocation = new Point();
 	
@@ -77,12 +76,9 @@ public class MyFriendsList3 {
 	/** 窗口默认高度 */
 	private static final int DEFAULT_HEIGHT = 560;
 
-	/** 记录创建的皮肤对话框数，最多只能创建一个对话框 */
-	private static int skinDialogCount = 0;
-
 	// 颜色部分
 	/** 默认主题的颜色 */
-	private Color color = Color.WHITE;
+	private Color themeColor = Color.WHITE;
 	/** 默认的好友、消息、群聊三个标签没有被选中时的前景色 */
 	private Color COLOR_TABLE_NOT_SELECTED = Color.GRAY;
 	/** 默认的好友、消息、群聊三个标签被选中时的前景色 */
@@ -314,21 +310,21 @@ public class MyFriendsList3 {
 		panel_center.add(panel_friends, BorderLayout.CENTER);
 
 		panel_table.setLayout(new GridLayout(0, 3, 0, 0));
-		panel_tab1.setBorder(new MatteBorder(0, 0, 3, 0, color));
+		panel_tab1.setBorder(new MatteBorder(0, 0, 3, 0, themeColor));
 		panel_table.add(panel_tab1);
 		lbl_tab1.setForeground(COLOR_TABLE_NOT_SELECTED);
 
 		panel_tab1.add(lbl_tab1);
 
 		/** 设置panel_tab2为花色边框，颜色 */
-		panel_tab2.setBorder(new MatteBorder(0, 0, 3, 0, color));
+		panel_tab2.setBorder(new MatteBorder(0, 0, 3, 0, themeColor));
 		panel_table.add(panel_tab2);
 		lbl_tab2.setForeground(COLOR_TABLE_NOT_SELECTED);
 
 		panel_tab2.add(lbl_tab2);
 
 		/** 设置panel_tab3为花色边框，颜色 */
-		panel_tab3.setBorder(new MatteBorder(0, 0, 3, 0, color));
+		panel_tab3.setBorder(new MatteBorder(0, 0, 3, 0, themeColor));
 		panel_table.add(panel_tab3);
 		lbl_tab3.setForeground(COLOR_TABLE_NOT_SELECTED);
 
@@ -502,15 +498,15 @@ public class MyFriendsList3 {
 	/**
 	 * 初始化组件颜色
 	 */
-	private void initColor() {
-		panel_table.setBackground(color);
-		panel_tab1.setBackground(color);
+	protected void initColor() {
+		panel_table.setBackground(themeColor);
+		panel_tab1.setBackground(themeColor);
 		//panel_tab1.setBackground(new Color(255,255,0,100));
 		
-		panel_tab2.setBackground(color);
-		panel_tab3.setBackground(color);
+		panel_tab2.setBackground(themeColor);
+		panel_tab3.setBackground(themeColor);
 		// tree.setBackground(color);
-		renderer.setMyNodeSelectedColor(color);
+		renderer.setMyNodeSelectedColor(themeColor);
 	}
 
 	/**
@@ -638,10 +634,7 @@ public class MyFriendsList3 {
 				Point fp = frame.getLocation();// 获取frame的坐标，Point对象有公共整型成员x y可访问
 				Point curP = new Point(e.getX() + fp.x, e.getY() + fp.y);
 				if (e.getSource() == skinButton) {// skinButton事件
-					if (skinDialogCount < 1) {// 如果当前选择皮肤对话框数量为0
-						skinDialogCount += 1;
-						skinOption(curP);// 创建一个选择颜色的对话框
-					}
+					new SkinDialog(MyFriendsList3.this, curP);// 创建一个选择颜色的对话框
 				}
 				if (e.getSource() == minButton) {// minButton事件
 					frame.setExtendedState(Frame.ICONIFIED);
@@ -714,142 +707,17 @@ public class MyFriendsList3 {
 	}
 
 	/**
-	 * 创建换肤对话框
-	 * @param curPoint
+	 * @return themeColor
 	 */
-	private void skinOption(Point curPoint) {
-		int width = 126;// 对话框宽度
-		int height = 170;// 对话框高度
+	public Color getThemeColor() {
+		return themeColor;
+	}
 
-		JDialog dialog = new JDialog();
-		final JPanel contentPanel = new JPanel();
-		JList<String> list = new JList<String>();
-		DefaultListModel<String> dlm = new DefaultListModel<String>();
-		MyListCellRenderer render = new MyListCellRenderer();
-		
-		dialog.setAlwaysOnTop(true);// 置顶显示
-		dialog.setBounds(((int) curPoint.getX() + width), (int) curPoint.getY(), width, height);
-		dialog.setUndecorated(true);// 将原始的边框去掉
-		dialog.getContentPane().setLayout(new BorderLayout());
-		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-		dialog.getContentPane().add(contentPanel, BorderLayout.CENTER);
-		contentPanel.setLayout(new BorderLayout(0, 0));
-
-		dlm.addElement("红（Color.red）");
-		dlm.addElement("绿（Color.green）");
-		list.setModel(dlm);
-		list.setCellRenderer(render);
-//		list.setModel(new AbstractListModel<String>() {
-//			String[] values = new String[] { "红（Color.red）", "绿（Color.green）" };
-//
-//			public int getSize() {
-//				return values.length;
-//			}
-//
-//			public String getElementAt(int index) {
-//				return values[index];
-//			}
-//		});
-		contentPanel.add(list);
-		
-		list.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				skinPoint = e.getPoint();
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-				skinPoint = e.getPoint();
-				render.setCurIndex(-1);// 退出时取消高亮
-				list.repaint();
-			}
-		});
-		list.addMouseMotionListener(new MouseMotionAdapter() {
-			@Override
-			public void mouseMoved(MouseEvent e) {
-				int lastIndex = list.locationToIndex(skinPoint);
-				Point current = e.getPoint();
-				int currentIndex = list.locationToIndex(current);
-				// if (currentIndex == lastIndex && lastIndex != -1)
-				// return;
-				render.setCurIndex(currentIndex);
-				list.repaint();
-				// highlight
-				skinPoint = current;
-			}
-		});
-
-		JPanel buttonPane = new JPanel();
-		buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
-		dialog.getContentPane().add(buttonPane, BorderLayout.SOUTH);
-
-		JButton diyButton = new JButton("自定义");
-		diyButton.setMargin(new Insets(0, 0, 0, 0));
-		diyButton.setFont(new Font("宋体", Font.PLAIN, 12));
-		diyButton.setPreferredSize(new Dimension(42, 20));
-		diyButton.setActionCommand("diy");
-		buttonPane.add(diyButton);
-		diyButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				/**
-				 * 颜色选择器用于颜色的选择、编辑等操作
-				 * 参考链接：https://blog.csdn.net/chen_z_p/article/details/82749846
-				 */
-				Color c = JColorChooser.showDialog(null, "选择", null);
-				if (c != null) {
-					color = c;
-					initColor();
-				}
-			}
-		});
-
-		JButton okButton = new JButton("确定");
-		okButton.setMargin(new Insets(0, 0, 0, 0));
-		okButton.setFont(new Font("宋体", Font.PLAIN, 12));
-		okButton.setPreferredSize(new Dimension(32, 20));
-		okButton.setActionCommand("OK");
-		buttonPane.add(okButton);
-		dialog.getRootPane().setDefaultButton(okButton);
-		
-		okButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				int selected = list.getSelectedIndex();
-				if (selected == 0) {
-					color = Color.RED;
-				} else if (selected == 1) {
-					color = Color.GREEN;
-				}
-				initColor();// 调用颜色设置
-				dialog.dispose();// 退出当前窗口
-				skinDialogCount -= 1;
-				// System.out.println(a);
-			}
-		});
-
-		JButton cancelButton = new JButton("取消");
-		cancelButton.setMargin(new Insets(0, 0, 0, 0));
-		cancelButton.setFont(new Font("宋体", Font.PLAIN, 12));
-		cancelButton.setPreferredSize(new Dimension(32, 20));
-		cancelButton.setActionCommand("Cancel");
-		buttonPane.add(cancelButton);
-		cancelButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				dialog.dispose();// 退出当前窗口
-				skinDialogCount -= 1;
-			}
-		});
-
-		dialog.setVisible(true);
-		dialog.addWindowFocusListener(new WindowAdapter() {
-			@Override
-			public void windowLostFocus(WindowEvent e) {// 对话框失去焦点
-				dialog.dispose();// 点击窗体之外任意位置直接关闭
-				skinDialogCount -= 1;
-				// 最小化
-				// dialog.setExtendedState(JFrame.ICONIFIED);
-			}
-		});
+	/**
+	 * @param themeColor 要设置的 themeColor
+	 */
+	public void setThemeColor(Color themeColor) {
+		this.themeColor = themeColor;
 	}
 
 	/**

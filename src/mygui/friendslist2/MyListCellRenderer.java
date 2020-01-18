@@ -26,7 +26,7 @@ import javax.swing.border.EmptyBorder;
  * list.repaint();//用来刷新显示
  * </code>
  */
-public class MyListCellRenderer extends JLabel implements ListCellRenderer {
+public class MyListCellRenderer extends JLabel implements ListCellRenderer<Object> {
 
 	/**
 	 * 
@@ -63,7 +63,7 @@ public class MyListCellRenderer extends JLabel implements ListCellRenderer {
 	}
 
 	@Override
-	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+	public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
 			boolean cellHasFocus) {
 		setText(value.toString());
 		setFont(font);
