@@ -93,7 +93,7 @@ public class MyTreeCellRenderer extends DefaultTreeCellRenderer {
 			// 要聊天的好友
 			if (selRow == row) {
 				// 发起聊天
-				friend.chatWithFriend();
+				friend.chatWithFriend(node.getId());
 				selRow = -1;
 			}
 			return node.getNodeView();

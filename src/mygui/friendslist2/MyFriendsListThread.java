@@ -2,27 +2,31 @@ package mygui.friendslist2;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PipedWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 
 import com.alibaba.fastjson.JSONObject;
 
 /**
+ * 客户端通过此线程与服务端交互
+ * 
  * @author xuxin
  *
  */
 public class MyFriendsListThread extends Thread {
-	// 好友列表引用
+
+	/** 好友列表引用 */
 	private MyFriendsList3 friendsList;
-	
+
 	// 网络
 	/** 接收从好友列表页面传来的socket */
-	private Socket socket = null;
-	/** 管道输出流，向聊天线程发消息 */
-	private PipedWriter pipOut = null;
+	private Socket socket;
+
+	// 流
+	/** 接收从好友列表页面传来的out输出流，向服务器发送消息 */
+	private PrintWriter out;
 	/** 接收从好友列表页面传来的in输入流，接收服务器消息 */
-	private BufferedReader in = null;
+	private BufferedReader in;
 
 	/**
 	 * 
@@ -31,7 +35,7 @@ public class MyFriendsListThread extends Thread {
 		super(group, name);
 		this.friendsList = myFriendsList;
 		this.socket = myFriendsList.getSocket();
-		pipOut = new PipedWriter();
+		this.out = myFriendsList.getOut();
 		this.in = myFriendsList.getIn();
 	}
 
@@ -41,14 +45,14 @@ public class MyFriendsListThread extends Thread {
 			return;// TODO 错误处理
 		}
 		try {
-			while(true) {
+			while (true) {
 				String received = in.readLine();
 				JSONObject jo = JSONObject.parseObject(received);
 				String type = jo.getString("type");
-				
-				if(type != null && type.equals("talk") && pipOut != null) {
-					pipOut.write(received);
-					pipOut.flush();
+
+				// 收到服务端的聊天消息
+				if (type != null && type.equals("talk")) {
+					friendsList.sendToChat(jo);// 由好友列表代理向所有的已经打开的聊天窗口发消息
 					System.out.println(getClass() + received);
 				}
 			}
@@ -57,12 +61,4 @@ public class MyFriendsListThread extends Thread {
 			e.printStackTrace();
 		}
 	}
-
-	/**
-	 * @return pipOut
-	 */
-	public PipedWriter getPipOut() {
-		return pipOut;
-	}
-
 }

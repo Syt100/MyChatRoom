@@ -11,6 +11,8 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PipedReader;
@@ -31,12 +33,15 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 import bean.Message;
 import bean.Users;
+import mygui.friendslist2.MyFriendsList3;
 import util.VerticalFlowLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -68,6 +73,9 @@ public class Chat {
 	
 	/** 聊天消息记录的滚动面板 */
 	private JScrollPane scrollPane;
+	/** 聊天消息记录的滚动面板的滚动条标记，判断是否增加面板大小（增加消息），控制滚动条自动滚动到最底部 */
+	private int isScrollBarNeedBottom = 0;
+	
 	/** 显示聊天消息记录的面板 */
 	private JPanel panel_liaotian;
 	/** 输入消息的输入框 */
@@ -80,13 +88,16 @@ public class Chat {
 	/** 进度条，为发送文件预留的 */
 	private JProgressBar progressBar;
 	
-	/** 当前用户 */
-	private Users thisUser = null;
-	/** 与当前用户聊天的用户 */
-	private Users targetUser = null;
+	/** 好友列表对象的引用 */
+	private MyFriendsList3 myFri;
 	
-	/** 聊天窗口的接收服务端消息的线程 */
-	private ChatThread chatThread;
+	/** 当前用户 */
+	private Users thisUser;
+	/** 与当前用户聊天的用户 */
+	private Users targetUser;
+	
+	/** 输出流，向服务器发送消息 */
+	private PrintWriter out;
 	
 	/** 是否启用群聊模式 */
 	private boolean isGroupChat = false;
@@ -106,19 +117,21 @@ public class Chat {
 	}
 
 	/**
+	 * @param fri
 	 * @param thisUser
 	 * @param targetUser
 	 * @param out
 	 * @param in
 	 */
-	public Chat(Users thisUser, Users targetUser, PrintWriter out, boolean isGroupChat) {
+	public Chat(MyFriendsList3 fri, Users thisUser, Users targetUser, PrintWriter out, boolean isGroupChat) {
+		this.myFri = fri;
 		this.thisUser = thisUser;
 		this.targetUser = targetUser;
+		this.out = out;
 		this.isGroupChat = isGroupChat;
 		initialize();
 		frame.setVisible(true);
-		chatThread = new ChatThread(this, out);
-		chatThread.start();
+
 	}
 
 	/**
@@ -219,7 +232,21 @@ public class Chat {
 
 		scrollPane = new JScrollPane();
 		scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
+		scrollPane.getVerticalScrollBar().setUnitIncrement(7);// 设置拖曳滚动轴时，滚动轴刻度一次的变化量。
 		jp_left.add(scrollPane, BorderLayout.CENTER);
+		JScrollBar sbar = scrollPane.getVerticalScrollBar();
+		// 滚动条自动滚动到底端的一个较好的解决方案，
+		// 参考自：https://www.oschina.net/question/4873_23262
+		sbar.addAdjustmentListener(new AdjustmentListener() {
+			// 控制滚动条自动滚动到最底部
+			@Override
+			public void adjustmentValueChanged(AdjustmentEvent evt) {
+				if (evt.getAdjustmentType() == AdjustmentEvent.TRACK && isScrollBarNeedBottom <= 3) {
+					sbar.setValue(sbar.getModel().getMaximum() - sbar.getModel().getExtent());
+					isScrollBarNeedBottom++;
+				}
+			}
+		});
 
 		panel_liaotian = new JPanel();
 		panel_liaotian.setBackground(Color.WHITE);
@@ -330,9 +357,8 @@ public class Chat {
 	private class CloseWindow extends WindowAdapter {
 		@Override
 		public void windowClosing(WindowEvent e) {
-			if (chatThread != null) {
-				// 窗口关闭，断开连接
-				chatThread.close();
+			if (myFri != null) {
+				myFri.chatEnd(Chat.this);
 			}
 		}
 	}
@@ -347,9 +373,8 @@ public class Chat {
 		public void actionPerformed(ActionEvent e) {
 			String text = textArea_shuru.getText();
 			addMessagetoPanel(true, thisUser.getName(), text);
-			Message msg;
+			Message msg = new Message();
 			if (isGroupChat == false) {
-				msg = new Message();
 				msg.setType("talk");
 				msg.setSelfId(thisUser.getId());
 				msg.setSelfName(thisUser.getName());
@@ -357,7 +382,6 @@ public class Chat {
 				msg.setTargetName(targetUser.getName());
 				msg.setText(text);
 			} else {
-				msg = new Message();
 				msg.setType("GroupChat");
 				msg.setSelfId(thisUser.getId());
 				msg.setSelfName(thisUser.getName());
@@ -365,7 +389,8 @@ public class Chat {
 				msg.setTargetName(targetUser.getName());
 				msg.setText(text);
 			}
-			chatThread.sendMessage(msg);
+			out.println(JSON.toJSONString(msg));
+			out.flush();
 		}
 	}
 
@@ -381,98 +406,22 @@ public class Chat {
 		bub.setPreferredSize(new Dimension(0, bub.getPanelHight(panel_liaotian.getWidth())));
 
 		panel_liaotian.updateUI();
-		JScrollBar sbar = scrollPane.getVerticalScrollBar();
-		sbar.setValue(sbar.getMaximum() + bub.getPanelHight(panel_liaotian.getWidth()));
-
+		isScrollBarNeedBottom = 0;// 设置标记，将滚动条设为底部
 	}
 	
 	/**
-	 * 聊天界面的网络、流处理线程，读取从服务端收到的消息，并显示在聊天界面上。
-	 * @author xuxin
-	 *
+	 * 好友列表调用，收到服务端的消息后由好友列表调用调用
+	 * @param jo
 	 */
-	private class ChatThread extends Thread {
-
-		/** chat对象的引用 */
-		private Chat chat;
+	public void receiveMsg(JSONObject jo) {
+		String type = jo.getString("type");
+		String selfId = jo.getString("selfId");
+		String selfName = jo.getString("selfName");
+		String text = jo.getString("text");
 		
-		/** 接收从好友列表页面传来的out输出流 */
-		private PrintWriter out;
-//		/** 接收从好友列表页面传来的in输入流 */
-//		private BufferedReader in;
-		
-		private PipedReader pipIn = new PipedReader();
-		
-		/** 是否已经关闭窗口 */
-		private boolean isCloseed = true;
-		
-
-		/**
-		 * @param chat
-		 * @param out
-		 * @param in
-		 */
-		public ChatThread(Chat chat, PrintWriter out) {
-			this.chat = chat;
-			this.out = out;
-//			this.in = in;
-//			this.pipIn = pipin;
+		if (type != null && type.equals("talk") && !thisUser.getId().equals(selfId)) {
+			addMessagetoPanel(false, selfName, text);
 		}
-
-		@Override
-		public void run() {
-			try {
-				while (isCloseed) {
-					char ch[] = new char[1024];
-					pipIn.read(ch);
-					String received = new String(ch);
-					System.out.println(getClass() + received);
-					
-					JSONObject jo = JSONObject.parseObject(received);
-					String type = jo.getString("type");
-					String selfId = jo.getString("selfId");
-					String selfName = jo.getString("selfName");
-					String text = jo.getString("text");
-					
-					if (type != null && type.equals("talk") && !chat.getThisUser().getId().equals(selfId)) {
-						chat.addMessagetoPanel(false, selfName, text);
-					}
-					
-				}
-			} catch (IOException e) {
-				// TODO 自动生成的 catch 块
-				e.printStackTrace();
-				return;
-			}
-		}
-		
-		protected void sendMessage(Message msg) {
-			out.println(JSON.toJSONString(msg));
-			out.flush();
-		}
-		
-		protected void close() {
-			isCloseed = false;
-			try {
-				pipIn.close();
-			} catch (IOException e) {
-				// TODO 自动生成的 catch 块
-				e.printStackTrace();
-			}
-			System.out.println("聊天窗口已关闭");
-		}
-
-		/**
-		 * @return pipIn
-		 */
-		public PipedReader getPipIn() {
-			return pipIn;
-		}
-
-	}
-
-	public PipedReader getPipeIn() {
-		return chatThread.getPipIn();
 	}
 	
 	/**

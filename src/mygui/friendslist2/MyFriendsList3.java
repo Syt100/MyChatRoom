@@ -8,32 +8,19 @@ import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.Insets;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PipedReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JColorChooser;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -43,6 +30,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.tree.TreePath;
+
+import com.alibaba.fastjson.JSONObject;
 
 import bean.Users;
 import mygui.chat.Chat;
@@ -68,8 +57,6 @@ public class MyFriendsList3 {
 	/** 皮肤按钮 */
 	private JLabel skinButton = new JLabel();
 	
-	/** pLocation记录frame在屏幕上的位置，用于最大化后还原之前的位置 */
-	private Point pLocation = new Point();
 	
 	/** 窗口默认宽度 */
 	private static final int DEFAULT_WIDTH = 260;
@@ -185,6 +172,11 @@ public class MyFriendsList3 {
 	// 线程
 	private ThreadGroup threadGroup;
 	private MyFriendsListThread friThread;
+	
+	// 与聊天界面通信
+	/** 所有已经打开的聊天窗口的引用 */
+	private ArrayList<Chat> chatArray = new ArrayList<Chat>();
+	
 
 	public static void main(String[] args) {
 		new MyFriendsList3();
@@ -662,6 +654,43 @@ public class MyFriendsList3 {
 	}
 
 	/**
+	 * 双击好友节点后，打开好友聊天界面
+	 * 
+	 * @param targetId 被选中的好友的Id
+	 */
+	protected void chatWithFriend(String targetId) {
+		boolean isSel = chckbx_qunliao.isSelected();
+		XMLOperation xml = new XMLOperation();
+		Users targetUser = xml.getUsersById(targetId);
+		
+		Chat window = new Chat(this, user, targetUser, out, isSel);
+		chatArray.add(window);
+		
+		window.setIcon(renderer.getNode().getIcon());
+		window.setTitle(renderer.getNode().getName());
+		window.setSign(renderer.getNode().getSign());
+	}
+	
+	/**
+	 * 删除好友列表中Chat对象的引用，由聊天窗口调用
+	 * @param cha
+	 */
+	public void chatEnd(Chat cha) {
+		chatArray.remove(cha);
+	}
+	
+	/**
+	 * 向所有的聊天窗口发消息，消息的内容由聊天窗口判断
+	 * 
+	 * @param jo
+	 */
+	protected void sendToChat(JSONObject jo) {
+		chatArray.forEach(i -> {
+			i.receiveMsg(jo);
+		});
+	}
+
+	/**
 	 * 获取图片
 	 * 
 	 * @param name 图片名称（不需要相对路径）
@@ -670,26 +699,6 @@ public class MyFriendsList3 {
 	private ImageIcon produceImage(String name) {
 		ImageIcon backImage = new ImageIcon(getClass().getResource("/Images/" + name));
 		return backImage;
-	}
-	
-	/**
-	 * 双击好友节点后，打开好友聊天界面
-	 */
-	protected void chatWithFriend() {
-		boolean isSel = chckbx_qunliao.isSelected();
-		XMLOperation xml = new XMLOperation();
-		Users targetUser = xml.getUsersById(renderer.getNode().getId());
-		
-		Chat window = new Chat(user, targetUser, out, isSel);
-		try {
-			window.getPipeIn().connect(friThread.getPipOut());
-		} catch (IOException e) {
-			// TODO 自动生成的 catch 块
-			e.printStackTrace();
-		}
-		window.setIcon(renderer.getNode().getIcon());
-		window.setTitle(renderer.getNode().getName());
-		window.setSign(renderer.getNode().getSign());
 	}
 
 	/**
