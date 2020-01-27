@@ -33,6 +33,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.alibaba.fastjson.JSONObject;
 
+import mygui.components.GradualChangeTabbedPaneUI;
 import mygui.login.setupstorage.LogonServerType;
 import mygui.login.setupstorage.NetworkAgentType;
 import mygui.login.setupstorage.SetUpStorage;

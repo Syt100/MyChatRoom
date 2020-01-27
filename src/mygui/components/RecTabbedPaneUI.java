@@ -1,4 +1,4 @@
-package mygui.login;
+package mygui.components;
 
 import java.awt.BasicStroke;
 import java.awt.Color;

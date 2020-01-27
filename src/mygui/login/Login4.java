@@ -32,8 +32,9 @@ import javax.swing.border.EmptyBorder;
 
 import bean.Users;
 import exception.AccountInputException;
-import mygui.frameutil.BackgroundJPanel;
-import mygui.frameutil.ResizeFrame;
+import mygui.components.BackgroundJPanel;
+import mygui.components.ResizeFrame;
+import mygui.components.RolloverBackgroundButton;
 import mygui.friendslist2.MyFriendsList3;
 import util.ConstantStatus;
 

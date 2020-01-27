@@ -35,8 +35,8 @@ import com.alibaba.fastjson.JSONObject;
 
 import bean.Users;
 import mygui.chat.Chat;
-import mygui.frameutil.BackgroundJPanel;
-import mygui.frameutil.ResizeFrame;
+import mygui.components.BackgroundJPanel;
+import mygui.components.ResizeFrame;
 import util.XMLOperation;
 
 /**

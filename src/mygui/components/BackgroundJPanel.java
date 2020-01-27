@@ -1,4 +1,4 @@
-package mygui.frameutil;
+package mygui.components;
 
 import java.awt.Graphics;
 import java.awt.Image;
