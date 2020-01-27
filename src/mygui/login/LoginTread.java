@@ -12,11 +12,14 @@ import com.alibaba.fastjson.JSONObject;
 import bean.Message;
 import bean.Users;
 import exception.AccountInputException;
+import mygui.login.setupstorage.LogonServerType;
+import mygui.login.setupstorage.SetUpStorage;
 
 /**
  * 登录界面的网络、流的处理线程，接收从服务端发来的登陆成功、登录失败、注册成功等消息。
  * 当登录客户端启动时，便启动本线程，由这个线程处理与服务端通信的事件。
  * 由于可能存在连接服务端失败的情况，只能重新new一个线程
+ * @Note 存在线程同步问题：verificationAccountFromServer()
  * 
  * @author xuxin
  *
@@ -102,7 +105,7 @@ public class LoginTread extends Thread {
 	}
 
 	/**
-	 * 初始化网络相关
+	 * 初始化TCP网络相关
 	 * 
 	 * @throws Exception
 	 */
@@ -110,17 +113,25 @@ public class LoginTread extends Thread {
 		if (socket != null) {// 保证只有一个socket，不重复初始化
 			return;
 		}
-		login.showTipsByTimer("正在连接服务器:127.0.0.1");
 
-		// 初始化Socket
-		try {
-			socket = new Socket("127.0.0.1", 4444);
-		} catch (IOException e) {
-			System.out.println("无法连接到服务器");
-			login.showTipsByTimer("无法连接到服务器");
-			throw new Exception("无法连接到服务器");
+		SetUpStorage set = SetUpStorage.getStorage();
+		if (set.logonServerType == LogonServerType.UDP) {
+			login.showTipsByTimer("暂不支持UDP登录服务器，请切换为TCP或默认");
+			return;
 		}
-		login.showTipsByTimer("已连接到服务器:127.0.0.1");
+		String host = set.loginAddress;
+		int port = set.loginPort;
+		
+		login.showTipsByTimer("正在连接服务器:" + host + ":" + port);
+		// 初始化Socket
+//		try {
+			socket = new Socket(host, port);
+//		} catch (IOException e) {
+//			System.out.println("无法连接到服务器");
+//			login.showTipsByTimer("无法连接到服务器");
+//			throw new Exception("无法连接到服务器");
+//		}
+		login.showTipsByTimer("已连接到服务器:" + host + ":" + port);
 
 		if (out != null || in != null) {// 防止重复初始化流
 			return;

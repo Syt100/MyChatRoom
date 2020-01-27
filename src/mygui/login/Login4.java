@@ -6,7 +6,6 @@ import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Frame;
-import java.awt.SystemColor;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
@@ -17,6 +16,7 @@ import java.net.Socket;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -63,7 +63,7 @@ public class Login4 {
 	/** 放置头像的面板 */
 	private JPanel panel_header;
 	/** 分层面板，用于组织登录面板、注册面板、登录中面板、二维码登录面板、找回密码面板等显示的前后关系 */
-	private JLayeredPane layeredPane_main = new JLayeredPane();
+	private JLayeredPane layeredPane_main;
 	/** 输入账号密码、点击登录等 */
 	private JPanel panel_operation;
 	/** 显示登录中 */
@@ -71,7 +71,7 @@ public class Login4 {
 	/** 注册面板 */
 	private Register panel_register;
 	/** 二维码面板 */
-	private QRcode panel_qrcode = new QRcode();
+	private QRcode panel_qrcode;
 	/** 找回密码面板 */
 	private RetrievePassword panel_retrievePassword;
 	/** 设置面板 */
@@ -90,7 +90,7 @@ public class Login4 {
 	/** 注册账号按钮 */
 	private JButton btn_zhucezhanghao;
 	/** 登录按钮 */
-	private JButton btn_denglu;
+	private RolloverBackgroundButton btn_denglu;
 	/** 二维码图标 */
 	private JLabel lbl_erweima;
 	/** 显示提示信息，默认隐藏，按需显示 */
@@ -102,7 +102,8 @@ public class Login4 {
 
 	
 	public static void main(String[] args) {
-		new Login4();
+		Login4 login = new Login4();
+		login.startDemo();
 	}
 
 	/**
@@ -115,6 +116,19 @@ public class Login4 {
 		initMyMouseListener();
 		setTop(panel_operation);// 将主面板置顶
 		frame.setVisible(true);
+	}
+
+	/**
+	 * 启动后台线程，加载设置
+	 */
+	private void startDemo() {
+		try {
+			panel_setting.readSetting();
+		} catch (Exception e) {
+			// TODO 错误处理
+			e.printStackTrace();
+		}
+		
 		loginThreadGroup = new ThreadGroup("登录线程组");
 		loginThread = new LoginTread(loginThreadGroup, this, "Login");
 		loginThread.start();
@@ -131,6 +145,7 @@ public class Login4 {
 		content = new BackgroundJPanel(backGroundImgIcon);// 初始化内容面板，设置背景
 		frame.setContentPane(content);
 		content.setLayout(new BorderLayout(0, 0));
+		content.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 	}
 
 	/**
@@ -215,6 +230,7 @@ public class Login4 {
 		panel_header.add(lbl_light);
 
 		// 分层面板
+		layeredPane_main = new JLayeredPane();
 		layeredPane_main.setBounds(0, 0, 430, 281);
 		layeredPane_main.setBackground(Color.WHITE);
 		layeredPane_main.setLayout(null);
@@ -262,6 +278,7 @@ public class Login4 {
 		/* 注册面板  结束*/
 		
 		/* 二维码登录面板  开始*/
+		panel_qrcode = new QRcode();
 		layeredPane_main.setLayer(panel_qrcode, 7);
 		layeredPane_main.add(panel_qrcode);
 		/* 二维码登录面板  结束*/
@@ -273,7 +290,7 @@ public class Login4 {
 		/* 找回密码面板 结束*/
 		
 		/* 设置面板 开始*/
-		panel_setting = new Setting();
+		panel_setting = new Setting(this);
 		layeredPane_main.setLayer(panel_setting, 5);
 		layeredPane_main.add(panel_setting);
 		/* 设置面板 结束*/
@@ -327,13 +344,18 @@ public class Login4 {
 		btn_zhaohuimima.setBounds(270, 115, 85, 23);
 		btn_zhaohuimima.setContentAreaFilled(false);// 按钮透明
 		btn_zhaohuimima.setBorderPainted(false);// 去除边框
+		btn_zhaohuimima.setCursor(new Cursor(Cursor.HAND_CURSOR));// 设置鼠标为小手形状
 		panel_operation.add(btn_zhaohuimima);
 
-		btn_denglu = new JButton("登录");
+//		btn_denglu = new JButton("登录");
+		btn_denglu = new RolloverBackgroundButton("登录");
 		btn_denglu.setFont(new Font("黑体", Font.PLAIN, 16));
-		btn_denglu.setForeground(Color.WHITE);
-		btn_denglu.setBackground(SystemColor.textHighlight);
 		btn_denglu.setBounds(93, 147, 247, 35);
+		btn_denglu.setNormalBackground(new Color(7,188,252));
+		btn_denglu.setNormalBorderColor(new Color(179,229,155));
+		btn_denglu.setNormalForeground(Color.WHITE);
+		btn_denglu.setRolloverBackground(new Color(30,198,252));
+		btn_denglu.setPressedBackground(new Color(34, 174, 250));
 		panel_operation.add(btn_denglu);
 
 		// 提示标签
@@ -350,6 +372,7 @@ public class Login4 {
 		btn_zhucezhanghao.setBounds(0, 177, 85, 23);
 		btn_zhucezhanghao.setContentAreaFilled(false);// 按钮透明
 		btn_zhucezhanghao.setBorderPainted(false);// 去除边框
+		btn_zhucezhanghao.setCursor(new Cursor(Cursor.HAND_CURSOR));// 设置鼠标为小手形状
 		panel_operation.add(btn_zhucezhanghao);
 
 		lbl_erweima = new JLabel("");// 显示二维码
@@ -363,7 +386,6 @@ public class Login4 {
 
 		@Override
 		public void focusGained(FocusEvent e) {// 得到焦点
-			// TODO 自动生成的方法存根
 			if (e.getSource() == comboBox_zhanghao.getEditor().getEditorComponent()) {// 如果账号输入框获取焦点
 				lbl_zhanghao.setIcon(new ImageIcon(getClass().getResource("/Images/qqIcon/qqnum_hover.png")));
 			}
@@ -374,7 +396,6 @@ public class Login4 {
 
 		@Override
 		public void focusLost(FocusEvent e) {// 失去焦点
-			// TODO 自动生成的方法存根
 			if (e.getSource() == comboBox_zhanghao.getEditor().getEditorComponent()) {
 				lbl_zhanghao.setIcon(new ImageIcon(getClass().getResource("/Images/qqIcon/qqnum_normal.png")));
 			}
@@ -393,7 +414,6 @@ public class Login4 {
 			if (e.getSource() == lbl_erweima) {
 				lbl_erweima
 						.setIcon(new ImageIcon(getClass().getResource("/Images/qqIcon/corner_right_normal_down.png")));
-				System.out.println("12");
 			}
 		}
 
@@ -460,28 +480,15 @@ public class Login4 {
 				setTop(panel_setting);
 				panel_header.setVisible(false);
 			}
-			if (e.getSource() == panel_setting.btn_return) {// 设置面板的返回事件
-				setTop(panel_operation);
-				panel_header.setVisible(true);// 将头像面板设为可见
-			}
-			if (e.getSource() == panel_setting.btn_confirm) {// 设置面板的确定
-				if (panel_setting.getBackgroundImage() != null) {
-					setBackgroundImage(panel_setting.getBackgroundImage());
-					setTop(panel_operation);
-					panel_header.setVisible(true);// 将头像面板设为可见
-				}
-			}
 		}
 
 		@Override
 		public void mouseEntered(MouseEvent e) {
 			if (e.getSource() == btn_zhaohuimima) {
 				btn_zhaohuimima.setForeground(Color.BLACK);
-				btn_zhaohuimima.setCursor(new Cursor(Cursor.HAND_CURSOR));// 设置鼠标为小手形状
 			}
 			if (e.getSource() == btn_zhucezhanghao) {
 				btn_zhucezhanghao.setForeground(Color.BLACK);
-				btn_zhucezhanghao.setCursor(new Cursor(Cursor.HAND_CURSOR));// 设置鼠标为小手形状
 			}
 			if (e.getSource() == lbl_erweima) {
 				lbl_erweima.setIcon(new ImageIcon(getClass().getResource("/Images/qqIcon/corner_right_hover.png")));
@@ -551,15 +558,11 @@ public class Login4 {
 		lblMini.addMouseListener(mos);
 		lblSetting.addMouseListener(mos);
 		btn_denglu.addMouseListener(mos);
-		btn_zhucezhanghao.addMouseListener(mos);
 		panel_register.addMouseListener(mos);
 		panel_register.btn_queren.addMouseListener(mos);
 		panel_register.btn_quxiao.addMouseListener(mos);
 		panel_qrcode.btn_return.addMouseListener(mos);
 		panel_retrievePassword.btn_return.addMouseListener(mos);
-		lblSetting.addMouseListener(mos);
-		panel_setting.btn_return.addMouseListener(mos);
-		panel_setting.btn_confirm.addMouseListener(mos);
 	}
 	
 	/**
@@ -603,6 +606,14 @@ public class Login4 {
 				//System.out.println("panel_setting");
 			}
 		}
+	}
+	
+	/**
+	 * 由其他面板调用，从其他面板返回到主面板
+	 */
+	public void returnToMain() {
+		setTop(panel_operation);// 将输入密码等操作面板置顶
+		panel_header.setVisible(true);// 将头像面板设为可见
 	}
 	
 	/**
