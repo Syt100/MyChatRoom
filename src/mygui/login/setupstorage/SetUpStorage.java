@@ -115,8 +115,6 @@ public class SetUpStorage {
 		}
 		bfi.close();
 		setStorage = JSON.parseObject(jsonString, SetUpStorage.class);
-		System.out.println(setStorage.getClass() + jsonString);
-		System.out.println(setStorage.toString());
 	}
 
 	@Override

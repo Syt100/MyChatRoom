@@ -1,7 +1,6 @@
 package mygui.login;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Insets;
@@ -11,7 +10,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.IOException;
-
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
@@ -19,14 +19,13 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -34,6 +33,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import com.alibaba.fastjson.JSONObject;
 
 import mygui.components.GradualChangeTabbedPaneUI;
+import mygui.components.MQFontChooser;
 import mygui.login.setupstorage.LogonServerType;
 import mygui.login.setupstorage.NetworkAgentType;
 import mygui.login.setupstorage.SetUpStorage;
@@ -71,6 +71,8 @@ public class Setting extends JPanel {
 	private JTextField textField_filePath;
 	/** 恢复默认按钮 */
 	private JButton btn_reset;
+	/** 使用本机地址按钮 */
+	private JButton btn_useLocal;
 
 	/** 全局字体设置 */
 	private Font font = new Font("微软雅黑", Font.PLAIN, 12);
@@ -99,6 +101,10 @@ public class Setting extends JPanel {
 	private JRadioButton rdbtn_sty1;
 	/** 单选按钮 */
 	private JRadioButton rdbtn_sty2;
+	/** 选择字体 */
+	private JButton btn_other_chooseFont;
+	/** 显示字体样式 */
+	private JLabel lbl_other_fontFamily;
 
 	/**
 	 * @param mainLogin
@@ -212,7 +218,7 @@ public class Setting extends JPanel {
 
 		JLabel lbl_NetworkUserName = new JLabel("用户名:");
 		lbl_NetworkUserName.setHorizontalAlignment(SwingConstants.RIGHT);
-		lbl_NetworkUserName.setFont(new Font("微软雅黑", Font.PLAIN, 12));
+		lbl_NetworkUserName.setFont(font);
 		lbl_NetworkUserName.setBounds(0, 66, 42, 23);
 		panel_socket.add(lbl_NetworkUserName);
 
@@ -221,7 +227,7 @@ public class Setting extends JPanel {
 		panel_socket.add(textField_NetworkUserName);
 
 		JLabel label_NetworkPassword = new JLabel("密码:");
-		label_NetworkPassword.setFont(new Font("微软雅黑", Font.PLAIN, 12));
+		label_NetworkPassword.setFont(font);
 		label_NetworkPassword.setBounds(193, 66, 29, 23);
 		panel_socket.add(label_NetworkPassword);
 
@@ -231,7 +237,7 @@ public class Setting extends JPanel {
 		panel_socket.add(textField_NetworkPassword);
 
 		JLabel lbl_NetworkField = new JLabel("域:");
-		lbl_NetworkField.setFont(new Font("微软雅黑", Font.PLAIN, 12));
+		lbl_NetworkField.setFont(font);
 		lbl_NetworkField.setBounds(325, 66, 29, 23);
 		panel_socket.add(lbl_NetworkField);
 
@@ -244,25 +250,25 @@ public class Setting extends JPanel {
 
 		// 登录服务器部分
 		JLabel lbl_logonServer = new JLabel("登录服务器");
-		lbl_logonServer.setFont(new Font("微软雅黑", Font.PLAIN, 12));
+		lbl_logonServer.setFont(font);
 		lbl_logonServer.setBounds(10, 111, 72, 20);
 		panel_socket.add(lbl_logonServer);
 
 		JLabel lbl_loginType = new JLabel("类型:");
-		lbl_loginType.setFont(new Font("微软雅黑", Font.PLAIN, 12));
+		lbl_loginType.setFont(font);
 		lbl_loginType.setBounds(15, 140, 27, 23);
 		panel_socket.add(lbl_loginType);
 
 		comboBox_loginType = new JComboBox<String>();
 		comboBox_loginType.setModel(new DefaultComboBoxModel<String>(new String[] { "不使用高级选项", "UDP类型", "TCP类型" }));
 		comboBox_loginType.setSelectedIndex(0);
-		comboBox_loginType.setFont(new Font("微软雅黑", Font.PLAIN, 12));
+		comboBox_loginType.setFont(font);
 		comboBox_loginType.setBounds(50, 140, 133, 23);
 		comboBox_loginType.addItemListener(itemListener);// 添加项目改变监听
 		panel_socket.add(comboBox_loginType);
 
 		JLabel lbl_loginAddress = new JLabel("地址:");
-		lbl_loginAddress.setFont(new Font("微软雅黑", Font.PLAIN, 12));
+		lbl_loginAddress.setFont(font);
 		lbl_loginAddress.setBounds(193, 140, 29, 23);
 		panel_socket.add(lbl_loginAddress);
 
@@ -272,7 +278,7 @@ public class Setting extends JPanel {
 		panel_socket.add(textField_loginAddress);
 
 		JLabel lbl_loginPort = new JLabel("端口:");
-		lbl_loginPort.setFont(new Font("微软雅黑", Font.PLAIN, 12));
+		lbl_loginPort.setFont(font);
 		lbl_loginPort.setBounds(325, 140, 29, 23);
 		panel_socket.add(lbl_loginPort);
 
@@ -280,6 +286,13 @@ public class Setting extends JPanel {
 		textField_loginPort.setColumns(4);
 		textField_loginPort.setBounds(355, 140, 60, 23);
 		panel_socket.add(textField_loginPort);
+		
+		btn_useLocal = new JButton("使用本机地址");
+		btn_useLocal.setMargin(new Insets(2, 6, 2, 6));
+		btn_useLocal.setFont(font);
+		btn_useLocal.setBounds(224, 173, 91, 25);
+		panel_socket.add(btn_useLocal);
+		btn_useLocal.addActionListener(listener);
 
 		setLoginServerEnable(false);// 默认禁用登录服务器的几个输入框
 
@@ -288,6 +301,7 @@ public class Setting extends JPanel {
 		tabbedPane.addTab("其他设置", null, panel_other, null);
 		panel_other.setLayout(null);
 
+		// 设置界面样式
 		JLabel lbl_other_style = new JLabel("设置界面样式");
 		lbl_other_style.setFont(font);
 		lbl_other_style.setBounds(10, 10, 86, 15);
@@ -309,7 +323,26 @@ public class Setting extends JPanel {
 		ButtonGroup btnGroup = new ButtonGroup();
 		btnGroup.add(rdbtn_sty1);
 		btnGroup.add(rdbtn_sty2);
-
+		
+		// 字体设置
+		JLabel lbl_other_font = new JLabel("界面字体");
+		lbl_other_font.setFont(font);
+		lbl_other_font.setBounds(10, 60, 86, 15);
+		panel_other.add(lbl_other_font);
+		
+		btn_other_chooseFont = new JButton("选择");
+		btn_other_chooseFont.setMargin(new Insets(2, 6, 2, 6));
+		btn_other_chooseFont.setFont(font);
+		btn_other_chooseFont.setBounds(187, 81, 49, 25);
+		btn_other_chooseFont.addActionListener(listener);
+		panel_other.add(btn_other_chooseFont);
+		
+		lbl_other_fontFamily = new JLabel("界面字体");
+		lbl_other_fontFamily.setFont(font);
+		lbl_other_fontFamily.setBounds(44, 85, 121, 15);
+		lbl_other_fontFamily.setText(font.getFamily() + " " + font.getStyle() + " " + font.getSize());
+		panel_other.add(lbl_other_fontFamily);
+		
 		// 底栏
 		JPanel panel_bottom = new JPanel();
 		FlowLayout fl_panel_bottom = (FlowLayout) panel_bottom.getLayout();
@@ -419,7 +452,7 @@ public class Setting extends JPanel {
 				textField_filePath.setText(defaultBackgroundImagePath);
 				lbl_showPreview.setIcon(new ImageIcon(getClass().getResource(defaultBackgroundImagePath)));
 			}
-			if (e.getSource() == btn_return) {
+			if (e.getSource() == btn_return) { // 点击返回按钮
 				mainLogin.returnToMain();// 隐藏设置面板
 			}
 			if (e.getSource() == btn_confirm) {// 点击确认按钮
@@ -432,8 +465,41 @@ public class Setting extends JPanel {
 				mainLogin.returnToMain();// 隐藏设置面板
 				mainLogin.showTipsByTimer("设置已保存");
 			}
+			if (e.getSource() == btn_useLocal) {// 点击使用本机地址按钮
+				InetAddress myIP = null;
+		        try{
+		             myIP = InetAddress.getLocalHost();
+		             textField_loginAddress.setText(myIP.getHostAddress());
+		        }catch(UnknownHostException e1){
+		        	JOptionPane.showMessageDialog(Setting.this, e1.getMessage(), "错误", JOptionPane.ERROR_MESSAGE);
+		        }
+			}
+			if (e.getSource() == btn_other_chooseFont) {// 点击选择字体按钮
+				MQFontChooser fonChooser = new MQFontChooser(font);
+				fonChooser.showFontDialog(null);
+				font = fonChooser.getSelectFont();
+				System.out.println(font.getFontName());
+				lbl_other_fontFamily.setText(font.getFamily() + " " + font.getStyle() + " " + font.getSize());
+//				setAllFont(font);
+			}
 		}
 	}
+	
+//	private void setAllFont(Font fo) {
+//		Component[] com = this.getComponents();
+//		System.out.println(getClass() + "组件数量" + com);
+//		for (Component component : com) {
+//			if (component instanceof Container) {
+//				
+//			}
+//		}
+//	}
+//	
+//	private void findAllComponents(Component c) {
+//		if (c instanceof Container) {
+//			
+//		}
+//	}
 
 	/**
 	 * 批量改变网络代理区域输入框启用状态
@@ -519,7 +585,6 @@ public class Setting extends JPanel {
 	public void readSetting() throws IOException, Exception {
 		SetUpStorage.loadSetting();
 		SetUpStorage set = SetUpStorage.getStorage();
-		System.out.println(set.toString());
 
 		if (set.backgroundImagePath != null) {
 			backgroundImagePath = set.backgroundImagePath;
