@@ -9,6 +9,8 @@ import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
@@ -27,7 +29,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.tree.TreePath;
 
@@ -154,6 +155,8 @@ public class MyFriendsList3 {
 	
 	/** 是否群聊的开关 */
 	private final JCheckBox chckbx_qunliao = new JCheckBox("开启群聊模式");
+	/** 是否置顶 */
+	private final JCheckBox chkbx_zhiding = new JCheckBox("置顶");
 	
 	// 用户
 	/** 接收从客户端接收的Users类 */
@@ -176,6 +179,7 @@ public class MyFriendsList3 {
 	// 与聊天界面通信
 	/** 所有已经打开的聊天窗口的引用 */
 	private ArrayList<Chat> chatArray = new ArrayList<Chat>();
+	
 	
 
 	public static void main(String[] args) {
@@ -231,9 +235,9 @@ public class MyFriendsList3 {
 		frame.setBounds(100, 100, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 		frame.setUndecorated(true);// 将原始的边框去掉
 		frame.setLocationRelativeTo(null);// 设置窗口打开位置居中
+		frame.setBackground(new Color(0, 0, 0, 0));
 		
-		content = new BackgroundJPanel(backGroundImgIcon);// 初始化内容面板，设置背景
-		content.setBorder(new LineBorder(new Color(192, 192, 192), 1, true));
+		content = new BackgroundJPanel(backGroundImgIcon, 5);// 初始化内容面板，设置背景，设置阴影
 		content.setLayout(new BorderLayout(0, 0));
 		frame.setContentPane(content);
 	}
@@ -338,6 +342,10 @@ public class MyFriendsList3 {
 		panel_down.add(panel_down_right, BorderLayout.EAST);
 		
 		panel_down_right.add(chckbx_qunliao);
+		
+		panel_down_right.add(chkbx_zhiding);
+		chkbx_zhiding.setSelected(false);
+		
 		panel_down_left.add(lbl_menu);
 
 	}
@@ -651,6 +659,14 @@ public class MyFriendsList3 {
 		panel_tab1.addMouseListener(mos);
 		panel_tab2.addMouseListener(mos);
 		panel_tab3.addMouseListener(mos);
+		chkbx_zhiding.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				frame.setAlwaysOnTop(chkbx_zhiding.isSelected());
+				
+			}
+		});
 	}
 
 	/**
