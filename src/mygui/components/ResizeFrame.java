@@ -11,10 +11,10 @@ import java.awt.event.*;
  *
  */
 public class ResizeFrame extends JFrame {
-	/**
-	 * 已生成的串行版本标识
-	 */
+
+	/** 已生成的串行版本标识 */
 	private static final long serialVersionUID = -270775752895603856L;
+
 	private boolean isTopLeft;// 是否处于左上角调整窗口状态
 	private boolean isTop;// 是否处于上边界调整窗口状态
 	private boolean isTopRight;// 是否处于右上角调整窗口状态
@@ -24,13 +24,14 @@ public class ResizeFrame extends JFrame {
 	private boolean isBottomLeft;// 是否处于左下角调整窗口状态
 	private boolean isLeft;// 是否处于左边界调整窗口状态
 	private Point point = new Point();// 记录鼠标位置，用于拖动窗体
-	private final static int RESIZE_WIDTH = 2;// 判定是否为调整窗口状态的范围与边界距离
+	private int RESIZE_WIDTH = 2;// 判定是否为调整窗口状态的范围与边界距离
 	private final static int MIN_WIDTH = 20;// 窗口最小宽度
 	private final static int MIN_HEIGHT = 20;// 窗口最小高度
 
 	public ResizeFrame() {
-		addMouseMotionListener(new ResizeAdapter(this));
-		addMouseListener(new MoveAdapter(this));
+		ResizeAdapter listener = new ResizeAdapter(this);
+		addMouseMotionListener(listener);
+		addMouseListener(listener);
 	}
 
 	private class ResizeAdapter extends MouseAdapter {
@@ -41,7 +42,7 @@ public class ResizeFrame extends JFrame {
 		}
 
 		@Override
-		public void mouseMoved(MouseEvent event) {
+		public void mouseMoved(MouseEvent event) {// 鼠标移动
 			int x = event.getX();
 			int y = event.getY();
 			int width = c.getWidth();
@@ -83,7 +84,7 @@ public class ResizeFrame extends JFrame {
 		}
 
 		@Override
-		public void mouseDragged(MouseEvent event) {
+		public void mouseDragged(MouseEvent event) {// 鼠标拖动
 			int x = event.getX();
 			int y = event.getY();
 			int width = c.getWidth();
@@ -129,20 +130,30 @@ public class ResizeFrame extends JFrame {
 				c.setLocation(p.x + event.getX() - point.x, p.y + event.getY() - point.y);
 			}
 		}
-	}
-
-	private class MoveAdapter extends MouseAdapter {
-		private Component c;
-
-		public MoveAdapter(Component c) {
-			this.c = c;
-		}
 
 		@Override
 		public void mousePressed(MouseEvent e) {// 获取鼠标按下时的坐标
 			point.x = e.getX();
 			point.y = e.getY();
 		}
+	}
+
+	/**
+	 * 获取调整范围
+	 * 
+	 * @return rESIZE_WIDTH
+	 */
+	public int getRESIZE_WIDTH() {
+		return RESIZE_WIDTH;
+	}
+
+	/**
+	 * 设置调整范围
+	 * 
+	 * @param rESIZE_WIDTH 要设置的 rESIZE_WIDTH
+	 */
+	public void setRESIZE_WIDTH(int rESIZE_WIDTH) {
+		RESIZE_WIDTH = rESIZE_WIDTH;
 	}
 
 	/**
