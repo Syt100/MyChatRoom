@@ -43,6 +43,11 @@ public class ResizeFrame extends JFrame {
 
 		@Override
 		public void mouseMoved(MouseEvent event) {// 鼠标移动
+			// 如果不能改变大小，直接返回
+			if (isResizable() == false) {
+				return;
+			}
+			
 			int x = event.getX();
 			int y = event.getY();
 			int width = c.getWidth();
@@ -85,6 +90,19 @@ public class ResizeFrame extends JFrame {
 
 		@Override
 		public void mouseDragged(MouseEvent event) {// 鼠标拖动
+			// 控制窗体拖动 
+			Point p = c.getLocation();
+			if (!isTopLeft && !isTop && !isTopRight && !isRight && !isBottomRight && !isBottom && !isBottomLeft
+					&& !isLeft) {
+				c.setLocation(p.x + event.getX() - point.x, p.y + event.getY() - point.y);
+			}
+
+			// 判断是否可以调整，如果不能，直接返回
+			if (isResizable() == false) {
+				return;
+			}
+
+			// 调整边框
 			int x = event.getX();
 			int y = event.getY();
 			int width = c.getWidth();
@@ -122,13 +140,6 @@ public class ResizeFrame extends JFrame {
 			}
 			// 最后统一改变窗口的x、y坐标和宽度、高度，可以防止刷新频繁出现的屏闪情况
 			setBounds(nextX, nextY, nextWidth, nextHeight);
-
-			/** 控制窗体拖动 */
-			Point p = c.getLocation();
-			if (!isTopLeft && !isTop && !isTopRight && !isRight && !isBottomRight && !isBottom && !isBottomLeft
-					&& !isLeft) {
-				c.setLocation(p.x + event.getX() - point.x, p.y + event.getY() - point.y);
-			}
 		}
 
 		@Override
