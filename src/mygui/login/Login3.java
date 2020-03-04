@@ -73,7 +73,7 @@ public class Login3 {
 		frame = new JFrame();
 		frame.setTitle("登录");
 		frame.setIconImage(Toolkit.getDefaultToolkit().getImage(
-				Login2.class.getResource("/Images/chat_circle_love_29.611940298507px_1228617_easyicon.net.png")));
+				Login3.class.getResource("/Images/chat_circle_love_29.611940298507px_1228617_easyicon.net.png")));
 		frame.setResizable(false);// 设置窗口不可调整大小
 		frame.setBounds(100, 100, DEFAULT_WIDTH, DEFAULT_HEIGHT);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -93,13 +93,13 @@ public class Login3 {
 		JLabel lblNewLabel_1 = new JLabel();
 		lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
 		lblNewLabel_1
-				.setIcon(new ImageIcon(Login2.class.getResource("/Images/avatar_users_64px_1108447_easyicon.net.png")));
+				.setIcon(new ImageIcon(Login3.class.getResource("/Images/avatar_users_64px_1108447_easyicon.net.png")));
 		lblNewLabel_1.setBounds(168, 60, 64, 64);
 		panel_logo.add(lblNewLabel_1);
 
 		JLabel lblNewLabel = new JLabel();
 		lblNewLabel.setBounds(0, 0, 400, 141);
-		lblNewLabel.setIcon(new ImageIcon(Login2.class.getResource("/Images/f988052c0de226d39930a64855d10355_3.jpg")));
+		lblNewLabel.setIcon(new ImageIcon(Login3.class.getResource("/Images/f988052c0de226d39930a64855d10355_3.jpg")));
 		panel_logo.add(lblNewLabel);
 
 		JPanel panel_main = new JPanel();
@@ -256,7 +256,7 @@ public class Login3 {
 		
 
 		JButton btn_erweima = new JButton("");// 显示二维码
-		btn_erweima.setIcon(new ImageIcon(Login.class.getResource("/Images/QRcode.png")));
+		btn_erweima.setIcon(new ImageIcon(Login3.class.getResource("/Images/QRcode.png")));
 		btn_erweima.setBounds(343, 110, 40, 40);
 		btn_erweima.setBorderPainted(false);// 去除边框
 		btn_erweima.setMargin(new Insets(0, 0, 0, 0));// 让按钮随按钮上的图案变化

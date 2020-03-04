@@ -225,7 +225,7 @@ public class Login2 {
 		panel_operation.add(btn_zhaohuimima);
 
 		JButton btn_erweima = new JButton("");// 显示二维码
-		btn_erweima.setIcon(new ImageIcon(Login.class.getResource("/Images/QRcode.png")));
+		btn_erweima.setIcon(new ImageIcon(Login2.class.getResource("/Images/QRcode.png")));
 		btn_erweima.setBounds(343, 110, 40, 40);
 		btn_erweima.setBorderPainted(false);// 去除边框
 		btn_erweima.setMargin(new Insets(0, 0, 0, 0));// 让按钮随按钮上的图案变化
