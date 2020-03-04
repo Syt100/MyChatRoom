@@ -13,6 +13,7 @@ import java.awt.event.FocusListener;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -38,8 +39,11 @@ import javax.swing.text.PlainDocument;
  * @blog http://hi.baidu.com/mq612/blog
  *
  */
-@SuppressWarnings("serial")
 public class MQFontChooser extends JDialog {
+	/**
+	 * 已生成的串行版本标识
+	 */
+	private static final long serialVersionUID = -4582823970055978545L;
 	/**
 	 * 选择取消按钮的返回值
 	 */
@@ -91,7 +95,7 @@ public class MQFontChooser extends JDialog {
 	/** 取消按钮 */
 	private JButton cancelButton = null;
 	/** 所有字体 */
-	private String[] fontArray = {"12","12"};
+	private String[] fontArray;
 	/** 所有样式 */
 	private String[] styleArray = { "常规", "粗体", "斜体", "粗斜体" };
 	/** 所有预设字体大小 */
@@ -191,12 +195,27 @@ public class MQFontChooser extends JDialog {
 		bg.add(englishButton);
 		bg.add(numberButton);
 		
-		fontList = new JList<>(fontArray);
+		DefaultListModel<String> fontModel = new DefaultListModel<String>();
+		for (String string : fontArray) {
+			fontModel.addElement(string);
+		}
+		fontList = new JList<String>(fontModel);
 		fontList.setFont(showFont);
-		styleList = new JList<>(styleArray);
+		
+		DefaultListModel<String> styleModel = new DefaultListModel<String>();
+		for (String string : styleArray) {
+			styleModel.addElement(string);
+		}
+		styleList = new JList<>(styleModel);
 		styleList.setFont(showFont);
-		sizeList = new JList<>(sizeArray);
+		
+		DefaultListModel<String> sizeModel = new DefaultListModel<String>();
+		for (String string : sizeArray) {
+			sizeModel.addElement(string);
+		}
+		sizeList = new JList<>(sizeModel);
 		sizeList.setFont(showFont);
+		
 		approveButton = new JButton("确定");
 		approveButton.setFont(showFont);
 		cancelButton = new JButton("取消");
@@ -337,7 +356,7 @@ public class MQFontChooser extends JDialog {
 		fontList.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent e) {
 				if (!e.getValueIsAdjusting()) {
-					fontText.setText(String.valueOf(fontList.getSelectedValue()));
+					fontText.setText(fontList.getSelectedValue());
 					// 设置预览
 					setPreview();
 				}
@@ -346,7 +365,7 @@ public class MQFontChooser extends JDialog {
 		styleList.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent e) {
 				if (!e.getValueIsAdjusting()) {
-					styleText.setText(String.valueOf(styleList.getSelectedValue()));
+					styleText.setText(styleList.getSelectedValue());
 					// 设置预览
 					setPreview();
 				}
@@ -356,7 +375,7 @@ public class MQFontChooser extends JDialog {
 			public void valueChanged(ListSelectionEvent e) {
 				if (!e.getValueIsAdjusting()) {
 					if (!sizeText.isFocusOwner()) {
-						sizeText.setText(String.valueOf(sizeList.getSelectedValue()));
+						sizeText.setText(sizeList.getSelectedValue());
 					}
 					// 设置预览
 					setPreview();
