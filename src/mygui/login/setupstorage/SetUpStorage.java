@@ -20,7 +20,7 @@ public class SetUpStorage {
 
 	/** 登录界面背景图片地址 */
 	public String backgroundImagePath;
-	
+
 	/** 登录界面网络代理类型 */
 	public NetworkAgentType networkAgentType = NetworkAgentType.None;
 	/** 登录界面网络代理地址 */
@@ -33,22 +33,32 @@ public class SetUpStorage {
 	public String networkAgentPassword;
 	/** 登录界面网络代理域 */
 	public String networkAgentField;
-	
+
 	/** 登录界面登录服务器类型 */
 	public LogonServerType logonServerType= LogonServerType.Default;
 	/** 登录界面登录服务器地址 */
 	public String loginAddress;
 	/** 登录界面登录服务器端口 */
 	public int loginPort;
-	
+
 	/** 设置界面TabbedPaneUI样式 */
 	public TabbedPaneStyle tabbedPaneStyle = TabbedPaneStyle.style1;
 	/** 全局字体 */
 	public Font font = new Font("微软雅黑", Font.PLAIN, 12);
 	
+	/** 自动登录 */
+	public boolean autoLogin = false;
+	/** 记住密码 */
+	public boolean remmberPassword = false;
+	
+	// 类内部设置
+	/** 是否已经加载设置，有些地方只需加载一次，避免重复加载 */
+	private static boolean isLoaded = false;
+	/** 是否已经保存设置 */
+	private static boolean isSaved = false;
+	
 	private static SetUpStorage setStorage;
-	
-	
+
 	public static void main(String[] args) {
 		SetUpStorage set = SetUpStorage.getStorage();
 		set.backgroundImagePath = "123";
@@ -97,7 +107,10 @@ public class SetUpStorage {
 		} catch (IOException e) {
 			// TODO 自动生成的 catch 块
 			e.printStackTrace();
+			isSaved = false;
+			return;
 		}
+		isSaved = true;
 	}
 	
 	/**
@@ -123,6 +136,35 @@ public class SetUpStorage {
 		bfi.close();
 		fi.close();
 		setStorage = JSON.parseObject(jsonString, SetUpStorage.class);
+		isLoaded = true;
+	}
+
+	/**
+	 * @return isLoaded
+	 */
+	public static boolean isLoaded() {
+		return isLoaded;
+	}
+
+	/**
+	 * @param isLoaded 要设置的 isLoaded
+	 */
+	public static void setLoaded(boolean isLoaded) {
+		SetUpStorage.isLoaded = isLoaded;
+	}
+
+	/**
+	 * @return isSaved
+	 */
+	public static boolean isSaved() {
+		return isSaved;
+	}
+
+	/**
+	 * @param isSaved 要设置的 isSaved
+	 */
+	public static void setSaved(boolean isSaved) {
+		SetUpStorage.isSaved = isSaved;
 	}
 
 	@Override
@@ -132,7 +174,7 @@ public class SetUpStorage {
 				+ ", networkAgentUserName=" + networkAgentUserName + ", networkAgentPassword=" + networkAgentPassword
 				+ ", networkAgentField=" + networkAgentField + ", logonServerType=" + logonServerType
 				+ ", loginAddress=" + loginAddress + ", loginPort=" + loginPort + ", tabbedPaneStyle=" + tabbedPaneStyle
-				+ ", font=" + font + "]";
+				+ ", font=" + font + ", autoLogin=" + autoLogin + ", remmberPassword=" + remmberPassword + "]";
 	}
 	
 }

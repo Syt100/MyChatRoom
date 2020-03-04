@@ -8,9 +8,16 @@ import java.awt.Font;
 import java.awt.Frame;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Timer;
@@ -35,6 +42,7 @@ import mygui.components.BackgroundJPanel;
 import mygui.components.ResizeFrame;
 import mygui.components.RolloverBackgroundButton;
 import mygui.friendslist2.MyFriendsList3;
+import mygui.login.setupstorage.SetUpStorage;
 import util.ConstantStatus;
 
 /**
@@ -87,6 +95,10 @@ public class Login4 {
 	private JComboBox<String> comboBox_zhanghao;
 	/** 密码输入框 */
 	private JPasswordField passwordField_mima;
+	/** 自动登录单选框 */
+	private JCheckBox checkbox_autologin;
+	/** 记住密码单选框 */
+	private JCheckBox checkbox_remmber;
 	/** 找回密码按钮 */
 	private JButton btn_zhaohuimima;
 	/** 注册账号按钮 */
@@ -101,6 +113,7 @@ public class Login4 {
 	/** 登录界面的后台线程，处理接收消息、初始化socket */
 	private LoginTread loginThread;
 	private ThreadGroup loginThreadGroup;
+	
 
 	
 	public static void main(String[] args) {
@@ -116,6 +129,7 @@ public class Login4 {
 		initialize();
 		initMyFocusListener();
 		initMyMouseListener();
+		initMyItemListener();
 		setTop(panel_operation);// 将主面板置顶
 		frame.setVisible(true);
 	}
@@ -125,7 +139,17 @@ public class Login4 {
 	 */
 	private void startDemo() {
 		try {
+			// 加载设置面板的设置
 			panel_setting.readSetting();
+			// 加载设置
+			SetUpStorage set = SetUpStorage.getStorage();
+			
+			if (set.remmberPassword == true) {
+				loadPassword();
+			}
+			checkbox_autologin.setSelected(set.autoLogin);
+			checkbox_remmber.setSelected(set.remmberPassword);
+			
 		} catch (Exception e) {
 			// TODO 错误处理
 			e.printStackTrace();
@@ -134,6 +158,16 @@ public class Login4 {
 		loginThreadGroup = new ThreadGroup("登录线程组");
 		loginThread = new LoginTread(loginThreadGroup, this, "Login");
 		loginThread.start();
+		if (checkbox_autologin.isSelected() == true) {
+			// 用计时器实现延迟
+			Timer timer = new Timer();// 实例化Timer类
+			timer.schedule(new TimerTask() {
+				public void run() {
+					login();
+					this.cancel();
+				}
+			}, 1500);// 延迟x毫秒后启动
+		}
 	}
 
 	/**
@@ -336,14 +370,14 @@ public class Login4 {
 		passwordField_mima.setBounds(120, 85, 220, 25);
 		panel_operation.add(passwordField_mima);
 
-		JCheckBox checkbox_autologin = new JCheckBox("自动登录");
+		checkbox_autologin = new JCheckBox("自动登录");
 		checkbox_autologin.setForeground(Color.GRAY);
 		checkbox_autologin.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 12));
 		checkbox_autologin.setBackground(Color.WHITE);
 		checkbox_autologin.setBounds(93, 115, 75, 23);
 		panel_operation.add(checkbox_autologin);
 
-		JCheckBox checkbox_remmber = new JCheckBox("记住密码");
+		checkbox_remmber = new JCheckBox("记住密码");
 		checkbox_remmber.setForeground(Color.GRAY);
 		checkbox_remmber.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 12));
 		checkbox_remmber.setBackground(Color.WHITE);
@@ -432,14 +466,7 @@ public class Login4 {
 		@Override
 		public void mouseReleased(MouseEvent e) {// 鼠标松开
 			if (e.getSource() == btn_denglu) {// 点击登录按钮
-				if (LoginTread.isConnected()) {
-					loginThread.verificationAccountFromServer();
-				} else {
-					// 如果服务端未打开
-					loginThread = new LoginTread(loginThreadGroup, Login4.this, "login");
-					loginThread.start();
-					loginThread.verificationAccountFromServer();
-				}
+				login();
 			}
 			if (e.getSource() == lbl_erweima) {// 二维码按钮
 				lbl_erweima.setIcon(new ImageIcon(getClass().getResource("/Images/qqIcon/corner_right_hover.png")));
@@ -578,6 +605,96 @@ public class Login4 {
 	}
 	
 	/**
+	 * 项目监听器，监听记住密码和自动登录复选框
+	 */
+	private void initMyItemListener() {
+		checkbox_autologin.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				SetUpStorage set = SetUpStorage.getStorage();
+				set.autoLogin = checkbox_autologin.isSelected();
+				set.writeToFile();
+			}
+		});
+		checkbox_remmber.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				SetUpStorage set = SetUpStorage.getStorage();
+				set.remmberPassword = checkbox_remmber.isSelected();
+				set.writeToFile();
+				if (checkbox_remmber.isSelected()) {
+					savePassowrd();
+				}
+			}
+		});
+	}
+	
+	/**
+	 * 保存密码
+	 */
+	private void savePassowrd() {
+		new Thread() {
+
+			@Override
+			public void run() {
+				try {
+					File file = new File("./data/password.dat");
+					if (!file.exists()) {
+						file.getParentFile().mkdir();
+					}
+					FileWriter fo = new FileWriter(file);
+					String id = comboBox_zhanghao.getEditor().getItem().toString().trim();// 获取输入的账号
+					String password = String.valueOf(passwordField_mima.getPassword());// 获取输入的密码
+					
+					fo.write(id + "\n");
+					fo.write(password);
+					fo.flush();
+					fo.close();
+				} catch (IOException e) {
+					// TODO 自动生成的 catch 块
+					e.printStackTrace();
+				}
+			}
+		}.start();
+	}
+	
+	/**
+	 * 加载密码
+	 */
+	private void loadPassword() {
+		new Thread() {
+
+			@Override
+			public void run() {
+				try {
+					File file = new File("./data/password.dat");
+					if (!file.exists()) {
+						return;
+					}
+					
+					FileReader fi = new FileReader(file);
+					BufferedReader bfi = new BufferedReader(fi);
+					comboBox_zhanghao.setSelectedItem(bfi.readLine());
+					passwordField_mima.setText(bfi.readLine());
+
+					bfi.readLine();
+					bfi.close();
+					fi.close();
+				} catch (FileNotFoundException e) {
+					// TODO 自动生成的 catch 块
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO 自动生成的 catch 块
+					e.printStackTrace();
+				}
+			}
+			
+		}.start();
+	}
+	
+	/**
 	 * 设置要显示在顶端的组件，将其他面板隐藏
 	 * @param jc 要设置可见为真的组件（面板）
 	 */
@@ -645,6 +762,20 @@ public class Login4 {
 		}
 		Users user = new Users(id, password);
 		return user;
+	}
+	
+	/**
+	 * 登录事件
+	 */
+	private void login() {
+		if (LoginTread.isConnected()) {
+			loginThread.verificationAccountFromServer();
+		} else {
+			// 如果服务端未打开
+			loginThread = new LoginTread(loginThreadGroup, Login4.this, "login");
+			loginThread.start();
+			loginThread.verificationAccountFromServer();
+		}
 	}
 	
 	/**
