@@ -121,6 +121,10 @@ public class LoginTread extends Thread {
 		}
 		String host = set.loginAddress;
 		int port = set.loginPort;
+		if (set.logonServerType == LogonServerType.Default) {
+			host = "127.0.0.1";
+			port = 4444;
+		}
 		
 		login.showTipsByTimer("正在连接服务器:" + host + ":" + port);
 		// 初始化Socket
