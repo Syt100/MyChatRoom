@@ -50,7 +50,7 @@ public class MultiServerFrame {
 	// 结束标记
 	private static boolean localBye = false;// 本机说拜拜
 	private static boolean clientBye = false;// 客户端输入流说拜拜
-	// private static String localMessageLine, clientMessageLine;
+
 	private static JButton btn_send;
 	private static JTextArea textArea_inputMessage;
 	private static JButton btn_close;
@@ -81,14 +81,14 @@ public class MultiServerFrame {
 	 * Create the application.
 	 */
 	public MultiServerFrame() {
-		initialize();
+		initGUI();
 		frame.setVisible(true);
 	}
 
 	/**
 	 * 初始化图形界面和事件
 	 */
-	private void initialize() {
+	private void initGUI() {
 		frame = new JFrame();
 		frame.setTitle("服务端-多线程");
 		frame.setBounds(100, 100, 580, 380);
@@ -96,9 +96,9 @@ public class MultiServerFrame {
 		frame.setContentPane(contentPane);
 		contentPane.setLayout(null);
 
-		JLabel lblNewLabel = new JLabel("服务端IP");
-		lblNewLabel.setBounds(32, 21, 48, 15);
-		contentPane.add(lblNewLabel);
+		JLabel lbl_ip = new JLabel("服务端IP");
+		lbl_ip.setBounds(32, 21, 48, 15);
+		contentPane.add(lbl_ip);
 
 		textField_ip = new JTextField();
 		textField_ip.setBounds(90, 18, 66, 21);
@@ -106,9 +106,9 @@ public class MultiServerFrame {
 		textField_ip.setColumns(10);
 		textField_ip.setText(host);
 
-		JLabel label = new JLabel("端口");
-		label.setBounds(181, 21, 30, 15);
-		contentPane.add(label);
+		JLabel lbl_port = new JLabel("端口");
+		lbl_port.setBounds(181, 21, 30, 15);
+		contentPane.add(lbl_port);
 
 		textField_port = new JTextField();
 		textField_port.setColumns(10);
@@ -142,9 +142,9 @@ public class MultiServerFrame {
 		contentPane.add(btn_close);
 		btn_close.addActionListener(new SendMessage());
 
-		JLabel label_count = new JLabel("客户端数量");
-		label_count.setBounds(297, 21, 66, 15);
-		contentPane.add(label_count);
+		JLabel lbl_clientCount = new JLabel("客户端数量");
+		lbl_clientCount.setBounds(297, 21, 66, 15);
+		contentPane.add(lbl_clientCount);
 
 		textField_count = new JTextField();
 		textField_count.setColumns(10);
@@ -152,9 +152,9 @@ public class MultiServerFrame {
 		flushClientCountShow();
 		contentPane.add(textField_count);
 
-		JLabel label_1 = new JLabel("客户端列表");
-		label_1.setBounds(422, 24, 66, 15);
-		contentPane.add(label_1);
+		JLabel lbl_clientList = new JLabel("客户端列表");
+		lbl_clientList.setBounds(422, 24, 66, 15);
+		contentPane.add(lbl_clientList);
 
 		JScrollPane scrollPane_2 = new JScrollPane();
 		scrollPane_2.setBounds(410, 56, 146, 192);
@@ -200,6 +200,7 @@ public class MultiServerFrame {
 	 * 
 	 * @param clientSocket
 	 */
+	@SuppressWarnings("unused")
 	private static void connetToClient(Socket clientSocket) {
 		// addClientShowToList();
 		try {
@@ -363,11 +364,6 @@ public class MultiServerFrame {
 	 * 清空待发送的客户端列表
 	 */
 	protected static void clearServerThread() {
-//		for(MultiTalkServerThread thread : serverThreads) {
-//			if(thread != null) {
-//				thread = null;
-//			}
-//		}
 		for (int i = 0; i < serverThreads.length; i++) {
 			if (serverThreads[i] != null) {// !!!这里用高级for循环没用！！！
 				serverThreads[i] = null;
@@ -419,9 +415,7 @@ public class MultiServerFrame {
 	 */
 	protected static void putAllClientChanged() {
 		String[] allNames = new String[dlm.getSize()];
-		for (int i = 0; i < dlm.getSize(); i++) {
-			allNames[i] = dlm.get(i);
-		}
+		dlm.copyInto(allNames);
 		MultiServerFrame.updateReadyToSendClient(allNames);
 		msg.setStatus(1);
 		msg.setList(getClientListName());
