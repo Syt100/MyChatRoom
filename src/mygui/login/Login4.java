@@ -16,7 +16,6 @@ import java.net.Socket;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -47,10 +46,12 @@ public class Login4 {
 
 	/** 可调大小窗体 */
 	private ResizeFrame frame = new ResizeFrame();
-	/** 内容面板，并可以设置背景图片 */
-	private BackgroundJPanel content;
+	/** 背景图片面板 */
+	private BackgroundJPanel borderBackgroundJPanel;
+	/** 内容面板 */
+	private JPanel content;
 	/** 内容面板的背景图片 */
-	private ImageIcon backGroundImgIcon = new ImageIcon(getClass().getResource("/Images/source/img_0.png"));
+	private ImageIcon backGroundImgIcon;
 	/** 设置图标 */
 	private JLabel lblSetting;
 	/** 最小化图标 */
@@ -139,14 +140,24 @@ public class Login4 {
 	 * 初始化窗体frame和contentPane，设置背景
 	 */
 	private void initBackGround() {
-		frame.setBounds(100, 100, 430, 330);
+		int inset = 5;// 边框阴影大小
+		frame.setBounds(100, 100, 430 + 2 * inset, 330 + 2 * inset);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);// 在这里无效，因为去除了窗口装饰
 		frame.setUndecorated(true);// 将原始的边框去掉
 		frame.setLocationRelativeTo(null);// 设置窗口打开位置居中
-		content = new BackgroundJPanel(backGroundImgIcon);// 初始化内容面板，设置背景
-		frame.setContentPane(content);
+		frame.setBackground(new Color(0, 0, 0, 0));// 设置背景颜色为透明
+		
+		// 初始化边框、背景
+		backGroundImgIcon = new ImageIcon(getClass().getResource("/Images/source/img_0.png"));
+		borderBackgroundJPanel = new BackgroundJPanel(backGroundImgIcon, inset);
+		borderBackgroundJPanel.setLayout(new BorderLayout(0, 0));
+		frame.setContentPane(borderBackgroundJPanel);
+		
+		content = new JPanel();
+		content.setOpaque(false);
 		content.setLayout(new BorderLayout(0, 0));
-		content.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+//		content.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+		borderBackgroundJPanel.add(content, BorderLayout.CENTER);
 	}
 
 	/**
@@ -641,8 +652,8 @@ public class Login4 {
 	 * @param backgroundImageIcon
 	 */
 	public void setBackgroundImage(ImageIcon backgroundImageIcon) {
-		content.setBackGroundImg(backgroundImageIcon.getImage());
-		content.repaint();
+		borderBackgroundJPanel.setBackGroundImg(backgroundImageIcon.getImage());
+		borderBackgroundJPanel.repaint();
 	}
 
 	/**
