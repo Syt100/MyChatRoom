@@ -1,6 +1,8 @@
 package mygui.login;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Insets;
@@ -12,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
@@ -34,9 +37,11 @@ import com.alibaba.fastjson.JSONObject;
 
 import mygui.components.GradualChangeTabbedPaneUI;
 import mygui.components.MQFontChooser;
+import mygui.components.RecTabbedPaneUI;
 import mygui.login.setupstorage.LogonServerType;
 import mygui.login.setupstorage.NetworkAgentType;
 import mygui.login.setupstorage.SetUpStorage;
+import mygui.login.setupstorage.TabbedPaneStyle;
 
 /**
  * 设置面板。在登录界面中显示。事件处理都在本类进行
@@ -129,8 +134,6 @@ public class Setting extends JPanel {
 		// 选项卡面板
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.setFont(font);
-		// new GradualChangeTabbedPaneUI("#FFFFFF", "#000000")
-		tabbedPane.setUI(new GradualChangeTabbedPaneUI("#FFFFFF", "#000000"));
 		add(tabbedPane);
 
 		// 背景设置面板
@@ -183,8 +186,9 @@ public class Setting extends JPanel {
 		panel_socket.add(lbl_NetworkAgent);
 
 		JLabel lbl_NetworkType = new JLabel("类型:");
+		lbl_NetworkType.setHorizontalAlignment(SwingConstants.RIGHT);
 		lbl_NetworkType.setFont(font);
-		lbl_NetworkType.setBounds(15, 33, 27, 23);
+		lbl_NetworkType.setBounds(0, 33, 48, 23);
 		panel_socket.add(lbl_NetworkType);
 
 		comboBox_NetworkType = new JComboBox<>();
@@ -197,8 +201,9 @@ public class Setting extends JPanel {
 		panel_socket.add(comboBox_NetworkType);
 
 		JLabel lbl_NetworkAddress = new JLabel("地址:");
+		lbl_NetworkAddress.setHorizontalAlignment(SwingConstants.RIGHT);
 		lbl_NetworkAddress.setFont(font);
-		lbl_NetworkAddress.setBounds(193, 33, 29, 23);
+		lbl_NetworkAddress.setBounds(186, 33, 36, 23);
 		panel_socket.add(lbl_NetworkAddress);
 
 		textField_NetworkAddress = new JTextField();
@@ -207,8 +212,9 @@ public class Setting extends JPanel {
 		textField_NetworkAddress.setColumns(10);
 
 		JLabel lbl_NetworkPort = new JLabel("端口:");
+		lbl_NetworkPort.setHorizontalAlignment(SwingConstants.RIGHT);
 		lbl_NetworkPort.setFont(font);
-		lbl_NetworkPort.setBounds(325, 33, 29, 23);
+		lbl_NetworkPort.setBounds(318, 33, 36, 23);
 		panel_socket.add(lbl_NetworkPort);
 
 		textField_NetworkPort = new JTextField();
@@ -219,7 +225,7 @@ public class Setting extends JPanel {
 		JLabel lbl_NetworkUserName = new JLabel("用户名:");
 		lbl_NetworkUserName.setHorizontalAlignment(SwingConstants.RIGHT);
 		lbl_NetworkUserName.setFont(font);
-		lbl_NetworkUserName.setBounds(0, 66, 42, 23);
+		lbl_NetworkUserName.setBounds(0, 66, 48, 23);
 		panel_socket.add(lbl_NetworkUserName);
 
 		textField_NetworkUserName = new JTextField();
@@ -227,8 +233,9 @@ public class Setting extends JPanel {
 		panel_socket.add(textField_NetworkUserName);
 
 		JLabel label_NetworkPassword = new JLabel("密码:");
+		label_NetworkPassword.setHorizontalAlignment(SwingConstants.RIGHT);
 		label_NetworkPassword.setFont(font);
-		label_NetworkPassword.setBounds(193, 66, 29, 23);
+		label_NetworkPassword.setBounds(186, 66, 36, 23);
 		panel_socket.add(label_NetworkPassword);
 
 		textField_NetworkPassword = new JTextField();
@@ -237,8 +244,9 @@ public class Setting extends JPanel {
 		panel_socket.add(textField_NetworkPassword);
 
 		JLabel lbl_NetworkField = new JLabel("域:");
+		lbl_NetworkField.setHorizontalAlignment(SwingConstants.RIGHT);
 		lbl_NetworkField.setFont(font);
-		lbl_NetworkField.setBounds(325, 66, 29, 23);
+		lbl_NetworkField.setBounds(318, 66, 36, 23);
 		panel_socket.add(lbl_NetworkField);
 
 		textField_NetworkField = new JTextField();
@@ -255,8 +263,9 @@ public class Setting extends JPanel {
 		panel_socket.add(lbl_logonServer);
 
 		JLabel lbl_loginType = new JLabel("类型:");
+		lbl_loginType.setHorizontalAlignment(SwingConstants.RIGHT);
 		lbl_loginType.setFont(font);
-		lbl_loginType.setBounds(15, 140, 27, 23);
+		lbl_loginType.setBounds(0, 140, 42, 23);
 		panel_socket.add(lbl_loginType);
 
 		comboBox_loginType = new JComboBox<String>();
@@ -268,8 +277,9 @@ public class Setting extends JPanel {
 		panel_socket.add(comboBox_loginType);
 
 		JLabel lbl_loginAddress = new JLabel("地址:");
+		lbl_loginAddress.setHorizontalAlignment(SwingConstants.RIGHT);
 		lbl_loginAddress.setFont(font);
-		lbl_loginAddress.setBounds(193, 140, 29, 23);
+		lbl_loginAddress.setBounds(186, 140, 36, 23);
 		panel_socket.add(lbl_loginAddress);
 
 		textField_loginAddress = new JTextField();
@@ -278,8 +288,9 @@ public class Setting extends JPanel {
 		panel_socket.add(textField_loginAddress);
 
 		JLabel lbl_loginPort = new JLabel("端口:");
+		lbl_loginPort.setHorizontalAlignment(SwingConstants.RIGHT);
 		lbl_loginPort.setFont(font);
-		lbl_loginPort.setBounds(325, 140, 29, 23);
+		lbl_loginPort.setBounds(318, 140, 36, 23);
 		panel_socket.add(lbl_loginPort);
 
 		textField_loginPort = new JTextField();
@@ -302,9 +313,9 @@ public class Setting extends JPanel {
 		panel_other.setLayout(null);
 
 		// 设置界面样式
-		JLabel lbl_other_style = new JLabel("设置界面样式");
+		JLabel lbl_other_style = new JLabel("设置界面样式(重启后生效)");
 		lbl_other_style.setFont(font);
-		lbl_other_style.setBounds(10, 10, 86, 15);
+		lbl_other_style.setBounds(10, 10, 184, 15);
 		panel_other.add(lbl_other_style);
 
 		rdbtn_sty1 = new JRadioButton("样式一");
@@ -327,7 +338,7 @@ public class Setting extends JPanel {
 		// 字体设置
 		JLabel lbl_other_font = new JLabel("界面字体");
 		lbl_other_font.setFont(font);
-		lbl_other_font.setBounds(10, 60, 86, 15);
+		lbl_other_font.setBounds(10, 60, 155, 15);
 		panel_other.add(lbl_other_font);
 		
 		btn_other_chooseFont = new JButton("选择");
@@ -477,29 +488,40 @@ public class Setting extends JPanel {
 			if (e.getSource() == btn_other_chooseFont) {// 点击选择字体按钮
 				MQFontChooser fonChooser = new MQFontChooser(font);
 				fonChooser.showFontDialog(null);
-				font = fonChooser.getSelectFont();
-				System.out.println(font.getFontName());
-				lbl_other_fontFamily.setText(font.getFamily() + " " + font.getStyle() + " " + font.getSize());
-//				setAllFont(font);
+				if (font != fonChooser.getSelectFont()) {// 如果选择字体改变了
+					font = fonChooser.getSelectFont();
+					setAllFont();
+				}
 			}
 		}
 	}
 	
-//	private void setAllFont(Font fo) {
-//		Component[] com = this.getComponents();
-//		System.out.println(getClass() + "组件数量" + com);
-//		for (Component component : com) {
-//			if (component instanceof Container) {
-//				
-//			}
-//		}
-//	}
-//	
-//	private void findAllComponents(Component c) {
-//		if (c instanceof Container) {
-//			
-//		}
-//	}
+	/**
+	 * 设置全局字体
+	 */
+	private void setAllFont() {
+		lbl_other_fontFamily.setText(font.getFamily() + " " + font.getStyle() + " " + font.getSize());
+		findAllComponents(this);
+	}
+	
+	/**
+	 * 递归查找所有子组件，设置字体
+	 * 
+	 * @param c 组件
+	 */
+	private void findAllComponents(Component c) {
+		if (c instanceof Container) {
+			Component[] cs = ((Container) c).getComponents();
+			for (int i = 0; i < cs.length; i++) {
+				Component component = cs[i];
+				component.setFont(font);
+				findAllComponents(component);
+			}
+		} else {
+			c.setFont(font);
+			return;
+		}
+	}
 
 	/**
 	 * 批量改变网络代理区域输入框启用状态
@@ -508,7 +530,6 @@ public class Setting extends JPanel {
 	 */
 	private void setNetworkAgentEnable(boolean f) {
 		textField_NetworkAddress.setEnabled(f);
-		;
 		textField_NetworkPort.setEnabled(f);
 		textField_NetworkUserName.setEnabled(f);
 		textField_NetworkPassword.setEnabled(f);
@@ -571,6 +592,10 @@ public class Setting extends JPanel {
 			set.networkAgentPassword = textField_NetworkPassword.getText();
 			set.networkAgentField = textField_NetworkField.getText();
 		}
+		
+		set.tabbedPaneStyle = rdbtn_sty1.isSelected()?TabbedPaneStyle.style1:TabbedPaneStyle.style2;
+		set.font = font;
+		
 		set.writeToFile();// 保存设置到文件
 		String s = JSONObject.toJSONString(set);
 		System.out.println(getClass() + s);
@@ -630,6 +655,18 @@ public class Setting extends JPanel {
 			textField_loginAddress.setText(set.loginAddress);
 			textField_loginPort.setText(set.loginPort + "");
 		}
+		
+		if (set.tabbedPaneStyle == TabbedPaneStyle.style1){
+			rdbtn_sty1.setSelected(true);
+			tabbedPane.setUI(new GradualChangeTabbedPaneUI("#FFFFFF", "#000000"));
+		} else {
+			rdbtn_sty2.setSelected(true);
+			tabbedPane.setUI(new RecTabbedPaneUI());
+		}
+		
+		font = set.font;
+		setAllFont();
+		
 		System.out.println(getClass() + "设置加载完毕");
 	}
 }

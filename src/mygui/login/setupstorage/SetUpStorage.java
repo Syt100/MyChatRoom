@@ -1,5 +1,6 @@
 package mygui.login.setupstorage;
 
+import java.awt.Font;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -39,6 +40,11 @@ public class SetUpStorage {
 	public String loginAddress;
 	/** 登录界面登录服务器端口 */
 	public int loginPort;
+	
+	/** 设置界面TabbedPaneUI样式 */
+	public TabbedPaneStyle tabbedPaneStyle = TabbedPaneStyle.style1;
+	/** 全局字体 */
+	public Font font = new Font("微软雅黑", Font.PLAIN, 12);
 	
 	private static SetUpStorage setStorage;
 	
@@ -111,9 +117,11 @@ public class SetUpStorage {
 		String read = null;
 		String jsonString = "";
 		while ((read = bfi.readLine())!=null) {
-			jsonString = jsonString + read;
+			read += "\n";
+			jsonString += read;
 		}
 		bfi.close();
+		fi.close();
 		setStorage = JSON.parseObject(jsonString, SetUpStorage.class);
 	}
 
@@ -123,6 +131,8 @@ public class SetUpStorage {
 				+ ", networkAgentAddress=" + networkAgentAddress + ", networkAgentPort=" + networkAgentPort
 				+ ", networkAgentUserName=" + networkAgentUserName + ", networkAgentPassword=" + networkAgentPassword
 				+ ", networkAgentField=" + networkAgentField + ", logonServerType=" + logonServerType
-				+ ", loginAddress=" + loginAddress + ", loginPort=" + loginPort + "]";
+				+ ", loginAddress=" + loginAddress + ", loginPort=" + loginPort + ", tabbedPaneStyle=" + tabbedPaneStyle
+				+ ", font=" + font + "]";
 	}
+	
 }
