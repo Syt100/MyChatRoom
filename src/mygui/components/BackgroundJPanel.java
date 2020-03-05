@@ -64,7 +64,6 @@ public class BackgroundJPanel extends JPanel {
 		insets = new Insets(0, 0, 0, 0);
 		inset = -1;// 默认不绘制阴影
 		this.setBackground(new Color(0, 0, 0, 0));
-		// this.setBorder(new EmptyBorder(insets));
 	}
 
 	/**
@@ -117,6 +116,7 @@ public class BackgroundJPanel extends JPanel {
 	 * @param insets
 	 */
 	public BackgroundJPanel(ImageIcon backGroundImg, Insets insets) {
+		super();
 		this.backGroundImg = backGroundImg.getImage();
 		if (insets.left < 0 || insets.top < 0 || insets.right < 0 || insets.bottom < 0) {
 			throw new NullPointerException("边距不能小于0");
@@ -159,6 +159,9 @@ public class BackgroundJPanel extends JPanel {
 	 */
 	public void setBackGroundImg(Image backGroundImg) {
 		this.backGroundImg = backGroundImg;
+		// 设置背景后自动重绘，重绘区域为图像区域，不重绘边框，会导致边框重叠
+		this.repaint(insets.left, insets.top, getWidth() - insets.right - insets.left,
+				getHeight() - insets.bottom - insets.top);
 	}
 
 	@Override
@@ -179,9 +182,9 @@ public class BackgroundJPanel extends JPanel {
 		// 绘制背景图像
 		if (backGroundImg != null) {
 			g2d.drawImage(backGroundImg, insets.left, insets.top, getWidth() - insets.right - insets.left,
-					getHeight() - insets.bottom - insets.top, null);
+					getHeight() - insets.bottom - insets.top, this);
 		}
-		if (inset < 0) {// 若没有设置insets，则不绘制阴影
+		if (inset <= 0) {// 若没有设置insets，则不绘制阴影
 			return;
 		}
 		// 开始绘制阴影

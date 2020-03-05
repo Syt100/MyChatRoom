@@ -784,7 +784,6 @@ public class Login4 {
 	 */
 	public void setBackgroundImage(ImageIcon backgroundImageIcon) {
 		borderBackgroundJPanel.setBackGroundImg(backgroundImageIcon.getImage());
-		borderBackgroundJPanel.repaint();
 	}
 
 	/**
