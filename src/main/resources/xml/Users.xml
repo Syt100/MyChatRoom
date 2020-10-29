@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<users> 
+  <user state="normal"> 
+    <id>8899</id>  
+    <name>嘿嘿</name>  
+    <password>111</password>  
+    <friends>1234,2009</friends> 
+  </user>  
+  <user state="normal"> 
+    <id>1234</id>  
+    <name>时跃天</name>  
+    <password>111</password>  
+    <friends>8899,2009</friends> 
+  </user>  
+  <user state="normal">
+    <id>2009</id>
+    <name>木木夕</name>
+    <password>111</password>
+    <friends>8899,1234</friends>
+  </user>
+</users>

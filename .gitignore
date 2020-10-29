@@ -1,5 +1,5 @@
 /bin/
-/rec/Images/verificationcode/验证码.jpg
+/src/main/resources/Images/verificationcode/验证码.jpg
 /src/test/bookexample/
-/data/
+/src/main/resources/data/
 /target/

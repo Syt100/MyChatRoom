@@ -92,10 +92,10 @@ public class SetUpStorage {
 	public void writeToFile() {
 		String set = JSONObject.toJSONString(setStorage);
 		//System.out.println(getClass()+set);
-		File file = new File("./data/setting.txt");
-		
+		File file = new File(SetUpStorage.class.getResource("/data/setting.txt").getFile());
+
 		try {
-			if(!file.exists()) {
+			if (!file.exists()) {
 				file.getParentFile().mkdir();
 			}
 			FileWriter fo = new FileWriter(file);
@@ -116,17 +116,17 @@ public class SetUpStorage {
 	 * @throws Exception
 	 */
 	public static void loadSetting() throws IOException,Exception {
-		File file = new File("./data/setting.txt");
-		if(!file.exists()) {
+		File file = new File(SetUpStorage.class.getResource("/data/setting.txt").getFile());
+		if (!file.exists()) {
 			//file.getParentFile().mkdir();
 			throw new Exception("加载设置失败！找不到设置文件");
 		}
-		
+
 		FileReader fi = new FileReader(file);
 		BufferedReader bfi = new BufferedReader(fi);
 		String read = null;
 		String jsonString = "";
-		while ((read = bfi.readLine())!=null) {
+		while ((read = bfi.readLine()) != null) {
 			read += "\n";
 			jsonString += read;
 		}

@@ -613,14 +613,14 @@ public class Login4 {
 			@Override
 			public void run() {
 				try {
-					File file = new File("./data/password.dat");
+					File file = new File(getClass().getResource("/data/password.dat").getFile());
 					if (!file.exists()) {
 						file.getParentFile().mkdir();
 					}
 					FileWriter fo = new FileWriter(file);
 					String id = comboBox_zhanghao.getEditor().getItem().toString().trim();// 获取输入的账号
 					String password = String.valueOf(passwordField_mima.getPassword());// 获取输入的密码
-					
+
 					fo.write(id + "\n");
 					fo.write(password);
 					fo.flush();
@@ -642,11 +642,11 @@ public class Login4 {
 			@Override
 			public void run() {
 				try {
-					File file = new File("./data/password.dat");
+					File file = new File(getClass().getResource("/data/password.dat").getFile());
 					if (!file.exists()) {
 						return;
 					}
-					
+
 					FileReader fi = new FileReader(file);
 					BufferedReader bfi = new BufferedReader(fi);
 					comboBox_zhanghao.setSelectedItem(bfi.readLine());
