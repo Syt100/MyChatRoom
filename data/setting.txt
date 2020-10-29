@@ -1,1 +1,0 @@
-{"autoLogin":false,"font":{"name":"微软雅黑","style":0,"size":12},"loginPort":0,"logonServerType":"Default","networkAgentPort":0,"networkAgentType":"None","remmberPassword":true,"tabbedPaneStyle":"style1"}
