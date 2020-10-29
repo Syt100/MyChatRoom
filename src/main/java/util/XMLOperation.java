@@ -14,11 +14,11 @@ import java.util.Iterator;
 
 /**
  * XML文件的相关操作
- * @author xuxin
  *
+ * @author xuxin
  */
 public class XMLOperation {
-	String soucePath = "./rec/xml/Users.xml";
+	String soucePath = getClass().getResource("/xml/Users.xml").getPath();
 
 	public static void main(String[] arg0) {
 		XMLOperation xml = new XMLOperation();
