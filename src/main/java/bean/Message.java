@@ -231,4 +231,21 @@ public class Message {
 	public void setList(ArrayList<String> list) {
 		this.list = list;
 	}
+
+	@Override
+	public String toString() {
+		return "Message{" +
+				"type='" + type + '\'' +
+				", status=" + status +
+				", targetUser=" + targetUser +
+				", targetId='" + targetId + '\'' +
+				", targetName='" + targetName + '\'' +
+				", selfUser=" + selfUser +
+				", selfId='" + selfId + '\'' +
+				", selfName='" + selfName + '\'' +
+				", text='" + text + '\'' +
+				", operation='" + operation + '\'' +
+				", list=" + list +
+				'}';
+	}
 }

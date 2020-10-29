@@ -4,19 +4,19 @@ import util.XMLOperation;
 
 /**
  * @author xuxin
- *
  */
 public class Users {
 	private String id;
 	private String name;
+	private String signature;
 	private String password;
 	private String friends;
-	
+
 	/**
 	 * 默认的无参构造方法
 	 */
 	public Users() {
-		
+
 	}
 
 	/**
@@ -97,21 +97,29 @@ public class Users {
 		this.password = password;
 	}
 
+	public String getSignature() {
+		return signature;
+	}
+
+	public void setSignature(String signature) {
+		this.signature = signature;
+	}
+
 	public boolean isAccountExitById(Users users) {
 		XMLOperation xml = new XMLOperation();
 		boolean flag = xml.isElementIdExit(users.getId());
 		return flag;
 	}
-	
+
 	public String getPassWordById(String id) {
 		XMLOperation xml = new XMLOperation();
-		if(!xml.isElementIdExit(id)) {
+		if (!xml.isElementIdExit(id)) {
 			return null;
 		}
 		Users user = xml.getUsersById(id);
 		return user.getPassword();
 	}
-	
+
 	@Override
 	public String toString() {
 		return "id= " + id + ",name= " + name + ",password= " + password + ",friends= " + friends;

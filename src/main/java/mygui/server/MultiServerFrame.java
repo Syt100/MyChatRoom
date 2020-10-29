@@ -4,6 +4,7 @@ import bean.Message;
 import bean.Users;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import dao.UserDao;
 import exception.AccountInputException;
 import util.ConstantStatus;
 import util.XMLOperation;
@@ -46,13 +47,17 @@ public class MultiServerFrame {
 	private static JButton btn_close;
 	private static JTextField textField_count;
 	private static JList<String> list;
-	private static DefaultListModel<String> dlm = new DefaultListModel<String>();
+	private static final DefaultListModel<String> dlm = new DefaultListModel<>();
 	protected static int clientNumber = 0;
 
-	/** 存放客户端的线程组 */
+	/**
+	 * 存放客户端的线程组
+	 */
 	private static ThreadGroup threadGroup = new ThreadGroup("客户端线程组");
 
-	/** 存放客户端的线程数组 */
+	/**
+	 * 存放客户端的线程数组
+	 */
 	private static MultiTalkServerThread[] serverThreads = new MultiTalkServerThread[100];
 
 	private static int currentSendNumber = 0;
@@ -186,40 +191,6 @@ public class MultiServerFrame {
 	}
 
 	/**
-	 * 单客户端的方法。已弃用
-	 * 
-	 * @param clientSocket
-	 */
-	@SuppressWarnings("unused")
-	private static void connetToClient(Socket clientSocket) {
-		// addClientShowToList();
-		try {
-			// 由Socket对象得到输出流，并构造相应的PrintWriter对象
-			PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-			// 由Socket对象得到输入流，并构造相应的BufferedReader对象
-			BufferedReader clientIn = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-			while (true) {// 循环从客户端读入数据
-				if (localBye == true && clientBye == true) {
-					break;
-				}
-				if (clientBye == false) {// 如果客户端没有说拜拜
-					showMsgFromClient(clientIn);
-				}
-			}
-			out.close();
-			clientIn.close();
-			clientSocket.close();
-		} catch (IOException e) {
-			// TODO 自动生成的 catch 块
-			e.printStackTrace();
-			System.out.println("客户端断开了连接");
-			clientNumber--;
-			flushClientCountShow();
-		}
-	}
-
-	/**
 	 * 刷新界面上客户端数量文本框的显示
 	 */
 	public static void flushClientCountShow() {
@@ -227,19 +198,9 @@ public class MultiServerFrame {
 	}
 
 	/**
-	 * 从客户端的流中读取字符串，并显示在服务端的TextArea里
-	 * 
-	 * @param clientIn 客户端输入流
-	 * @throws IOException
-	 */
-	public static void showMsgFromClient(BufferedReader clientIn) throws IOException {
-		textArea_showMessage.append("从客户端接收：" + clientIn.readLine() + "\n");
-	}
-
-	/**
 	 * 传入字符串，显示在服务端的TextArea里
-	 * 
-	 * @param message
+	 *
+	 * @param message Message对象
 	 */
 	public static void showMsgFromClient(String message) {
 		textArea_showMessage.append("从客户端接收：" + message + "\n");
@@ -363,8 +324,8 @@ public class MultiServerFrame {
 
 	/**
 	 * 将消息发送到所有被选中的客户端的流里，由本类调用
-	 * 
-	 * @param msg 要发送的消息
+	 *
+	 * @param message 要发送的消息
 	 */
 	private static void sendMessageToClient(String message) {
 		Message msg;
@@ -384,8 +345,8 @@ public class MultiServerFrame {
 
 	/**
 	 * 服务端向客户端发消息
-	 * 
-	 * @param message
+	 *
+	 * @param message 要发送的消息
 	 */
 	protected static void sendMessageToClient(Message message) {
 		PrintWriter out;
@@ -522,7 +483,7 @@ class MultiTalkServerThread extends Thread {
 							}
 							// 给客户端发消息
 							if (jsonObject.getString("targetName") != null) {
-								String name[] = { jsonObject.getString("targetName") };
+								String[] name = {jsonObject.getString("targetName")};
 								MultiServerFrame.updateReadyToSendClient(name);
 								msg.setSelfName(this.name);
 								msg.setTargetName(name[0]);
@@ -586,43 +547,42 @@ class MultiTalkServerThread extends Thread {
 
 	/**
 	 * 处理登录请求
-	 * 
-	 * @param JSONObject jo
+	 *
+	 * @param jo jo
 	 */
 	private void processLogin(JSONObject jo) {
-		// 从JSON字符串中获取用户
-		Users user = jo.getObject("selfUser", Users.class);
+		// 从JSON字符串中获取用户信息
+		String userId = jo.getString("selfId");
+		String userPassword = jo.getString("text");
 		if (isAddToList == false) {// 如果是客户端第一次连接，就设置线程名，不需要修改
-			name = user.getId();
+			name = userId;
 			this.setName(name);
 		} else {// 客户端不是第一次连接，因为用户的ID可能会改变，因此要修改线程名，与当前登录的客户端同步，不然导致服务端显示的列表信息删不掉
-			MultiServerFrame.updateClientShowName(name, user.getId());
-			name = user.getId();// 更新线程名
+			MultiServerFrame.updateClientShowName(name, userId);
+			name = userId;// 更新线程名
 			this.setName(name);
 		}
-		String id = user.getId();
-		try {
-			checkLogin(user);
-			Users u = getUsersInformationById(id);
-			Message mg = new Message();
-			mg.setSelfUser(u);
+
+		UserDao userDao = new UserDao();
+		Users user = userDao.login(userId, userPassword);
+		System.out.println(user);
+		Message mg = new Message();
+		if (user != null) {// 登录成功
+			mg.setSelfUser(user);
 			mg.setType("login");
 			mg.setOperation("success");// 登陆成功
-			out.println(JSON.toJSONString(mg));
-			out.flush();
-		} catch (AccountInputException e) {// 登陆失败，密码错误等
-			Message mg = new Message();
+		} else {// 登陆失败，密码错误等
 			mg.setType("login");
-			mg.setOperation(e.getMessage());
-			out.println(JSON.toJSONString(mg));
-			out.flush();
+			mg.setOperation("用户不存在或密码错误");
 		}
+		out.println(JSON.toJSONString(mg));
+		out.flush();
 	}
 
 	/**
 	 * 处理注册请求
-	 * 
-	 * @param received
+	 *
+	 * @param jo
 	 */
 	private void processRegister(JSONObject jo) {
 		// 特殊字符作为分隔符时需要使用\\进行转义(比如使用\\作为分隔符的话，则转义为\\\\)
