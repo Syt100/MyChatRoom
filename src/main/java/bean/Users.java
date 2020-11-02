@@ -122,6 +122,12 @@ public class Users {
 
 	@Override
 	public String toString() {
-		return "id= " + id + ",name= " + name + ",password= " + password + ",friends= " + friends;
+		return "Users{" +
+				"id='" + id + '\'' +
+				", name='" + name + '\'' +
+				", signature='" + signature + '\'' +
+				", password='" + password + '\'' +
+				", friends='" + friends + '\'' +
+				'}';
 	}
 }

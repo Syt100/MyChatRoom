@@ -16,7 +16,7 @@ public class UserDao extends BaseDao {
      * @return Users
      */
     public Users login(String id, String pass) {
-        String sql = "select * from user_info u where u.id = " +
+        String sql = "select * from user_info u where u.user_id = " +
                 Integer.valueOf(id) + " and u.user_password = '" + pass + "'";
         ResultSet result = select(sql);
         return assembleUser(result);
@@ -37,7 +37,8 @@ public class UserDao extends BaseDao {
             message.setText("注册失败，用户已存在。");
             return message;
         }
-        String sql = "insert into user_info values(" + user.getId() + ",'" + user.getName() + "','" + pass + "'";
+        String sql = "insert into user_info(user_id,user_name,user_password,user_signature) values("
+                + user.getId() + ",'" + user.getName() + "','" + pass + "'";
         if (user.getSignature() == null || "".equals(user.getSignature())) {
             sql += ",null";
         } else {
@@ -64,7 +65,7 @@ public class UserDao extends BaseDao {
      * @return Users
      */
     public Users getUserById(String id) {
-        String sql = "select * from user_info where id=" + id;
+        String sql = "select * from user_info where user_id=" + id;
         ResultSet resultSet = select(sql);
         return assembleUser(resultSet);
     }
@@ -91,7 +92,7 @@ public class UserDao extends BaseDao {
     private Users assembleUser(ResultSet result) {
         try {
             if (null != result && result.next()) {
-                String id = String.valueOf(result.getInt("id"));
+                String id = String.valueOf(result.getInt("user_id"));
                 String userName = result.getString("user_name");
                 String signature = result.getString("user_signature");
                 Users user = new Users();

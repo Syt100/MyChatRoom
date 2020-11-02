@@ -12,7 +12,7 @@ public class UserDaoTest {
     public void login() {
         String result = userDao.login("1234", "1234qwer").toString();
         System.out.println(result);
-        assertEquals("loginTest", "id= 1234,name= 哈哈,password= null,friends= null", result);
+        assertEquals("loginTest", "Users{id='1234', name='哈哈', signature='我是哈哈', password='null', friends='null'}", result);
     }
 
     @Test
