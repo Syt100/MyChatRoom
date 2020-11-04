@@ -14,7 +14,17 @@ public class CategoryDaoTest {
     }
 
     @Test
+    public void deleteCategory() {
+        System.out.println(dao.deleteCategory("2"));
+    }
+
+    @Test
     public void getCategoryByUserId() {
         System.out.println(dao.getCategoryByUserId("1234"));
+    }
+
+    @Test
+    public void getCategoryMembers() {
+        System.out.println(dao.getCategoryMembers("2"));
     }
 }
