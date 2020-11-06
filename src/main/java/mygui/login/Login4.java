@@ -1,5 +1,6 @@
 package mygui.login;
 
+import bean.Message;
 import bean.Users;
 import exception.AccountInputException;
 import mygui.components.BackgroundJPanel;
@@ -717,26 +718,30 @@ public class Login4 {
 		setTop(panel_operation);// 将输入密码等操作面板置顶
 		panel_header.setVisible(true);// 将头像面板设为可见
 	}
-	
+
 	/**
-	 * 从界面输入构造一个Users对象
-	 * @return users
-	 * @throws AccountInputException 
+	 * 从界面输入构造一个包含用户id和密码的Message对象，发往服务端验证
+	 *
+	 * @return Message message
+	 * @throws AccountInputException 账户异常
 	 */
-	protected Users getUserFromInput() throws AccountInputException {
+	protected Message getUserFromInput() throws AccountInputException {
 		String id = comboBox_zhanghao.getEditor().getItem().toString().trim();// 获取输入的账号
 		char[] password0 = passwordField_mima.getPassword();// 获取输入的密码（char)格式
 		/* 获取组合框输入的文本； JComboBox有一个getEditor()方法，getEditor()方法返回ComboBoxEditor,
 		 * ComboBoxEditor里getItem()
 		 */
 		String password = String.valueOf(password0);
-		if(id.length() == 0 || password.length() == 0) {
+		if (id.length() == 0 || password.length() == 0) {
 			throw new AccountInputException(ConstantStatus.LOGIN_STATUS_EMPTY_INPUT);
 		}
-		Users user = new Users(id, password);
-		return user;
+		Message message = new Message();
+//		message.setType("login");
+		message.setSelfId(id);// id
+		message.setText(password);// 消息内容代表密码
+		return message;
 	}
-	
+
 	/**
 	 * 登录事件
 	 */

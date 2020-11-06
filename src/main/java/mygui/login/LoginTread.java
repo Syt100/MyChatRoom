@@ -156,17 +156,14 @@ public class LoginTread extends Thread {
 		if (socket == null) {
 			return;
 		}
-
-		Users user = null;
+		Message msg;
 		try {
-			user = login.getUserFromInput();
+			msg = login.getUserFromInput();
 		} catch (AccountInputException e) {
 			login.showTipsByTimer(e.getMessage());// 账号或密码为空
 			return;
 		}
-		Message msg = new Message();
 		msg.setType("login");
-		msg.setSelfUser(user);
 		out.println(JSON.toJSONString(msg));
 		out.flush();
 	}
@@ -190,7 +187,6 @@ public class LoginTread extends Thread {
 	
 	/**
 	 * 静态方法，关闭所有的登录线程
-	 * @param f
 	 */
 	protected static void closeLoginTheard() {
 		isClose = true;

@@ -24,7 +24,7 @@ public class DataBaseConnect {
 		try {
 			if (null == connect) {
 				String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
-				String DB_URL = "jdbc:mysql://localhost:3306/MyQQ?useSSL=false&serverTimezone=UTC";
+				String DB_URL = "jdbc:mysql://localhost:3306/MyQQ?useSSL=false&serverTimezone=UTC&characterEncoding=utf8";
 
 				Class.forName(JDBC_DRIVER);
 				connect = DriverManager.getConnection(DB_URL, "root", "123456");
