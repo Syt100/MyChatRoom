@@ -887,11 +887,20 @@ SELECT|sys.sys_config:null
       <Comment>用户签名</Comment>
       <DataType>varchar(255)|0s</DataType>
     </column>
-    <key id="262" parent="241" name="PRIMARY">
+    <index id="262" parent="241" name="user_info_user_id_uindex">
+      <ColNames>user_id</ColNames>
+      <Unique>1</Unique>
+      <Type>btree</Type>
+    </index>
+    <key id="263" parent="241" name="PRIMARY">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>id
 user_id</ColNames>
       <Primary>1</Primary>
+    </key>
+    <key id="264" parent="241" name="user_info_user_id_uindex">
+      <ColNames>user_id</ColNames>
+      <UnderlyingIndexName>user_info_user_id_uindex</UnderlyingIndexName>
     </key>
   </database-model>
 </dataSource>
