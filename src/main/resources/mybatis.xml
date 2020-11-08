@@ -8,6 +8,19 @@
         <!-- 配置mybatis在控制台输出日志信息 -->
         <setting name="logImpl" value="STDOUT_LOGGING"/>
     </settings>
+
+    <!-- 定义别名 -->
+    <typeAliases>
+        <!-- 方法1 -->
+        <!-- <typeAlias>可以指定一个类型一个自定义别名
+              type 自定义类型的全限定名称
+              alias 别名（短小，容易记忆）-->
+        <typeAlias type="dao.UserInfoDao" alias="UserInfo"/>
+        <!-- 方法2 -->
+        <!-- <package> name是包名，这个包中的所有类，类名即别名（类名不区分大小写） -->
+        <package name="dao"/>
+    </typeAliases>
+
     <!--环境配置：数据库的连接信息
         default：必须和某个environment的id值一样，告诉mybatis使用哪个数据库的连接信息
         也就是使用哪个数据库，便于切换数据库-->

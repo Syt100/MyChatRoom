@@ -1,10 +1,12 @@
 package domain;
 
+import dao.UserInfoDao;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.junit.Test;
+import util.MybatisUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +28,7 @@ public class UserInfoTest {
         // 5. 【重要】获取SqlSession对象，从SqlSessionFactory中获取SqlSession
         SqlSession sqlSession = factory.openSession();
         // 6. 【重要】指定要执行的SQL语句的标识。SQL映射文件中的namespace+"."+标签的id值
-        String sqlId = "dao.UserInfoDao" + "." + "selectUserInfo";
+        String sqlId = "dao.UserInfoDao" + "." + "selectAllUserInfo";
         // 7. 执行SQL语句，通过sqlId找到语句
         List<UserInfo> userInfoList = sqlSession.selectList(sqlId);
         // 8. 输出结果
@@ -63,6 +65,38 @@ public class UserInfoTest {
         // 8. 输出结果
         System.out.println("执行insert结果" + nums);
         // 9. 关闭SqlSession
+        sqlSession.close();
+    }
+
+    @Test
+    public void testMybatis01() {
+        // 测试封装MybatisUtils工具类
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+        String sqlId = "dao.UserInfoDao.selectAllUserInfo";
+        List<UserInfo> userInfoList = sqlSession.selectList(sqlId);
+        userInfoList.forEach(System.out::println);
+        // 关闭SqlSession
+        sqlSession.close();
+    }
+
+    @Test
+    public void testMybatis02() {
+        // 测试Mybatis使用动态代理获取Dao
+        // 使用Mybatis的动态代理方式，使用SQLSession.getMapper(dao接口)能够获取dao接口对应的实现类对象
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+        UserInfoDao dao = sqlSession.getMapper(UserInfoDao.class);
+        dao.selectAllUserInfo().forEach(System.out::println);
+        System.out.println(dao.selectUserInfoByUserId(1234));
+        System.out.println(dao.selectUserInfoByUserIdPassword(
+                1234, "1234qwer"
+        ));
+//        UserInfo userInfo = new UserInfo();
+//        userInfo.setUser_id(1238);
+//        userInfo.setUser_name("测试1238");
+//        userInfo.setUser_password("1234qw8");
+//        userInfo.setUser_signature("我是测试1238");
+//        dao.insertUserInfo(userInfo);
+//        sqlSession.commit();
         sqlSession.close();
     }
 }

@@ -1,6 +1,7 @@
 package dao;
 
 import domain.UserInfo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -13,7 +14,25 @@ public interface UserInfoDao {
      *
      * @return UserInfo 集合，每行一个UserInfo对象
      */
-    List<UserInfo> selectUserInfo();
+    List<UserInfo> selectAllUserInfo();
+
+    /**
+     * 根据Id查询UserInfo表中的UserInfo
+     *
+     * @param id 用户id
+     * @return 一个UserInfo对象
+     */
+    UserInfo selectUserInfoByUserId(Integer id);
+
+    /**
+     * 通过用户id和密码查找用户
+     *
+     * @param id       用户id
+     * @param password 用户密码
+     * @return 一个UserInfo对象
+     */
+    UserInfo selectUserInfoByUserIdPassword(@Param("userId") Integer id,
+                                            @Param("userPass") String password);
 
     /**
      * 插入数据

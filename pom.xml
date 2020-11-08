@@ -69,6 +69,13 @@
             <artifactId>mybatis</artifactId>
             <version>3.5.6</version>
         </dependency>
+        <!-- 按照官网解决Mybatis的依赖slf4j启动报错
+            SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".-->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.30</version>
+        </dependency>
     </dependencies>
 
     <build>
