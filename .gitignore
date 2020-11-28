@@ -3,3 +3,5 @@
 /src/test/bookexample/
 /src/main/resources/data/
 /target/
+/.settings/
+/.idea/
