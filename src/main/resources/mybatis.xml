@@ -53,6 +53,7 @@
         <!-- 一个mapper标签指定一个文件的位置
         从类路径开始的路径信息。target/classes/-->
         <mapper resource="dao/UserInfoDao.xml"/>
+        <mapper resource="dao/CategoryInfoDao.xml"/>
     </mappers>
 </configuration>
         <!--mybatis的主配置文件：主要定义了数据库的配置信息，SQL映射文件的位置
