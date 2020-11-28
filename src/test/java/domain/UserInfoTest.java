@@ -99,4 +99,21 @@ public class UserInfoTest {
 //        sqlSession.commit();
         sqlSession.close();
     }
+
+    @Test
+    public void testDeleteUserInfo() {
+        // 测试插入和删除
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+        UserInfoDao dao = sqlSession.getMapper(UserInfoDao.class);
+
+        UserInfo userInfo = new UserInfo();
+        userInfo.setUser_id(1238);
+        userInfo.setUser_name("测试1238");
+        userInfo.setUser_password("1234qw8");
+        userInfo.setUser_signature("我是测试1238");
+        System.out.println(dao.insertUserInfo(userInfo));
+//        System.out.println(dao.deleteUserInfo(1238));
+        sqlSession.commit();
+        sqlSession.close();
+    }
 }

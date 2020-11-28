@@ -35,10 +35,18 @@ public interface UserInfoDao {
                                             @Param("userPass") String password);
 
     /**
-     * 插入数据
+     * 插入用户信息
      *
      * @param userInfo 表示要插入到数据库的数据
      * @return int 表示执行insert操作后的影响数据库的行数
      */
     int insertUserInfo(UserInfo userInfo);
+
+    /**
+     * 删除用户
+     *
+     * @param userId 用户id
+     * @return int 删除的用户数量
+     */
+    int deleteUserInfo(Integer userId);
 }
