@@ -25,6 +25,14 @@ public interface UserInfoDao {
     UserInfo selectUserInfoByUserId(Integer id);
 
     /**
+     * 根据用户名查找用户，可能会有多个用户
+     *
+     * @param name 用户名，直接传入参数即可，不需要预处理为<code>%name%</code>的形式
+     * @return 可能会有多个用户，返回列表
+     */
+    List<UserInfo> selectUserInfoByName(String name);
+
+    /**
      * 通过用户id和密码查找用户
      *
      * @param id       用户id

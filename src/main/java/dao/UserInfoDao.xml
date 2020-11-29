@@ -15,6 +15,12 @@
         where user_id = #{id}
     </select>
 
+    <select id="selectUserInfoByName" resultType="domain.UserInfo">
+        select *
+        from user_info
+        where user_name like concat('%', #{name}, '%')
+    </select>
+
     <!-- 传入多个基本类型，使用@Param命名参数 -->
     <select id="selectUserInfoByUserIdPassword" resultType="domain.UserInfo">
         select *

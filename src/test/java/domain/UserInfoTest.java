@@ -116,4 +116,12 @@ public class UserInfoTest {
         sqlSession.commit();
         sqlSession.close();
     }
+
+    @Test
+    public void testSelectUserInfoByName() {
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+        UserInfoDao dao = sqlSession.getMapper(UserInfoDao.class);
+        dao.selectUserInfoByName("测试").forEach(System.out::println);
+        sqlSession.close();
+    }
 }
