@@ -24,6 +24,11 @@
         <package name="dao"/>
     </typeAliases>
 
+    <!-- 配置插件PageHelper,插件要在environments之前配置 -->
+    <plugins>
+        <plugin interceptor="com.github.pagehelper.PageInterceptor"/>
+    </plugins>
+
     <!--环境配置：数据库的连接信息
         default：必须和某个environment的id值一样，告诉mybatis使用哪个数据库的连接信息
         也就是使用哪个数据库，便于切换数据库-->

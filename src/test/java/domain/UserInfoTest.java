@@ -1,5 +1,6 @@
 package domain;
 
+import com.github.pagehelper.PageHelper;
 import dao.UserInfoDao;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
@@ -122,6 +123,16 @@ public class UserInfoTest {
         SqlSession sqlSession = MybatisUtils.getSqlSession();
         UserInfoDao dao = sqlSession.getMapper(UserInfoDao.class);
         dao.selectUserInfoByName("测试").forEach(System.out::println);
+        sqlSession.close();
+    }
+
+    @Test
+    public void testPageHelper() {
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+        UserInfoDao dao = sqlSession.getMapper(UserInfoDao.class);
+        // 使用PageHelper指定页码与每页数量
+        PageHelper.startPage(2, 2);
+        dao.selectAllUserInfo().forEach(System.out::println);
         sqlSession.close();
     }
 }
