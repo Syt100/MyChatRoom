@@ -1,5 +1,7 @@
 package domain;
 
+import bean.Users;
+
 /**
  * 实体类，对应数据库中的user_info表
  */
@@ -48,6 +50,25 @@ public class UserInfo {
 
     public void setUser_signature(String user_signature) {
         this.user_signature = user_signature;
+    }
+
+    /**
+     * 将Users类转换为UserInfo类
+     *
+     * @param users Users类对象
+     * @return UserInfo类对象
+     */
+    public static UserInfo valueOf(Users users) {
+        if (users != null) {
+            UserInfo userInfo = new UserInfo();
+            userInfo.setUser_id(Integer.valueOf(users.getId()));
+            userInfo.setUser_name(users.getName());
+//            userInfo.setUser_password(password);
+            userInfo.setUser_signature(users.getSignature());
+            return userInfo;
+        } else {
+            return null;
+        }
     }
 
     @Override

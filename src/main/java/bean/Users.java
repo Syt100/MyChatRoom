@@ -1,5 +1,6 @@
 package bean;
 
+import domain.UserInfo;
 import util.XMLOperation;
 
 /**
@@ -118,6 +119,24 @@ public class Users {
 		}
 		Users user = xml.getUsersById(id);
 		return user.getPassword();
+	}
+
+	/**
+	 * 将userInfo类转换为Users类
+	 *
+	 * @param userInfo UserInfo类对象
+	 * @return Users类对象
+	 */
+	public static Users valueOf(UserInfo userInfo) {
+		if (userInfo != null) {
+			Users users = new Users();
+			users.setId(String.valueOf(userInfo.getId()));
+			users.setName(userInfo.getUser_name());
+			users.setSignature(userInfo.getUser_signature());
+			return users;
+		} else {
+			return null;
+		}
 	}
 
 	@Override
