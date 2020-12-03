@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!-- 加载mybatis属性配置文件的位置，从类路径的根开始 -->
+    <properties resource="jdbc.properties"/>
+
+    <!-- 控制mybatis全局行为 -->
+    <settings>
+        <!-- 配置mybatis在控制台输出日志信息 -->
+        <setting name="logImpl" value="STDOUT_LOGGING"/>
+    </settings>
+
+    <!-- 定义别名 -->
+    <typeAliases>
+        <!-- 方法1 -->
+        <!-- <typeAlias>可以指定一个类型一个自定义别名
+              type 自定义类型的全限定名称
+              alias 别名（短小，容易记忆）-->
+        <typeAlias type="dao.UserInfoDao" alias="UserInfo"/>
+        <!-- 方法2 -->
+        <!-- <package> name是包名，这个包中的所有类，类名即别名（类名不区分大小写） -->
+        <package name="dao"/>
+    </typeAliases>
+
+    <!-- 配置插件PageHelper,插件要在environments之前配置 -->
+    <plugins>
+        <plugin interceptor="com.github.pagehelper.PageInterceptor"/>
+    </plugins>
+
+    <!--环境配置：数据库的连接信息
+        default：必须和某个environment的id值一样，告诉mybatis使用哪个数据库的连接信息
+        也就是使用哪个数据库，便于切换数据库-->
+    <environments default="development">
+        <!--环境：一个数据库信息的配置
+             id：一个唯一值，自定义，表示环境的名称-->
+        <environment id="development">
+            <!--mybatis的事务类型
+                type：JDBC(表示使用JDBC中的connection对象的commit，rollback做事务处理)-->
+            <transactionManager type="JDBC"/>
+            <!-- 数据源，连接数据库的
+                  type：表示数据源的类型，pool额的表示使用连接池-->
+            <dataSource type="POOLED">
+                <!-- driver、url、username等是固定的，不能自定义，这里可以直接填对应的字符转，也可以从属性配置文件中读取，此处采用属性配置文件的方式-->
+                <!-- 数据库驱动名-->
+                <property name="driver" value="${jdbc.mysql.driver}"/>
+                <!-- 连接数据库的url字符串，如果不使用属性配置文件，直接填字符转时，对于&需转义为&amp;-->
+                <property name="url" value="${jdbc.mysql.url}"/>
+                <!-- 访问数据库的用户名-->
+                <property name="username" value="${jdbc.mysql.username}"/>
+                <!-- 密码-->
+                <property name="password" value="${jdbc.mysql.password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <!-- 指定SQL mapper(sql映射文件)的位置 -->
+    <mappers>
+        <!-- 第一种指定mapper文件方式 -->
+        <!-- 一个mapper标签指定一个文件的位置
+        从类路径开始的路径信息。target/classes/-->
+        <!-- <mapper resource="dao/UserInfoDao.xml"/>-->
+        <!-- <mapper resource="dao/CategoryInfoDao.xml"/>-->
+        <!-- 第二种指定mapper文件方式：指定mapper文件所在包名，该包名下所有xml文件都能够加载。
+        要求: 1.mapper文件名称需要和接口名称一样，区分大小写；
+             2.mapper文件和dao接口需要在同一目录 -->
+        <package name="dao"/>
+    </mappers>
+</configuration>
+        <!--mybatis的主配置文件：主要定义了数据库的配置信息，SQL映射文件的位置
+
+
+        -->
