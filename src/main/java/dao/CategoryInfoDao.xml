@@ -16,7 +16,7 @@
                u.user_name      AS friend_name,
                u.user_signature AS friend_signature
         FROM category_info i
-                 INNER JOIN category_member m ON i.user_id = 1234
+                 INNER JOIN category_member m ON i.user_id = #{userId}
             AND i.category_id = m.category_id
                  INNER JOIN user_info u ON u.user_id = m.user_id
     </select>
