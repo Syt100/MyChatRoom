@@ -62,7 +62,6 @@ public class XMLOperation {
 		Element newUser = root.addElement("user").addAttribute("state", "normal");
 		newUser.addElement("id").setText(users.getId());
 		newUser.addElement("name").setText(users.getName());
-		newUser.addElement("password").setText(users.getPassword());
 		newUser.addElement("friends").setText(users.getFriends());
 		writeXMLFile(doc);
 

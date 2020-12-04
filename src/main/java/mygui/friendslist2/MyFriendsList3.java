@@ -237,7 +237,7 @@ public class MyFriendsList3 {
 		fl_panel_close.setVgap(0);
 		fl_panel_close.setHgap(0);
 		panel_top.add(panel_close, BorderLayout.EAST);
-		
+
 		// 最小化、关闭、换肤
 		minButton.setIcon(produceImage("minimize.png"));
 		exitButton.setIcon(produceImage("close3.png"));
@@ -245,21 +245,21 @@ public class MyFriendsList3 {
 		panel_close.add(skinButton);
 		panel_close.add(minButton);
 		panel_close.add(exitButton);
-		
-		/** 设置上左边框宽度为5 */
+
+		/* 设置上左边框宽度为5 */
 		panel_center.setBorder(new EmptyBorder(5, 0, 0, 0));
 		panel_center.setLayout(new BorderLayout(0, 0));
 		content.add(panel_center, BorderLayout.CENTER);
 
 		panel_center.add(panel_header, BorderLayout.NORTH);
 		panel_header.setLayout(new BorderLayout(10, 10));
-		/** 设置头像离左边框的距离为5 */
+		/* 设置头像离左边框的距离为5 */
 		lbl_header.setBorder(new EmptyBorder(0, 5, 0, 0));
 		panel_header.add(lbl_header, BorderLayout.WEST);
 
 		panel_name.setLayout(new GridLayout(2, 1, 0, 0));
 		panel_header.add(panel_name, BorderLayout.CENTER);
-		
+
 		lbl_name.setFont(new Font("黑体", Font.BOLD, 15));
 		panel_name.add(lbl_name);
 
@@ -269,8 +269,8 @@ public class MyFriendsList3 {
 		textArea_sign.setLineWrap(true);
 		textArea_sign.setOpaque(false);
 		panel_name.add(textArea_sign);
-		
-		/** 设置天气标签距离右边界距离为15 */
+
+		/* 设置天气标签距离右边界距离为15 */
 		panel_weather.setBorder(new EmptyBorder(0, 0, 0, 15));
 		panel_weather.setLayout(new BorderLayout(10, 10));
 		panel_weather.add(lbl_weather);
@@ -293,20 +293,20 @@ public class MyFriendsList3 {
 
 		panel_tab1.add(lbl_tab1);
 
-		/** 设置panel_tab2为花色边框，颜色 */
+		/* 设置panel_tab2为花色边框，颜色 */
 		panel_tab2.setBorder(new MatteBorder(0, 0, 3, 0, themeColor));
 		panel_table.add(panel_tab2);
 		lbl_tab2.setForeground(COLOR_TABLE_NOT_SELECTED);
 
 		panel_tab2.add(lbl_tab2);
 
-		/** 设置panel_tab3为花色边框，颜色 */
+		/* 设置panel_tab3为花色边框，颜色 */
 		panel_tab3.setBorder(new MatteBorder(0, 0, 3, 0, themeColor));
 		panel_table.add(panel_tab3);
 		lbl_tab3.setForeground(COLOR_TABLE_NOT_SELECTED);
 
 		panel_tab3.add(lbl_tab3);
-		
+
 		panel_main.setLayout(new BorderLayout(0, 0));
 		panel_main.add(layeredPane, BorderLayout.CENTER);
 		panel_friends.add(panel_main, BorderLayout.CENTER);

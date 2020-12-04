@@ -4,11 +4,9 @@ import bean.Message;
 import bean.Users;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import exception.AccountInputException;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import service.UserInfoService;
 import service.impl.UserInfoServiceImpl;
-import util.ConstantStatus;
 import util.XMLOperation;
 
 import java.io.BufferedReader;
@@ -278,36 +276,5 @@ public class MultiTalkServerThread extends Thread {
      */
     protected Message getMessage() {
         return msg;
-    }
-
-    /**
-     * 是否允许登录
-     *
-     * @param users
-     * @return
-     * @throws AccountInputException
-     */
-    private boolean checkLogin(Users users) throws AccountInputException {
-        XMLOperation xml = new XMLOperation();
-        Users trueUser = xml.getUsersById(users.getId());
-        if (!users.isAccountExitById(users)) {
-            throw new AccountInputException(ConstantStatus.LOGIN_STATUS_ACCOUNT_NOT_EXIST);
-        }
-        if (users.getPassword().equals(trueUser.getPassword())) {
-            return true;
-        } else {
-            throw new AccountInputException(ConstantStatus.LOGIN_STATUS_ERROR_PASSWORD);
-        }
-    }
-
-    /**
-     * 返回用户的全部信息
-     *
-     * @param id
-     * @return
-     */
-    private Users getUsersInformationById(String id) {
-        XMLOperation xml = new XMLOperation();
-        return xml.getUsersById(id);
     }
 }
