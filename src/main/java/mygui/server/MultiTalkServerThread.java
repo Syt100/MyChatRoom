@@ -5,8 +5,8 @@ import bean.Users;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import service.CategoryInfoService;
 import service.UserInfoService;
-import service.impl.UserInfoServiceImpl;
 import util.XMLOperation;
 
 import java.io.BufferedReader;
@@ -46,7 +46,7 @@ public class MultiTalkServerThread extends Thread {
     /**
      * Spring
      */
-    private ClassPathXmlApplicationContext applicationContext;
+    private final ClassPathXmlApplicationContext applicationContext;
 
     /**
      * 用于发送给客户端的Message对象消息
@@ -141,13 +141,16 @@ public class MultiTalkServerThread extends Thread {
         String userId = jo.getString("selfId");
         String userPassword = jo.getString("text");
 
-        UserInfoService userInfoService = applicationContext.getBean(UserInfoServiceImpl.class);
+        UserInfoService userInfoService = applicationContext.getBean(UserInfoService.class);
         Users user = userInfoService.login(userId, userPassword);
         System.out.println(user);
         Message mg = new Message();
         if (user != null) {// 登录成功
             isLogin = true;
             name = userId;
+            // 获取好友信息
+            CategoryInfoService categoryInfoService = applicationContext.getBean(CategoryInfoService.class);
+            user.setFriends(categoryInfoService.getFriends(user.getId()));
             mg.setSelfUser(user);
             mg.setType("login");
             mg.setOperation("success");// 登陆成功
@@ -203,18 +206,9 @@ public class MultiTalkServerThread extends Thread {
         String selfId = jo.getString("selfId");
         String targetId = jo.getString("targetId");
 
-        if (isAddToList == false) {// 如果是客户端第一次连接，就设置线程名，不需要修改
-            name = selfId;
-            this.setName(name);
-        } else {// 客户端不是第一次连接，因为用户的ID可能会改变，因此要修改线程名，与当前登录的客户端同步，不然导致服务端显示的列表信息删不掉
-            MultiServerFrame.updateClientShowName(name, selfId);
-            name = selfId;// 更新线程名
-            this.setName(name);
-        }
+        String[] name = {targetId};
+        ServerHandler.updateReadyToSendClient(name);
 
-        String name[] = {targetId};
-        MultiServerFrame.updateReadyToSendClient(name);
-        // Message mg = jo.toJavaObject(Message.class);
         Message mg = new Message();
         mg.setType("talk");
         mg.setSelfId(selfId);
@@ -223,7 +217,7 @@ public class MultiTalkServerThread extends Thread {
         mg.setTargetName(jo.getString("targetName"));
         mg.setText(jo.getString("text"));
 
-        MultiServerFrame.sendMessageToClient(mg);
+        ServerHandler.sendMessageToClient(mg);
         System.out.println("有人聊天了");
     }
 

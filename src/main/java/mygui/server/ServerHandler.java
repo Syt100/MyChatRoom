@@ -13,28 +13,21 @@ import java.util.ArrayList;
  * 服务端事务处理
  */
 public class ServerHandler {
-
-    public static void main(String[] args) {
-        String str = "hello";
-        str = str + 100;
-        System.out.println(str);
-    }
-
     /**
      * 存放客户端的线程组
      */
-    private static ThreadGroup threadGroup;
+    private static ThreadGroup threadGroup = new ThreadGroup("客户端线程组");
 
     /**
      * 存放客户端的线程数组
      */
 //    private static MultiTalkServerThread[] serverThreads = new MultiTalkServerThread[100];
-    private static ArrayList<MultiTalkServerThread> serverThreads;
+    private static ArrayList<MultiTalkServerThread> serverThreads = new ArrayList<>();
 
     /**
      * 待发送客户端数量
      */
-    private static int currentSendNumber;
+    private static int currentSendNumber = 0;
 
     public ServerHandler() {
         initVariable();
@@ -99,7 +92,7 @@ public class ServerHandler {
         MultiTalkServerThread[] lstThreads = new MultiTalkServerThread[noThreads];
         threadGroup.enumerate(lstThreads);
 
-        ArrayList<String> name = new ArrayList<String>();
+        ArrayList<String> name = new ArrayList<>();
         for (MultiTalkServerThread thread : lstThreads) {
             name.add(thread.getName());
         }
@@ -112,9 +105,8 @@ public class ServerHandler {
      * @param names 要放入输出流数组outs的客户端的名字数组
      */
     protected static void updateReadyToSendClient(String[] names) {
-        MultiTalkServerThread[] lstThreads = MultiServerFrame.getClientList();
-        MultiServerFrame.clearServerThread();// 清空数组里里的数据，不然会造成重复发送
-        int i = 0;
+        MultiTalkServerThread[] lstThreads = getClientList();
+        serverThreads.clear();// 清空数组里里的数据，不然会造成重复发送
         for (MultiTalkServerThread thread : lstThreads) {
             System.out.println("线程数量：" + lstThreads.length + " 线程id：" + thread.getId() + " 线程名称：" + thread.getName()
                     + " 线程状态：" + thread.getState());
@@ -122,12 +114,12 @@ public class ServerHandler {
             for (String name : names) {
                 // 选择一个
                 if (thread.getName().equals(name)) {
-                    serverThreads.set(i++, thread);// 将要准备发送消息的客户端放入
+                    serverThreads.add(thread);// 将要准备发送消息的客户端放入
                 }
             }
         }
-        currentSendNumber = i;
-        System.out.println("准备发送到" + i + "个输出流");
+        currentSendNumber = serverThreads.size();
+        System.out.println("准备发送到" + currentSendNumber + "个输出流");
     }
 
     /**
