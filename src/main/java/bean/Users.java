@@ -2,6 +2,9 @@ package bean;
 
 import domain.UserInfo;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author xuxin
  */
@@ -9,7 +12,7 @@ public class Users {
     private String id;
     private String name;
     private String signature;
-    private String friends;
+    private Map<Integer, List<Friend>> friends;
 
     /**
      * 默认的无参构造方法
@@ -18,7 +21,13 @@ public class Users {
 
     }
 
-    public Users(String id, String name, String signature, String friends) {
+    public Users(String id, String name, String signature) {
+        this.id = id;
+        this.name = name;
+        this.signature = signature;
+    }
+
+    public Users(String id, String name, String signature, Map<Integer, List<Friend>> friends) {
         this.id = id;
         this.name = name;
         this.signature = signature;
@@ -42,14 +51,14 @@ public class Users {
     /**
      * @return friends
      */
-    public String getFriends() {
+    public Map<Integer, List<Friend>> getFriends() {
         return friends;
     }
 
     /**
      * @param friends 要设置的 friends
      */
-    public void setFriends(String friends) {
+    public void setFriends(Map<Integer, List<Friend>> friends) {
         this.friends = friends;
     }
 
@@ -84,7 +93,7 @@ public class Users {
     public static Users valueOf(UserInfo userInfo) {
         if (userInfo != null) {
             Users users = new Users();
-            users.setId(String.valueOf(userInfo.getId()));
+            users.setId(String.valueOf(userInfo.getUser_id()));
             users.setName(userInfo.getUser_name());
             users.setSignature(userInfo.getUser_signature());
             return users;

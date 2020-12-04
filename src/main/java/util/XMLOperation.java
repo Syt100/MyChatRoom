@@ -22,7 +22,8 @@ public class XMLOperation {
 
 	public static void main(String[] arg0) {
 		XMLOperation xml = new XMLOperation();
-		Users u = new Users("8899", "aiudnsv", "zzz", ",");
+//		Users u = new Users("8899", "aiudnsv", "zzz", ",");
+		Users u = new Users("8899", "aiudnsv", "zzz");
 		xml.addUser(u);
 	}
 
@@ -62,7 +63,8 @@ public class XMLOperation {
 		Element newUser = root.addElement("user").addAttribute("state", "normal");
 		newUser.addElement("id").setText(users.getId());
 		newUser.addElement("name").setText(users.getName());
-		newUser.addElement("friends").setText(users.getFriends());
+		// TODO Map<Integer, List<Friend>>类型转换问题
+		newUser.addElement("friends").setText(users.getFriends().toString());
 		writeXMLFile(doc);
 
 	}
@@ -124,8 +126,7 @@ public class XMLOperation {
 			foo = (Element) iterator.next();
 
 			if (foo.elementText("id").equals(id)) {
-				Users user = new Users(foo.elementText("id"), foo.elementText("name"), foo.elementText("password"),
-						foo.elementText("friends"));
+				Users user = new Users(foo.elementText("id"), foo.elementText("name"), foo.elementText("password"));
 				return user;
 			}
 		}

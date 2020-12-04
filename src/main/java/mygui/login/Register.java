@@ -197,14 +197,14 @@ public class Register extends JPanel {
 			showTips("验证码不能为空！");
 			return false;
 		}
-		if(!checkVerificationCode()) {
+		if (!checkVerificationCode()) {
 			showTips("验证码不正确！");
 			return false;
 		}
-		if(nicheng == null || nicheng.equals("")) {
+		if (nicheng == null || nicheng.equals("")) {
 			showTips("昵称不能为空！");
 		}
-		user = new Users(zhanghao, nicheng, mima, ",");
+		user = new Users(zhanghao, nicheng, mima);
 		return true;
 	}
 	
