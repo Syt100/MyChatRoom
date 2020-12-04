@@ -1,11 +1,11 @@
 package mygui.friendslist2;
 
+import bean.Friend;
 import bean.Users;
 import com.alibaba.fastjson.JSONObject;
 import mygui.chat.Chat;
 import mygui.components.BackgroundJPanel;
 import mygui.components.ResizeFrame;
-import util.XMLOperation;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -20,6 +20,8 @@ import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 好友列表
@@ -435,30 +437,32 @@ public class MyFriendsList3 {
 	 * 初始化JTree的节点，即好友列表（默认调试用）
 	 */
 	private void initJTreeNode(Users user) {
+		// 根节点，所有的分组都要添加到上面
 		root = new MyTreeNode();
-		String[] friend = user.getFriends().split(",");// XML 那里用.分割会有问题
-//		//TODO 此处可处理下没有好友的情况
-//		if(friend.length == 0) {
-//			return;
-//		}
-		
+		Map<Integer, List<Friend>> friends = user.getFriends();
+
 		Icon ico1 = new ImageIcon(getClass().getResource("/Images/1.png"));
 		Icon ico2 = new ImageIcon(getClass().getResource("/Images/2.png"));
 		Icon ico3 = new ImageIcon(getClass().getResource("/Images/3.png"));
 		Icon ico4 = new ImageIcon(getClass().getResource("/Images/4.png"));
-		
-		XMLOperation xml = new XMLOperation();
-		MyTreeNode node_main = new MyTreeNode("我的好友");
-		root.add(node_main);
-		MyTreeNode node[] = new MyTreeNode[friend.length];
-		for (int i = 0; i < friend.length; i++) {
-			Users friends = xml.getUsersById(friend[i]);
-			System.out.println(friends.getName());
-			node[i] = new MyTreeNode(ico1, friends.getName(), "人生若只如初见");
-			node[i].setId(friends.getId());
-			node_main.add(node[i]);
+
+		// 没有分组，默认加入我的好友分组
+		if (friends.size() == 0) {
+			MyTreeNode node_main = new MyTreeNode("我的好友");
+			root.add(node_main);
+		} else {
+			// 所有的分组节点
+			friends.forEach((i, friend) -> {
+				System.out.println(i + ":" + friend);
+				MyTreeNode category = new MyTreeNode(friend.get(0).getCategory_name());
+				root.add(category);
+				friend.forEach(friend1 -> {
+					MyTreeNode tarUser = new MyTreeNode(ico1, friend1.getFriend_name(), friend1.getFriend_signature());
+					tarUser.setId(friend1.getFriend_id().toString());
+					category.add(tarUser);
+				});
+			});
 		}
-		
 	}
 
 
@@ -657,12 +661,22 @@ public class MyFriendsList3 {
 	 */
 	protected void chatWithFriend(String targetId) {
 		boolean isSel = chckbx_qunliao.isSelected();
-		XMLOperation xml = new XMLOperation();
-		Users targetUser = xml.getUsersById(targetId);
-		
+
+		Users targetUser = new Users();
+		Map<Integer, List<Friend>> friends = user.getFriends();
+		for (List<Friend> list : friends.values()) {
+			for (Friend friend : list) {
+				if (friend.getFriend_id().toString().equals(targetId)) {
+					targetUser.setId(friend.getFriend_id().toString());
+					targetUser.setName(friend.getFriend_name());
+					targetUser.setSignature(friend.getFriend_signature());
+				}
+			}
+		}
+
 		Chat window = new Chat(this, user, targetUser, out, isSel);
 		chatArray.add(window);
-		
+
 		window.setIcon(renderer.getNode().getIcon());
 		window.setTitle(renderer.getNode().getName());
 		window.setSign(renderer.getNode().getSign());
