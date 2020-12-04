@@ -6,6 +6,8 @@ import dao.CategoryInfoDao;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import service.CategoryInfoService;
 import util.MybatisUtils;
 
 import java.util.List;
@@ -36,7 +38,10 @@ public class CategoryInfoServiceImplTest {
 
     @Test
     public void getFriends() {
-        Map<Integer, List<Friend>> map = service.getFriends("1234");
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+        CategoryInfoService categoryInfoService = context.getBean(CategoryInfoService.class);
+        Map<Integer, List<Friend>> map = categoryInfoService.getFriends("1234");
+//        Map<Integer, List<Friend>> map = service.getFriends("1234");
         map.forEach((integer, friends1) -> System.out.println(integer + ":" + friends1));
     }
 }
