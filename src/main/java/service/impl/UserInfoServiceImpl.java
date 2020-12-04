@@ -14,8 +14,8 @@ public class UserInfoServiceImpl implements UserInfoService {
     UserInfoDao userInfoDao;
 
     @Override
-    public Users login(Integer userId, String password) {
-        UserInfo userInfo = userInfoDao.selectUserInfoByUserIdPassword(userId, password);
+    public Users login(String userId, String password) {
+        UserInfo userInfo = userInfoDao.selectUserInfoByUserIdPassword(Integer.valueOf(userId), password);
         return Users.valueOf(userInfo);
     }
 
@@ -59,8 +59,8 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public Message writtenOffUser(Integer userId) {
-        int num = userInfoDao.deleteUserInfo(userId);
+    public Message writtenOffUser(String userId) {
+        int num = userInfoDao.deleteUserInfo(Integer.valueOf(userId));
         Message message = new Message();
         message.setType("written off");
         if (num == 0) {

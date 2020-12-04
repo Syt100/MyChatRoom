@@ -4,8 +4,10 @@ import bean.Message;
 import bean.Users;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import dao.UserDao;
 import exception.AccountInputException;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import service.UserInfoService;
+import service.impl.UserInfoServiceImpl;
 import util.ConstantStatus;
 import util.XMLOperation;
 
@@ -44,6 +46,11 @@ public class MultiTalkServerThread extends Thread {
     private PrintWriter out;
 
     /**
+     * Spring
+     */
+    private ClassPathXmlApplicationContext applicationContext;
+
+    /**
      * 用于发送给客户端的Message对象消息
      */
     private Message msg = new Message();
@@ -53,6 +60,7 @@ public class MultiTalkServerThread extends Thread {
         this.socket = socket;
         msg.setStatus(1);
         msg.setSelfName("server");
+        applicationContext = new ClassPathXmlApplicationContext("applicationContext.xml");
     }
 
     @Override
@@ -135,8 +143,8 @@ public class MultiTalkServerThread extends Thread {
         String userId = jo.getString("selfId");
         String userPassword = jo.getString("text");
 
-        UserDao userDao = new UserDao();
-        Users user = userDao.login(userId, userPassword);
+        UserInfoService userInfoService = applicationContext.getBean(UserInfoServiceImpl.class);
+        Users user = userInfoService.login(userId, userPassword);
         System.out.println(user);
         Message mg = new Message();
         if (user != null) {// 登录成功

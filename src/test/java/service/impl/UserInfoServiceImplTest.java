@@ -23,9 +23,9 @@ public class UserInfoServiceImplTest {
     @Test
     public void login() {
         // 能够登陆成功
-        Users users = userInfoService.login(1234, "1234qwer");
+        Users users = userInfoService.login("1234", "1234qwer");
         // 不能登陆成功
-        Users users1 = userInfoService.login(1234, "1234");
+        Users users1 = userInfoService.login("1234", "1234");
         System.out.println(users);
         System.out.println(users1);
     }
@@ -53,7 +53,7 @@ public class UserInfoServiceImplTest {
 
     @Test
     public void writtenOffUser() {
-        Message message = userInfoService.writtenOffUser(1238);
+        Message message = userInfoService.writtenOffUser("1238");
         System.out.println(message);
     }
 }

@@ -17,7 +17,7 @@ public interface UserInfoService {
      * @param password 密码
      * @return 登录成功返回Users对象，失败则返回null
      */
-    Users login(Integer userId, String password);
+    Users login(String userId, String password);
 
     /**
      * 用户注册
@@ -50,5 +50,5 @@ public interface UserInfoService {
      * @param userId 拟注销用户的id
      * @return Message，是否注销成功
      */
-    Message writtenOffUser(Integer userId);
+    Message writtenOffUser(String userId);
 }
