@@ -9,6 +9,7 @@ import mygui.components.RolloverBackgroundButton;
 import mygui.friendslist2.MyFriendsList3;
 import mygui.login.setupstorage.SetUpStorage;
 import util.ConstantStatus;
+import util.FileLoader;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -26,9 +27,13 @@ import java.util.TimerTask;
  */
 public class Login4 {
 
-	/** 可调大小窗体 */
-	private ResizeFrame frame = new ResizeFrame();
-	/** 背景图片面板 */
+	/**
+	 * 可调大小窗体
+	 */
+	private ResizeFrame frame;
+	/**
+	 * 背景图片面板
+	 */
 	private BackgroundJPanel borderBackgroundJPanel;
 	/** 内容面板 */
 	private JPanel content;
@@ -117,22 +122,22 @@ public class Login4 {
 			panel_setting.readSetting();
 			// 加载设置
 			SetUpStorage set = SetUpStorage.getStorage();
-			
-			if (set.remmberPassword == true) {
+
+			if (set.remmberPassword) {
 				loadPassword();
 			}
 			checkbox_autologin.setSelected(set.autoLogin);
 			checkbox_remmber.setSelected(set.remmberPassword);
-			
+
 		} catch (Exception e) {
 			// TODO 错误处理
 			e.printStackTrace();
 		}
-		
+
 		loginThreadGroup = new ThreadGroup("登录线程组");
 		loginThread = new LoginTread(loginThreadGroup, this, "Login");
 		loginThread.start();
-		if (checkbox_autologin.isSelected() == true) {
+		if (checkbox_autologin.isSelected()) {
 			// 用计时器实现延迟
 			Timer timer = new Timer();// 实例化Timer类
 			timer.schedule(new TimerTask() {
@@ -149,12 +154,13 @@ public class Login4 {
 	 */
 	private void initBackGround() {
 		int inset = 5;// 边框阴影大小
+		frame = new ResizeFrame();
 		frame.setBounds(100, 100, 430 + 2 * inset, 330 + 2 * inset);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);// 在这里无效，因为去除了窗口装饰
 		frame.setUndecorated(true);// 将原始的边框去掉
 		frame.setLocationRelativeTo(null);// 设置窗口打开位置居中
 		frame.setBackground(new Color(0, 0, 0, 0));// 设置背景颜色为透明
-		
+
 		// 初始化边框、背景
 		backGroundImgIcon = new ImageIcon(getClass().getResource("/Images/source/img_0.png"));
 		borderBackgroundJPanel = new BackgroundJPanel(backGroundImgIcon, inset);
@@ -458,9 +464,9 @@ public class Login4 {
 				panel_header.setVisible(false);
 			}
 			if (e.getSource() == panel_register.btn_queren) {// 注册页面中的确认按钮
-				if(panel_register.checkPass() == false) {
+				if (!panel_register.checkPass()) {
 					// 注册失败由Register类处理
-				}else {// 注册成功
+				} else {// 注册成功
 					setTop(panel_operation);
 					panel_header.setVisible(true);
 					if (LoginTread.isConnected()) {
@@ -599,31 +605,28 @@ public class Login4 {
 				set.remmberPassword = checkbox_remmber.isSelected();
 				set.writeToFile();
 				if (checkbox_remmber.isSelected()) {
-					savePassowrd();
+					savePassword();
 				}
 			}
 		});
 	}
-	
+
 	/**
 	 * 保存密码
 	 */
-	private void savePassowrd() {
+	private void savePassword() {
 		new Thread() {
 
 			@Override
 			public void run() {
 				try {
-					File file = new File(getClass().getResource("/data/password.dat").getFile());
-					if (!file.exists()) {
-						file.getParentFile().mkdir();
-					}
+					File file = FileLoader.loadFile("/data/", "password.dat");
+
 					FileWriter fo = new FileWriter(file);
 					String id = comboBox_zhanghao.getEditor().getItem().toString().trim();// 获取输入的账号
 					String password = String.valueOf(passwordField_mima.getPassword());// 获取输入的密码
 
-					fo.write(id + "\n");
-					fo.write(password);
+					fo.write(id + "\n" + password);
 					fo.flush();
 					fo.close();
 				} catch (IOException e) {
@@ -643,22 +646,11 @@ public class Login4 {
 			@Override
 			public void run() {
 				try {
-					File file = new File(getClass().getResource("/data/password.dat").getFile());
-					if (!file.exists()) {
-						return;
-					}
-
-					FileReader fi = new FileReader(file);
-					BufferedReader bfi = new BufferedReader(fi);
+					File file = FileLoader.loadFile("/data/", "password.dat");
+					BufferedReader bfi = new BufferedReader(new FileReader(file));
 					comboBox_zhanghao.setSelectedItem(bfi.readLine());
 					passwordField_mima.setText(bfi.readLine());
-
-					bfi.readLine();
 					bfi.close();
-					fi.close();
-				} catch (FileNotFoundException e) {
-					// TODO 自动生成的 catch 块
-					e.printStackTrace();
 				} catch (IOException e) {
 					// TODO 自动生成的 catch 块
 					e.printStackTrace();
@@ -755,10 +747,10 @@ public class Login4 {
 			loginThread.verificationAccountFromServer();
 		}
 	}
-	
+
 	/**
 	 * 设置登录界面的背景图片
-	 * @param backgroundImageIcon
+	 * @param backgroundImageIcon 登录界面的背景图片
 	 */
 	public void setBackgroundImage(ImageIcon backgroundImageIcon) {
 		borderBackgroundJPanel.setBackGroundImg(backgroundImageIcon.getImage());
@@ -778,7 +770,7 @@ public class Login4 {
 			public void run() {
 				try {
 					Thread.sleep(3000);// 该线程睡眠3秒
-				} catch (InterruptedException ex) {
+				} catch (InterruptedException ignored) {
 				}
 				lbl_tips.setVisible(false);
 			}
