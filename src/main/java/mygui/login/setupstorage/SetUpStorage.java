@@ -14,6 +14,11 @@ import java.io.*;
 public class SetUpStorage {
 
 	/**
+	 * 设置文件路径
+	 */
+	private static final String SETTING_FILE_PATH = "./src/main/resources/data/setting.txt";
+
+	/**
 	 * 登录界面背景图片地址
 	 */
 	public String backgroundImagePath;
@@ -91,8 +96,7 @@ public class SetUpStorage {
 	 */
 	public void writeToFile() {
 		String set = JSONObject.toJSONString(setStorage);
-		//System.out.println(getClass()+set);
-		File file = new File("./src/main/resources/data/setting.txt");
+		File file = new File(SETTING_FILE_PATH);
 
 		try {
 			if (!file.exists()) {
@@ -117,23 +121,24 @@ public class SetUpStorage {
 	 */
 	public static void loadSetting() throws IOException,Exception {
 		// File file = new File(SetUpStorage.class.getResource("/data/setting.txt").getFile());
-		File file = new File("./src/main/resources/data/setting.txt");
+		File file = new File(SETTING_FILE_PATH);
 		if (!file.exists()) {
-			file.getParentFile().mkdir();
-			// throw new Exception("加载设置失败！找不到设置文件");
+			if (!file.getParentFile().mkdir()) {
+				throw new Exception("加载设置失败！找不到设置文件；设置文件创建失败");
+			}
 		}
 
 		FileReader fi = new FileReader(file);
 		BufferedReader bfi = new BufferedReader(fi);
-		String read = null;
-		String jsonString = "";
+		String read;
+		StringBuilder jsonString = new StringBuilder();
 		while ((read = bfi.readLine()) != null) {
 			read += "\n";
-			jsonString += read;
+			jsonString.append(read);
 		}
 		bfi.close();
 		fi.close();
-		setStorage = JSON.parseObject(jsonString, SetUpStorage.class);
+		setStorage = JSON.parseObject(jsonString.toString(), SetUpStorage.class);
 		isLoaded = true;
 	}
 
