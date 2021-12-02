@@ -2,9 +2,12 @@ package mygui.login.setupstorage;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.io.FileUtils;
 
 import java.awt.*;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 存储登录界面设置的相关项
@@ -47,18 +50,18 @@ public class SetUpStorage {
 	public TabbedPaneStyle tabbedPaneStyle = TabbedPaneStyle.style1;
 	/** 全局字体 */
 	public Font font = new Font("微软雅黑", Font.PLAIN, 12);
-	
+
 	/** 自动登录 */
 	public boolean autoLogin = false;
 	/** 记住密码 */
 	public boolean remmberPassword = false;
-	
+
 	// 类内部设置
 	/** 是否已经加载设置，有些地方只需加载一次，避免重复加载 */
 	private static boolean isLoaded = false;
 	/** 是否已经保存设置 */
 	private static boolean isSaved = false;
-	
+
 	private static SetUpStorage setStorage;
 
 	public static void main(String[] args) {
@@ -77,20 +80,18 @@ public class SetUpStorage {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private SetUpStorage() {
-		
+
 	}
-	
+
 	public static SetUpStorage getStorage() {
 		if (setStorage == null) {
 			setStorage = new SetUpStorage();
-			return setStorage;
-		} else {
-			return setStorage;
 		}
+		return setStorage;
 	}
-	
+
 	/**
 	 * 将设置写入到文件
 	 */
@@ -99,12 +100,7 @@ public class SetUpStorage {
 		File file = new File(SETTING_FILE_PATH);
 
 		try {
-			if (!file.exists()) {
-				file.getParentFile().mkdir();
-			}
-			FileWriter fo = new FileWriter(file);
-			fo.write(set);
-			fo.close();
+			FileUtils.writeStringToFile(file,set, StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			// TODO 自动生成的 catch 块
 			e.printStackTrace();
@@ -113,32 +109,23 @@ public class SetUpStorage {
 		}
 		isSaved = true;
 	}
-	
+
 	/**
 	 * 从文件读取设置，会覆盖原有的设置
 	 * @throws IOException
 	 * @throws Exception
 	 */
 	public static void loadSetting() throws IOException,Exception {
-		// File file = new File(SetUpStorage.class.getResource("/data/setting.txt").getFile());
 		File file = new File(SETTING_FILE_PATH);
+
 		if (!file.exists()) {
-			if (!file.getParentFile().mkdir()) {
-				throw new Exception("加载设置失败！找不到设置文件；设置文件创建失败");
-			}
+			return;
 		}
 
-		FileReader fi = new FileReader(file);
-		BufferedReader bfi = new BufferedReader(fi);
-		String read;
-		StringBuilder jsonString = new StringBuilder();
-		while ((read = bfi.readLine()) != null) {
-			read += "\n";
-			jsonString.append(read);
-		}
-		bfi.close();
-		fi.close();
-		setStorage = JSON.parseObject(jsonString.toString(), SetUpStorage.class);
+		// 从设置文件读取JSON字符串
+		String jsonStr = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+		setStorage = JSON.parseObject(jsonStr, SetUpStorage.class);
+		System.out.println(setStorage);
 		isLoaded = true;
 	}
 
@@ -179,5 +166,5 @@ public class SetUpStorage {
 				+ ", loginAddress=" + loginAddress + ", loginPort=" + loginPort + ", tabbedPaneStyle=" + tabbedPaneStyle
 				+ ", font=" + font + ", autoLogin=" + autoLogin + ", remmberPassword=" + remmberPassword + "]";
 	}
-	
+
 }
