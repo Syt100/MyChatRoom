@@ -1,11 +1,14 @@
 package bean;
 
+import lombok.Data;
+
 import java.util.ArrayList;
 import java.util.Map;
 
 /**
  * 好友分组
  */
+@Data
 public class Category {
     /**
      * uid用户ID
@@ -24,42 +27,5 @@ public class Category {
         this.userId = userId;
         this.categoryInfo = categoryInfo;
         this.categoryMember = categoryMember;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    @SuppressWarnings("unused")
-    public Map<String, String> getCategoryInfo() {
-        return categoryInfo;
-    }
-
-    @SuppressWarnings("unused")
-    public void setCategoryInfo(Map<String, String> categoryInfo) {
-        this.categoryInfo = categoryInfo;
-    }
-
-    @SuppressWarnings("unused")
-    public Map<String, ArrayList<Users>> getCategoryMember() {
-        return categoryMember;
-    }
-
-    @SuppressWarnings("unused")
-    public void setCategoryMember(Map<String, ArrayList<Users>> categoryMember) {
-        this.categoryMember = categoryMember;
-    }
-
-    @Override
-    public String toString() {
-        return "Category{" +
-                "userId='" + userId + '\'' +
-                ", categoryInfo=" + categoryInfo +
-                ", categoryMember=" + categoryMember +
-                '}';
     }
 }
