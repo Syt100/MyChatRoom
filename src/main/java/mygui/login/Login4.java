@@ -88,13 +88,13 @@ public class Login4 {
 	private JLabel lbl_erweima;
 	/** 显示提示信息，默认隐藏，按需显示 */
 	private JLabel lbl_tips;
-	
+
 	/** 登录界面的后台线程，处理接收消息、初始化socket */
 	private LoginTread loginThread;
 	private ThreadGroup loginThreadGroup;
-	
 
-	
+
+
 	public static void main(String[] args) {
 		Login4 login = new Login4();
 		login.startDemo();
@@ -166,7 +166,7 @@ public class Login4 {
 		borderBackgroundJPanel = new BackgroundJPanel(backGroundImgIcon, inset);
 		borderBackgroundJPanel.setLayout(new BorderLayout(0, 0));
 		frame.setContentPane(borderBackgroundJPanel);
-		
+
 		content = new JPanel();
 		content.setOpaque(false);
 		content.setLayout(new BorderLayout(0, 0));
@@ -233,7 +233,7 @@ public class Login4 {
 		panel_main.setOpaque(false);
 		panel_main.setLayout(null);
 		content.add(panel_main, BorderLayout.CENTER);
-		
+
 		// 头像面板，放头像
 		panel_header = new JPanel();
 		panel_header.setOpaque(false);
@@ -295,26 +295,26 @@ public class Login4 {
 		btn_landing_quxiao.setBounds(158, 137, 113, 31);
 		panel_landing.add(btn_landing_quxiao);
 		/* 登录中面板的按钮 结束 */
-		
+
 		/* 注册面板  开始*/
 		panel_register = new Register();
 		panel_register.setLocation(0, 0);
 		layeredPane_main.setLayer(panel_register, 8);
 		layeredPane_main.add(panel_register);
 		/* 注册面板  结束*/
-		
+
 		/* 二维码登录面板  开始*/
 		panel_qrcode = new QRcode();
 		layeredPane_main.setLayer(panel_qrcode, 7);
 		layeredPane_main.add(panel_qrcode);
 		/* 二维码登录面板  结束*/
-		
+
 		/* 找回密码面板 开始*/
 		panel_retrievePassword = new RetrievePassword();
 		layeredPane_main.setLayer(panel_retrievePassword, 6);
 		layeredPane_main.add(panel_retrievePassword);
 		/* 找回密码面板 结束*/
-		
+
 		/* 设置面板 开始*/
 		panel_setting = new Setting(this);
 		layeredPane_main.setLayer(panel_setting, 5);
@@ -583,13 +583,13 @@ public class Login4 {
 		panel_qrcode.btn_return.addMouseListener(mos);
 		panel_retrievePassword.btn_return.addMouseListener(mos);
 	}
-	
+
 	/**
 	 * 项目监听器，监听记住密码和自动登录复选框
 	 */
 	private void initMyItemListener() {
 		checkbox_autologin.addItemListener(new ItemListener() {
-			
+
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				SetUpStorage set = SetUpStorage.getStorage();
@@ -598,7 +598,7 @@ public class Login4 {
 			}
 		});
 		checkbox_remmber.addItemListener(new ItemListener() {
-			
+
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				SetUpStorage set = SetUpStorage.getStorage();
@@ -615,51 +615,42 @@ public class Login4 {
 	 * 保存密码
 	 */
 	private void savePassword() {
-		new Thread() {
+		new Thread(() -> {
+			try {
+				File file = FileLoader.loadFile("/data/", "password.dat");
 
-			@Override
-			public void run() {
-				try {
-					File file = FileLoader.loadFile("/data/", "password.dat");
+				FileWriter fo = new FileWriter(file);
+				String id = comboBox_zhanghao.getEditor().getItem().toString().trim();// 获取输入的账号
+				String password = String.valueOf(passwordField_mima.getPassword());// 获取输入的密码
 
-					FileWriter fo = new FileWriter(file);
-					String id = comboBox_zhanghao.getEditor().getItem().toString().trim();// 获取输入的账号
-					String password = String.valueOf(passwordField_mima.getPassword());// 获取输入的密码
-
-					fo.write(id + "\n" + password);
-					fo.flush();
-					fo.close();
-				} catch (IOException e) {
-					// TODO 自动生成的 catch 块
-					e.printStackTrace();
-				}
+				fo.write(id + "\n" + password);
+				fo.flush();
+				fo.close();
+			} catch (IOException e) {
+				// TODO 自动生成的 catch 块
+				e.printStackTrace();
 			}
-		}.start();
+		}).start();
 	}
-	
+
 	/**
 	 * 加载密码
 	 */
 	private void loadPassword() {
-		new Thread() {
-
-			@Override
-			public void run() {
-				try {
-					File file = FileLoader.loadFile("/data/", "password.dat");
-					BufferedReader bfi = new BufferedReader(new FileReader(file));
-					comboBox_zhanghao.setSelectedItem(bfi.readLine());
-					passwordField_mima.setText(bfi.readLine());
-					bfi.close();
-				} catch (IOException e) {
-					// TODO 自动生成的 catch 块
-					e.printStackTrace();
-				}
+		new Thread(() -> {
+			try {
+				File file = FileLoader.loadFile("/data/", "password.dat");
+				BufferedReader bfi = new BufferedReader(new FileReader(file));
+				comboBox_zhanghao.setSelectedItem(bfi.readLine());
+				passwordField_mima.setText(bfi.readLine());
+				bfi.close();
+			} catch (IOException e) {
+				// TODO 自动生成的 catch 块
+				e.printStackTrace();
 			}
-			
-		}.start();
+		}).start();
 	}
-	
+
 	/**
 	 * 设置要显示在顶端的组件，将其他面板隐藏
 	 * @param jc 要设置可见为真的组件（面板）
@@ -702,7 +693,7 @@ public class Login4 {
 			}
 		}
 	}
-	
+
 	/**
 	 * 由其他面板调用，从其他面板返回到主面板
 	 */
@@ -714,7 +705,7 @@ public class Login4 {
 	/**
 	 * 从界面输入构造一个包含用户id和密码的Message对象，发往服务端验证
 	 *
-	 * @return Message message
+	 * @return Message
 	 * @throws AccountInputException 账户异常
 	 */
 	protected Message getUserFromInput() throws AccountInputException {
@@ -765,15 +756,12 @@ public class Login4 {
 		lbl_tips.setText(tip);
 		lbl_tips.setVisible(true);
 		// 用多线程实现让lbl_tips一段时间后消失
-		Thread t = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(3000);// 该线程睡眠3秒
-				} catch (InterruptedException ignored) {
-				}
-				lbl_tips.setVisible(false);
+		Thread t = new Thread(() -> {
+			try {
+				Thread.sleep(3000);// 该线程睡眠3秒
+			} catch (InterruptedException ignored) {
 			}
+			lbl_tips.setVisible(false);
 		});
 		t.start();// 启动线程
 	}
@@ -800,7 +788,7 @@ public class Login4 {
 	 */
 	public void skipToFriendList(Users user, Socket socket, PrintWriter out, BufferedReader in) {
 		setTop(panel_landing);
-		
+
 		// 用计时器实现延迟
 		Timer timer = new Timer();// 实例化Timer类
 		timer.schedule(new TimerTask() {
