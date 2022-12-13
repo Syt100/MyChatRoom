@@ -243,10 +243,7 @@ public class Register extends JPanel {
 	 */
 	private boolean checkVerificationCode() {
 		String str = yanzhengma.getStr();
-		if(str.equals(textField_yanzheng.getText())) {
-			return true;
-		}
-		return false;
+		return str.equals(textField_yanzheng.getText());
 	}
 
 	/**
