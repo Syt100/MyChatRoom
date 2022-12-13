@@ -93,7 +93,7 @@ public class Setting extends JPanel {
 	private JLabel lbl_other_fontFamily;
 
 	/**
-	 * @param mainLogin
+	 * @param mainLogin 登录界面
 	 */
 	public Setting(Login4 mainLogin) {
 		this.mainLogin = mainLogin;
@@ -278,7 +278,7 @@ public class Setting extends JPanel {
 		textField_loginPort.setColumns(4);
 		textField_loginPort.setBounds(355, 140, 60, 23);
 		panel_socket.add(textField_loginPort);
-		
+
 		btn_useLocal = new JButton("使用本机地址");
 		btn_useLocal.setMargin(new Insets(2, 6, 2, 6));
 		btn_useLocal.setFont(font);
@@ -315,26 +315,26 @@ public class Setting extends JPanel {
 		ButtonGroup btnGroup = new ButtonGroup();
 		btnGroup.add(rdbtn_sty1);
 		btnGroup.add(rdbtn_sty2);
-		
+
 		// 字体设置
 		JLabel lbl_other_font = new JLabel("界面字体");
 		lbl_other_font.setFont(font);
 		lbl_other_font.setBounds(10, 60, 155, 15);
 		panel_other.add(lbl_other_font);
-		
+
 		btn_other_chooseFont = new JButton("选择");
 		btn_other_chooseFont.setMargin(new Insets(2, 6, 2, 6));
 		btn_other_chooseFont.setFont(font);
 		btn_other_chooseFont.setBounds(187, 81, 49, 25);
 		btn_other_chooseFont.addActionListener(listener);
 		panel_other.add(btn_other_chooseFont);
-		
+
 		lbl_other_fontFamily = new JLabel("界面字体");
 		lbl_other_fontFamily.setFont(font);
 		lbl_other_fontFamily.setBounds(44, 85, 121, 15);
 		lbl_other_fontFamily.setText(font.getFamily() + " " + font.getStyle() + " " + font.getSize());
 		panel_other.add(lbl_other_fontFamily);
-		
+
 		// 底栏
 		JPanel panel_bottom = new JPanel();
 		FlowLayout fl_panel_bottom = (FlowLayout) panel_bottom.getLayout();
@@ -364,7 +364,7 @@ public class Setting extends JPanel {
 
 	/**
 	 * 下拉列表项目改变监听器
-	 * 
+	 *
 	 * @author xuxin
 	 *
 	 */
@@ -425,7 +425,7 @@ public class Setting extends JPanel {
 					// 从当前路径构造文件选择器对象
 					fd = new JFileChooser("./");
 				}
-				
+
 				// 设置文件过滤器，只列出JPG或GIF格式的图片
 				FileFilter filter = new FileNameExtensionFilter("图像文件（jpg/gif/png）", "JPG", "JPEG", "GIF", "png");
 				fd.setFileFilter(filter);
@@ -476,7 +476,7 @@ public class Setting extends JPanel {
 			}
 		}
 	}
-	
+
 	/**
 	 * 设置全局字体
 	 */
@@ -484,10 +484,10 @@ public class Setting extends JPanel {
 		lbl_other_fontFamily.setText(font.getFamily() + " " + font.getStyle() + " " + font.getSize());
 		findAllComponents(this);
 	}
-	
+
 	/**
 	 * 递归查找所有子组件，设置字体
-	 * 
+	 *
 	 * @param c 组件
 	 */
 	private void findAllComponents(Component c) {
@@ -505,9 +505,9 @@ public class Setting extends JPanel {
 	}
 
 	/**
-	 * 批量改变网络代理区域输入框启用状态
-	 * 
-	 * @param f
+	 * 批量改变
+	 *
+	 * @param f 网络代理区域输入框启用状态
 	 */
 	private void setNetworkAgentEnable(boolean f) {
 		textField_NetworkAddress.setEnabled(f);
@@ -519,8 +519,8 @@ public class Setting extends JPanel {
 
 	/**
 	 * 批量改变登录服务器区域输入框启用状态
-	 * 
-	 * @param f
+	 *
+	 * @param f 登录服务器区域输入框启用状态
 	 */
 	private void setLoginServerEnable(boolean f) {
 		textField_loginAddress.setEnabled(f);
@@ -529,8 +529,8 @@ public class Setting extends JPanel {
 
 	/**
 	 * 保存设置
-	 * 
-	 * @throws NumberFormatException
+	 *
+	 * @throws NumberFormatException NumberFormatException
 	 */
 	private void saveSetting() throws NumberFormatException {
 		SetUpStorage set = SetUpStorage.getStorage();
@@ -573,10 +573,10 @@ public class Setting extends JPanel {
 			set.networkAgentPassword = textField_NetworkPassword.getText();
 			set.networkAgentField = textField_NetworkField.getText();
 		}
-		
+
 		set.tabbedPaneStyle = rdbtn_sty1.isSelected()?TabbedPaneStyle.style1:TabbedPaneStyle.style2;
 		set.font = font;
-		
+
 		set.writeToFile();// 保存设置到文件
 		String s = JSONObject.toJSONString(set);
 		System.out.println(getClass() + s);
@@ -584,9 +584,9 @@ public class Setting extends JPanel {
 
 	/**
 	 * 从文件加载设置。由登录界面调用
-	 * 
-	 * @throws IOException
-	 * @throws Exception
+	 *
+	 * @throws IOException IOException
+	 * @throws Exception Exception
 	 */
 	public void readSetting() throws IOException, Exception {
 		SetUpStorage.loadSetting();
@@ -627,7 +627,7 @@ public class Setting extends JPanel {
 		if (set.logonServerType == LogonServerType.Default) {
 			comboBox_loginType.setSelectedIndex(0);
 			setLoginServerEnable(false);
-		} else if (set.logonServerType == LogonServerType.UDP) { 
+		} else if (set.logonServerType == LogonServerType.UDP) {
 			comboBox_loginType.setSelectedIndex(1);
 			textField_loginAddress.setText(set.loginAddress);
 			textField_loginPort.setText(set.loginPort + "");
@@ -636,7 +636,7 @@ public class Setting extends JPanel {
 			textField_loginAddress.setText(set.loginAddress);
 			textField_loginPort.setText(set.loginPort + "");
 		}
-		
+
 		if (set.tabbedPaneStyle == TabbedPaneStyle.style1){
 			rdbtn_sty1.setSelected(true);
 			tabbedPane.setUI(new GradualChangeTabbedPaneUI("#FFFFFF", "#000000"));
@@ -644,10 +644,10 @@ public class Setting extends JPanel {
 			rdbtn_sty2.setSelected(true);
 			tabbedPane.setUI(new RecTabbedPaneUI());
 		}
-		
+
 		font = set.font;
 		setAllFont();
-		
+
 		System.out.println(getClass() + "设置加载完毕");
 	}
 }
