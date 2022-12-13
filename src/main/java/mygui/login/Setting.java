@@ -299,8 +299,8 @@ public class Setting extends JPanel {
         lbl_loginType.setBounds(0, 140, 42, 23);
         panel_socket.add(lbl_loginType);
 
-        comboBox_loginType = new JComboBox<String>();
-        comboBox_loginType.setModel(new DefaultComboBoxModel<String>(new String[]{"不使用高级选项", "UDP类型", "TCP类型"}));
+        comboBox_loginType = new JComboBox<>();
+        comboBox_loginType.setModel(new DefaultComboBoxModel<>(new String[]{"不使用高级选项", "UDP类型", "TCP类型"}));
         comboBox_loginType.setSelectedIndex(0);
         comboBox_loginType.setFont(font);
         comboBox_loginType.setBounds(50, 140, 133, 23);
