@@ -543,15 +543,13 @@ public class Setting extends JPanel {
     private void findAllComponents(Component c) {
         if (c instanceof Container) {
             Component[] cs = ((Container) c).getComponents();
-            for (int i = 0; i < cs.length; i++) {
-                Component component = cs[i];
-                component.setFont(font);
-                findAllComponents(component);
-            }
+			for (Component component : cs) {
+				component.setFont(font);
+				findAllComponents(component);
+			}
         } else {
             c.setFont(font);
-            return;
-        }
+		}
     }
 
     /**
