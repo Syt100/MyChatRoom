@@ -76,8 +76,7 @@ public class QRcode extends JPanel {
     private ImageIcon createQRCode(String content) {
         try {
             BufferedImage bi = QRCodeUtil.encode(content);
-            ImageIcon im = new ImageIcon(bi);
-            return im;
+			return new ImageIcon(bi);
         } catch (Exception e) {
             // TODO 自动生成的 catch 块
             e.printStackTrace();
