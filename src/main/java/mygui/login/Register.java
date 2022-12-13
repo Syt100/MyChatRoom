@@ -169,7 +169,7 @@ public class Register extends JPanel {
 
 	/**
 	 * 检查注册中是否填入账号、密码、密码和确认密码是否相同，并构造Users类
-	 * @return
+	 * @return 是否填入账号、密码、密码和确认密码是否相同
 	 */
 	public boolean checkPass() {
 		String zhanghao = textField_zhanghao.getText();
