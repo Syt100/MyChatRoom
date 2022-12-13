@@ -104,8 +104,6 @@ public class LoginTread extends Thread {
                     break;
                 }
             }
-        } catch (IOException e) {
-            login.showTipsByTimer("连接出错！");
         } catch (Exception e) {
             login.showTipsByTimer("连接出错！");
         }
