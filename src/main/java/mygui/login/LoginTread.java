@@ -77,7 +77,7 @@ public class LoginTread extends Thread {
                 String type = jsonObject.getString("type");
                 String operation = jsonObject.getString("operation");
                 // 服务端返回登录反馈信息
-                if (type != null && "login".equals(type)) {
+                if ("login".equals(type)) {
                     if ("success".equals(operation)) {// 如果服务端返回登陆成功
                         Users u = jsonObject.getObject("selfUser", Users.class);
                         isClose = true;// 结束自己线程
@@ -90,7 +90,7 @@ public class LoginTread extends Thread {
                     }
                 }
                 // 服务端返回注册的反馈信息
-                if (type != null && "register".equals(type)) {
+                if ("register".equals(type)) {
                     if ("success".equals(operation)) {// 如果服务端返回注册成功
                         login.showTipsByTimer("注册成功！");
                         // break;
