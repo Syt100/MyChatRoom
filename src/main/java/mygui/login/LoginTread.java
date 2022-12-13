@@ -27,7 +27,7 @@ public class LoginTread extends Thread {
     /**
      * Login4类的引用，可以调用其中的方法
      */
-    private Login4 login;
+    private final Login4 login;
     /**
      * 用于和服务端通信的套接字
      */
@@ -206,11 +206,7 @@ public class LoginTread extends Thread {
      * @return 是否已经连上了服务器
      */
     protected static boolean isConnected() {
-        if (socket == null) {
-            return false;
-        } else {
-            return true;
-        }
+        return socket != null;
     }
 
     /**
