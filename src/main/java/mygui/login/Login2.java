@@ -52,7 +52,7 @@ public class Login2 {
 		contentPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 		contentPane.setLayout(null);
 		frame.setContentPane(contentPane);
-		
+
 		JPanel panel_logo = new JPanel();
 		panel_logo.setBackground(Color.WHITE);
 		panel_logo.setBounds(0, 0, 401, 141);
@@ -140,8 +140,8 @@ public class Login2 {
 			public void actionPerformed(ActionEvent e) {
 				// JComboBox<String> cb = (JComboBox<String>)
 				// e.getSource();//.getEditorComponent().toString();
-				String account = new String();// 获取输入的账号
-				char[] password = new char[64];// 获取输入的密码（char)格式
+				String account;// 获取输入的账号
+				char[] password;// 获取输入的密码（char)格式
 				account = comboBox.getEditor().getItem().toString().trim();// 获取组合框输入的文本；
 				/*
 				 * JComboBox有一个getEditor()方法，getEditor()方法返回ComboBoxEditor,
@@ -151,12 +151,12 @@ public class Login2 {
 				password = passwordField_mima.getPassword();// 返回char类型密码
 				String password_1 = String.valueOf(password);// 把字符串类型的password转换为String
 
-				String designate_account = new String("xxy");// 默认正确的账号和密码组合
-				String designate_password = new String("123");
+				String designate_account = "xxy";// 默认正确的账号和密码组合
+				String designate_password = "123";
 
 				if (account.length() == 0 || password.length == 0) {
 					// JOptionPane.showMessageDialog(null, "账号或密码不能允许为空！");
-					
+
 					lbl_tips.setText("账号或密码不能为空！");
 					lbl_tips.setVisible(true);
 
