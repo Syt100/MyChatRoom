@@ -55,7 +55,7 @@ public class Login0 {
 		contentPane.setBorder(new EmptyBorder(0, 0, 0, 0));
 		contentPane.setLayout(new BorderLayout(0, 0));
 		frame.setContentPane(contentPane);
-		
+
 		JPanel panel_logo = new JPanel();
 		FlowLayout fl_panel_logo = (FlowLayout) panel_logo.getLayout();
 		fl_panel_logo.setVgap(0);
@@ -125,12 +125,10 @@ public class Login0 {
 		btn_denglu.setBackground(SystemColor.textHighlight);
 		btn_denglu.setBounds(100, 99, 207, 23);
 		panel_operation.add(btn_denglu);
-		btn_denglu.addActionListener( new ActionListener() {
-			public void actionPerformed (ActionEvent e) {
-				if (textField_zhanghao.getText().trim().length() == 0 || new String(passwordField_mima.getPassword()).trim().length() == 0) {
-					JOptionPane.showMessageDialog(null, "账号或密码不允许为空！");
-					return;
-				}
+		btn_denglu.addActionListener(e -> {
+			if (textField_zhanghao.getText().trim().length() == 0 || new String(passwordField_mima.getPassword()).trim().length() == 0) {
+				JOptionPane.showMessageDialog(null, "账号或密码不允许为空！");
+				return;
 			}
 		});
 
@@ -154,7 +152,7 @@ public class Login0 {
 		btn_zhucezhanghao.setContentAreaFilled(false);// 按钮透明
 		btn_zhucezhanghao.setBorderPainted(false);// 去除边框
 		panel_operation.add(btn_zhucezhanghao);
-	
+
 	}
 
 }
