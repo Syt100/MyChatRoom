@@ -159,17 +159,14 @@ public class Login2 {
                     lbl_tips.setVisible(true);
 
                     //用多线程实现让lbl_tips一段时间后消失
-                    Thread t = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            // jl.setText("呈现文字.5秒后消失");
-                            try {
-                                Thread.sleep(3000);// 该线程睡眠3秒
-                            } catch (InterruptedException ex) {
-                            }
-                            // jl.setText("");//清空文字
-                            lbl_tips.setVisible(false);
+                    Thread t = new Thread(() -> {
+                        // jl.setText("呈现文字.5秒后消失");
+                        try {
+                            Thread.sleep(3000);// 该线程睡眠3秒
+                        } catch (InterruptedException ignored) {
                         }
+                        // jl.setText("");//清空文字
+                        lbl_tips.setVisible(false);
                     });
                     t.start();// 启动线程
 
