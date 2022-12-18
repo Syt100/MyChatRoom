@@ -99,10 +99,10 @@ public class Login2 {
 
         panel_operation.add(lbl_mima);
 
-//		textField_zhanghao = new JTextField();
-//		textField_zhanghao.setBounds(148, 11, 159, 22);
-//		panel_operation.add(textField_zhanghao);
-//		textField_zhanghao.setColumns(10);
+		// textField_zhanghao = new JTextField();
+		// textField_zhanghao.setBounds(148, 11, 159, 22);
+		// panel_operation.add(textField_zhanghao);
+		// textField_zhanghao.setColumns(10);
 
         JComboBox<String> comboBox = new JComboBox<String>();
         comboBox.setEditable(true);
@@ -144,10 +144,9 @@ public class Login2 {
                 String account;// 获取输入的账号
                 char[] password;// 获取输入的密码（char)格式
                 account = comboBox.getEditor().getItem().toString().trim();// 获取组合框输入的文本；
-                /*
-                 * JComboBox有一个getEditor()方法，getEditor()方法返回ComboBoxEditor,
-                 * ComboBoxEditor里getItem()
-                 */
+
+                // JComboBox有一个getEditor()方法，getEditor()方法返回ComboBoxEditor,
+                // ComboBoxEditor里getItem()
 
                 password = passwordField_mima.getPassword();// 返回char类型密码
                 String password_1 = String.valueOf(password);// 把字符串类型的password转换为String
@@ -176,20 +175,20 @@ public class Login2 {
                     });
                     t.start();// 启动线程
 
-                    //用计时器实现让lbl_tips一段时间后消失
-//					long start = System.currentTimeMillis();
-//					long end = start + 3000;
-//					while(start>0) {
-//						try {
-//						Thread.sleep(1);
-//						if(System.currentTimeMillis() >= end) {
-//							lbl_tips.setVisible(false);
-//							break;
-//							}
-//						} catch (InterruptedException e1){
-//							e1.printStackTrace();
-//						}
-//					}
+                    // 用计时器实现让lbl_tips一段时间后消失
+					// long start = System.currentTimeMillis();
+					// long end = start + 3000;
+					// while(start>0) {
+					// 	try {
+					// 	Thread.sleep(1);
+					// 	if(System.currentTimeMillis() >= end) {
+					// 		lbl_tips.setVisible(false);
+					// 		break;
+					// 		}
+					// 	} catch (InterruptedException e1){
+					// 		e1.printStackTrace();
+					// 	}
+					// }
                     return;
                 }
                 if (account.equals(designate_account) && password_1.equals(designate_password)) {
