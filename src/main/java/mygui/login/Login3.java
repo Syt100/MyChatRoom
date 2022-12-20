@@ -152,10 +152,9 @@ public class Login3 {
 				String account = new String();// 获取输入的账号
 				char[] password = new char[64];// 获取输入的密码（char)格式
 				account = comboBox.getEditor().getItem().toString().trim();// 获取组合框输入的文本；
-				/*
-				 * JComboBox有一个getEditor()方法，getEditor()方法返回ComboBoxEditor,
-				 * ComboBoxEditor里getItem()
-				 */
+
+				 // JComboBox有一个getEditor()方法，getEditor()方法返回ComboBoxEditor,
+				 // ComboBoxEditor里getItem()
 
 				password = passwordField_mima.getPassword();// 返回char类型密码
 				String password_1 = String.valueOf(password);// 把字符串类型的password转换为String
@@ -210,8 +209,8 @@ public class Login3 {
 						}
 					}, 3000);// 延迟x毫秒后启动
 				}
-				//System.out.println(account);
-				//System.out.println(password_1);
+				// System.out.println(account);
+				// System.out.println(password_1);
 			}
 		});
 
