@@ -588,25 +588,17 @@ public class Login4 {
 	 * 项目监听器，监听记住密码和自动登录复选框
 	 */
 	private void initMyItemListener() {
-		checkbox_autologin.addItemListener(new ItemListener() {
-
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				SetUpStorage set = SetUpStorage.getStorage();
-				set.autoLogin = checkbox_autologin.isSelected();
-				set.writeToFile();
-			}
+		checkbox_autologin.addItemListener(e -> {
+			SetUpStorage set = SetUpStorage.getStorage();
+			set.autoLogin = checkbox_autologin.isSelected();
+			set.writeToFile();
 		});
-		checkbox_remmber.addItemListener(new ItemListener() {
-
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				SetUpStorage set = SetUpStorage.getStorage();
-				set.remmberPassword = checkbox_remmber.isSelected();
-				set.writeToFile();
-				if (checkbox_remmber.isSelected()) {
-					savePassword();
-				}
+		checkbox_remmber.addItemListener(e -> {
+			SetUpStorage set = SetUpStorage.getStorage();
+			set.remmberPassword = checkbox_remmber.isSelected();
+			set.writeToFile();
+			if (checkbox_remmber.isSelected()) {
+				savePassword();
 			}
 		});
 	}
