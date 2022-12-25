@@ -85,7 +85,7 @@ public class Login5 {
 		frame.setUndecorated(true);// 将原始的边框去掉
 		frame.setLocationRelativeTo(null);// 设置窗口打开位置居中
 		frame.setBackground(new Color(0, 0, 0, 0));
-//		frame.setResizable(false);
+		// frame.setResizable(false);
 
 		// 初始化边框、背景
 		BackgroundJPanel borderBackgroundJPanel = new BackgroundJPanel(backGroundImgIcon, inset);
@@ -101,29 +101,29 @@ public class Login5 {
 
 	private void initialize() {
 		// 将内容面板分为两部分，这是上半部分
-//		JPanel panel_up = new JPanel();
+		// JPanel panel_up = new JPanel();
 		Box panel_up = Box.createHorizontalBox();
 		panel_up.setOpaque(false);
-//		panel_up.setLayout(new BorderLayout(0, 0));
+		// panel_up.setLayout(new BorderLayout(0, 0));
 		content.add(panel_up, BorderLayout.NORTH);
-		
+
 		JLabel lbl_qqIcon = new JLabel(new ImageIcon(Login4.class.getResource("/Images/qqIcon/logo-QQ.png")));
 		lbl_qqIcon.setBorder(new EmptyBorder(7, 3, 0, 0));
 		panel_up.add(lbl_qqIcon, BorderLayout.WEST);
-		
+
 		Component horizontalGlue = Box.createHorizontalGlue();
 		panel_up.add(horizontalGlue);
-		
+
 		Box verticalBox = Box.createVerticalBox();
 		panel_up.add(verticalBox);
-		
+
 		Box horizontalBox = Box.createHorizontalBox();
 		verticalBox.add(horizontalBox);
-		
+
 		JLabel lblNewLabel = new JLabel() {
 
 			/**
-			 * 
+			 *
 			 */
 			private static final long serialVersionUID = -7752233327819173066L;
 
@@ -131,16 +131,16 @@ public class Login5 {
 			protected void paintComponent(Graphics g) {
 				// TODO 自动生成的方法存根
 				super.paintComponent(g);
-				
+
 			}
-			
+
 		};
 		horizontalBox.add(lblNewLabel);
-		
+
 		JLabel lblNewLabel_1 = new JLabel("－");
 		lblNewLabel_1.setFont(new Font("宋体", Font.PLAIN, 18));
 		horizontalBox.add(lblNewLabel_1);
-		
+
 		JLabel lblNewLabel_2 = new JLabel("×");
 		lblNewLabel_2.addMouseListener(new MouseAdapter() {
 			@Override
@@ -163,102 +163,102 @@ public class Login5 {
 		});
 		lblNewLabel_2.setFont(new Font("宋体", Font.PLAIN, 18));
 		horizontalBox.add(lblNewLabel_2);
-		
+
 		Component verticalGlue = Box.createVerticalGlue();
 		verticalBox.add(verticalGlue);
-		
+
 		JLayeredPane layeredPane = new JLayeredPane();
 		content.add(layeredPane, BorderLayout.CENTER);
 		layeredPane.setLayout(new CardLayout(0, 0));
-		
+
 		Box verticalBox_main = Box.createVerticalBox();
 		layeredPane.add(verticalBox_main, "name_41814196907100");
-		
+
 		Box horizontalBox_1 = Box.createHorizontalBox();
 		verticalBox_main.add(horizontalBox_1);
-		
+
 		JPanel panel = new JPanel();
 		panel.setMaximumSize(new Dimension(98, 98));
 		panel.setPreferredSize(new Dimension(98, 98));
 		horizontalBox_1.add(panel);
-		
+
 		JLabel lblNewLabel_3 = new JLabel("New label");
 		panel.add(lblNewLabel_3);
-		
+
 		Component horizontalStrut_2 = Box.createHorizontalStrut(20);
 		verticalBox_main.add(horizontalStrut_2);
-		
+
 		Box horizontalBox_2 = Box.createHorizontalBox();
 		horizontalBox_2.setPreferredSize(new Dimension(0, 25));
 		verticalBox_main.add(horizontalBox_2);
-		
+
 		JLabel lblNewLabel_4 = new JLabel("New label");
 		horizontalBox_2.add(lblNewLabel_4);
-		
+
 		Component horizontalStrut = Box.createHorizontalStrut(20);
 		horizontalBox_2.add(horizontalStrut);
-		
+
 		JComboBox comboBox = new JComboBox();
 		comboBox.setMinimumSize(new Dimension(220, 25));
 		comboBox.setPreferredSize(new Dimension(220, 25));
 		comboBox.setMaximumSize(new Dimension(220, 25));
 		horizontalBox_2.add(comboBox);
-		
+
 		Component verticalStrut = Box.createVerticalStrut(5);
 		verticalBox_main.add(verticalStrut);
-		
+
 		Box horizontalBox_3 = Box.createHorizontalBox();
 		horizontalBox_3.setPreferredSize(new Dimension(0, 25));
 		verticalBox_main.add(horizontalBox_3);
-		
+
 		Component horizontalGlue_5 = Box.createHorizontalGlue();
 		horizontalBox_3.add(horizontalGlue_5);
-		
+
 		JLabel label = new JLabel("New label");
 		horizontalBox_3.add(label);
-		
+
 		Component horizontalStrut_1 = Box.createHorizontalStrut(20);
 		horizontalBox_3.add(horizontalStrut_1);
-		
+
 		passwordField = new JPasswordField();
 		passwordField.setMinimumSize(new Dimension(220, 25));
 		passwordField.setPreferredSize(new Dimension(220, 25));
 		passwordField.setMaximumSize(new Dimension(220, 25));
 		horizontalBox_3.add(passwordField);
-		
+
 		Component horizontalGlue_6 = Box.createHorizontalGlue();
 		horizontalBox_3.add(horizontalGlue_6);
-		
+
 		Component verticalStrut_2 = Box.createVerticalStrut(20);
 		verticalBox_main.add(verticalStrut_2);
-		
+
 		Box horizontalBox_4 = Box.createHorizontalBox();
 		verticalBox_main.add(horizontalBox_4);
-		
+
 		JCheckBox chckbxNewCheckBox = new JCheckBox("New check box");
 		horizontalBox_4.add(chckbxNewCheckBox);
-		
+
 		JCheckBox chckbxNewCheckBox_1 = new JCheckBox("New check box");
 		horizontalBox_4.add(chckbxNewCheckBox_1);
-		
+
 		JLabel lblNewLabel_5 = new JLabel("New label");
 		horizontalBox_4.add(lblNewLabel_5);
-		
+
 		Component verticalStrut_1 = Box.createVerticalStrut(20);
 		verticalBox_main.add(verticalStrut_1);
-		
+
 		Box horizontalBox_5 = Box.createHorizontalBox();
 		verticalBox_main.add(horizontalBox_5);
-		
+
 		JButton btnNewButton = new JButton("New button");
 		horizontalBox_5.add(btnNewButton);
-		
+
 		JLabel lblNewLabel_6 = new JLabel("New label");
 		verticalBox_main.add(lblNewLabel_6);
-		
+
 		Component verticalGlue_1 = Box.createVerticalGlue();
 		verticalBox_main.add(verticalGlue_1);
-		
+
 		JPanel panel_1 = new JPanel();
 		panel_1.setAlignmentY(Component.BOTTOM_ALIGNMENT);
 		layeredPane.setLayer(panel_1, 8);
