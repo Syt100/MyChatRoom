@@ -170,7 +170,7 @@ public class Login4 {
 		content = new JPanel();
 		content.setOpaque(false);
 		content.setLayout(new BorderLayout(0, 0));
-//		content.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+		// content.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 		borderBackgroundJPanel.add(content, BorderLayout.CENTER);
 	}
 
@@ -373,7 +373,7 @@ public class Login4 {
 		btn_zhaohuimima.setCursor(new Cursor(Cursor.HAND_CURSOR));// 设置鼠标为小手形状
 		panel_operation.add(btn_zhaohuimima);
 
-//		btn_denglu = new JButton("登录");
+		// btn_denglu = new JButton("登录");
 		btn_denglu = new RolloverBackgroundButton("登录");
 		btn_denglu.setFont(new Font("黑体", Font.PLAIN, 16));
 		btn_denglu.setBounds(93, 147, 247, 35);
@@ -519,9 +519,9 @@ public class Login4 {
 			}
 			if (e.getSource() == lblMini) {
 				//TODO 下面代码有bug,半透明会混杂其他图像
-//				panelUpMiniLabel.setOpaque(true);
-//				panelUpMiniLabel.setBackground(new Color(255, 255, 255, 50));
-//				panelUpMiniLabel.updateUI();
+				// panelUpMiniLabel.setOpaque(true);
+				// panelUpMiniLabel.setBackground(new Color(255, 255, 255, 50));
+				// panelUpMiniLabel.updateUI();
 				lblMini.setForeground(Color.LIGHT_GRAY);
 			}
 			if (e.getSource() == lblSetting) {
@@ -547,8 +547,8 @@ public class Login4 {
 			}
 			if (e.getSource() == lblMini) {
 				//TODO 有bug
-//				panelUpMiniLabel.setOpaque(false);
-//				panelUpMiniLabel.repaint();
+				// panelUpMiniLabel.setOpaque(false);
+				// panelUpMiniLabel.repaint();
 				lblMini.setForeground(Color.WHITE);
 			}
 			if (e.getSource() == lblSetting) {
@@ -711,7 +711,7 @@ public class Login4 {
 			throw new AccountInputException(ConstantStatus.LOGIN_STATUS_EMPTY_INPUT);
 		}
 		Message message = new Message();
-//		message.setType("login");
+		// message.setType("login");
 		message.setSelfId(id);// id
 		message.setText(password);// 消息内容代表密码
 		return message;
